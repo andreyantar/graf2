@@ -13,6 +13,7 @@
 :root {
   --bg: #ffffff;
   --fg: #111111;
+  --frame: #f0f0f0;
 }
 
 @layer base {
@@ -22,7 +23,7 @@
     overflow: hidden;
   }
   body {
-    background-color: var(--bg);
+    background-color: var(--frame);
     color: var(--fg);
     font-family: var(--font-sans), system-ui, sans-serif;
     transition-property: background-color, color, border-color;
