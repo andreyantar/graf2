@@ -205,7 +205,7 @@ export default function Home() {
         <div
           ref={scrollRef}
           className="relative z-10 h-svh overflow-y-auto overscroll-none"
-          inert={menuOpen ? "" : undefined}
+          inert={menuOpen}
         >
           {looped.map((s, i) => (
             <SnapSection key={i} index={i} palette={whitePalette}>
