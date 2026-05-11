@@ -65,7 +65,7 @@ export function MouseTrail({ disabled = false }: Props) {
       spawn(lastX, lastY);
     }, MIN_INTERVAL_MS);
 
-    function spawn(x: number, y: number) {
+    const spawn = (x: number, y: number) => {
       const img = document.createElement("img");
       img.src = TRAIL_URLS[imgIndex];
       img.draggable = false;
@@ -132,7 +132,7 @@ export function MouseTrail({ disabled = false }: Props) {
       );
 
       imgIndex = (imgIndex + 1) % TRAIL_URLS.length;
-    }
+    };
 
     window.addEventListener("mousemove", onMove);
     return () => {
