@@ -267,7 +267,7 @@ export default function Home() {
                 bare={s.bare}
               >
                 {isSelectedWork ? (
-                  <div className="relative w-[70vw] grid grid-cols-1 sm:grid-cols-2 gap-20 py-16">
+                  <div className="relative w-[70vw] max-w-[1280px] mx-auto grid grid-cols-1 sm:grid-cols-2 justify-items-center gap-20">
                     {selectedCases.map((c, idx) => (
                       <CaseCard
                         key={`${i}-${c.n}`}
@@ -278,7 +278,7 @@ export default function Home() {
                     ))}
                   </div>
                 ) : isWhatWeDo ? (
-                  <div className="relative w-[70vw] grid grid-cols-1 md:grid-cols-3 gap-8 py-16">
+                  <div className="relative w-[70vw] mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 py-16">
                     {services.map((sv) => (
                       <ServiceCard
                         key={`${i}-${sv.n}`}

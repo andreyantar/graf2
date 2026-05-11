@@ -15,7 +15,7 @@ type Props = {
   scrollContainerRef: RefObject<HTMLDivElement | null>;
 };
 
-const MAX_RADIUS = 20;
+const MAX_RADIUS = 32;
 const RADIUS_DEAD_HALF = 0.1;
 
 function radiusEnvelope(p: number): number {
@@ -54,12 +54,12 @@ export function ServiceCard({ data, scrollContainerRef }: Props) {
   return (
     <article
       ref={cardRef}
-      className="flex flex-col bg-white text-[#121212] p-7 md:p-8 shadow-[0_8px_28px_-8px_rgba(0,0,0,0.35)] overflow-hidden will-change-transform"
+      className="flex flex-col min-h-[320px] bg-white text-[#121212] p-7 md:p-8 shadow-[0_0_50px_0_rgba(0,0,0,0.10)] overflow-hidden will-change-transform"
     >
       <p className="font-mono text-[11px] uppercase tracking-widest opacity-60 mb-6">
         {data.n}
       </p>
-      <h3 className="font-clash text-[1.75rem] leading-tight font-bold mb-3">
+      <h3 className="font-heavy text-[34px] tracking-[-0.02em] leading-tight mb-3">
         {data.title}
       </h3>
       <p className="text-[14px] leading-snug opacity-70 mb-8 flex-1">

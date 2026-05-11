@@ -35,7 +35,7 @@ const FLIP_ROTATION = false;
 // Corner radius uses its own, narrower dead zone — corners should already be
 // rounding once the card visibly approaches the viewport edge, well before
 // the tilt/translate envelope kicks in.
-const MAX_RADIUS = 20; // px at progress 0 / 1
+const MAX_RADIUS = 32; // px at progress 0 / 1
 const RADIUS_DEAD_HALF = 0.1; // sharp only inside [0.4, 0.6]
 
 // ───────────────────────────────────────────────────────────────────────
@@ -90,7 +90,7 @@ export function CaseCard({
   return (
     <article
       ref={cardRef}
-      className="w-full max-w-[600px] bg-white text-[#121212] shadow-[0_8px_28px_-8px_rgba(0,0,0,0.35)] overflow-hidden will-change-transform"
+      className="w-full max-w-[600px] bg-white text-[#121212] shadow-[0_0_50px_0_rgba(0,0,0,0.10)] overflow-hidden will-change-transform"
     >
       <div className="relative h-[280px] w-full overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -101,8 +101,8 @@ export function CaseCard({
           className="block w-full h-full object-cover"
         />
       </div>
-      <div className="px-6 md:px-7 pb-6 md:pb-7 pt-5">
-        <h3 className="font-clash text-[1.75rem] leading-tight font-bold mb-2">
+      <div className="px-6 md:px-7 pb-6 md:pb-7 pt-7">
+        <h3 className="font-heavy text-[34px] tracking-[-0.02em] leading-tight mb-2">
           {data.title}
         </h3>
         <p className="text-[14px] leading-snug opacity-80 mb-4 line-clamp-4">
