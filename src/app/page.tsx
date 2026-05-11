@@ -3,15 +3,77 @@
 import { useEffect, useRef, useState } from "react";
 import { useScroll } from "motion/react";
 import gsap from "gsap";
+import { CaseCard } from "@/components/case-card";
+import { ServiceCard } from "@/components/service-card";
 import { GooBackdrop } from "@/components/goo-backdrop";
 import { MenuPanel } from "@/components/menu-panel";
+import { MouseTrail } from "@/components/mouse-trail";
 import { SnapSection, type Palette } from "@/components/snap-section";
+import manifest from "@/data/artworks.json";
+
+const ART_URLS: string[] = (manifest as Array<{ url: string }>).map((m) => m.url);
+
+const selectedCases = [
+  {
+    n: "01",
+    title: "Volta",
+    desc: "Brand identity and packaging system for an independent battery startup. Four years of work across hardware, voice, and retail surfaces.",
+    href: "#case-volta",
+    img: ART_URLS[7],
+  },
+  {
+    n: "02",
+    title: "Lighthouse",
+    desc: "Digital archive for a regional maritime museum. One editorial system from a single object up to a 19th-century expedition.",
+    href: "#case-lighthouse",
+    img: ART_URLS[33],
+  },
+  {
+    n: "03",
+    title: "Modal",
+    desc: "Product design for a privacy-first chat application. Identity, interface, and onboarding shipped with a small distributed team.",
+    href: "#case-modal",
+    img: ART_URLS[51],
+  },
+  {
+    n: "04",
+    title: "Halftone",
+    desc: "Editorial system and digital archive for a small independent print magazine. Long-form layout, archive search, and a quiet subscription flow.",
+    href: "#case-halftone",
+    img: ART_URLS[62],
+  },
+];
 
 const whitePalette: Palette = { bg: "#ffffff", fg: "#111111" };
 
+const SELECTED_WORK_INDEX = 1;
+const WHAT_WE_DO_INDEX = 2;
+
+const services = [
+  {
+    n: "01",
+    title: "Brand",
+    desc: "Identity, naming, brand systems.",
+    href: "#service-brand",
+  },
+  {
+    n: "02",
+    title: "Web",
+    desc: "Framer websites, landing pages, UI design.",
+    href: "#service-web",
+  },
+  {
+    n: "03",
+    title: "Digital & AI",
+    desc: "AI visuals, content direction, campaigns.",
+    href: "#service-ai",
+  },
+];
+
 const sections: Array<{
   word: string;
-  body: React.ReactNode;
+  body: React.ReactNode | null;
+  bare?: boolean;
 }> = [
   {
     word: "We build brands and products for companies moving forward",
@@ -29,31 +91,15 @@ const sections: Array<{
   },
   {
     word: "Selected\nwork",
-    body: (
-      <>
-        <p className="font-mono text-[11px] uppercase tracking-widest opacity-60 mb-3">
-          Selected work
-        </p>
-        <p>
-          A short list of recent projects. Each one is a complete answer to a
-          specific question — not a portfolio shelf.
-        </p>
-      </>
-    ),
+    bare: true,
+    // Body is rendered inline in the JSX below so each CaseCard can subscribe
+    // to scroll progress against the actual scroll container ref.
+    body: null,
   },
   {
     word: "What we do",
-    body: (
-      <>
-        <p className="font-mono text-[11px] uppercase tracking-widest opacity-60 mb-3">
-          What we do
-        </p>
-        <p>
-          Brand identity, product design, motion, and the unglamorous
-          connective tissue: design systems, guidelines, handoff.
-        </p>
-      </>
-    ),
+    bare: true,
+    body: null,
   },
   {
     word: "How we work",
@@ -173,6 +219,7 @@ export default function Home() {
   return (
     <>
       <MenuPanel open={menuOpen} />
+      <MouseTrail disabled={menuOpen} />
 
       {/* Toggle button stays at the viewport corner, never inside the
           transformed stage — otherwise it shrinks with the page. */}
@@ -207,11 +254,45 @@ export default function Home() {
           className="relative z-10 h-svh overflow-y-auto overscroll-none"
           inert={menuOpen}
         >
-          {looped.map((s, i) => (
-            <SnapSection key={i} index={i} palette={whitePalette}>
-              {s.body}
-            </SnapSection>
-          ))}
+          {looped.map((s, i) => {
+            const localIdx = i % sections.length;
+            const isSelectedWork = localIdx === SELECTED_WORK_INDEX;
+            const isWhatWeDo = localIdx === WHAT_WE_DO_INDEX;
+            return (
+              <SnapSection
+                key={i}
+                index={i}
+                palette={whitePalette}
+                isHero={localIdx === 0}
+                bare={s.bare}
+              >
+                {isSelectedWork ? (
+                  <div className="relative w-[70vw] grid grid-cols-1 sm:grid-cols-2 gap-20 py-16">
+                    {selectedCases.map((c, idx) => (
+                      <CaseCard
+                        key={`${i}-${c.n}`}
+                        data={c}
+                        scrollContainerRef={scrollRef}
+                        column={idx % 2 === 0 ? "left" : "right"}
+                      />
+                    ))}
+                  </div>
+                ) : isWhatWeDo ? (
+                  <div className="relative w-[70vw] grid grid-cols-1 md:grid-cols-3 gap-8 py-16">
+                    {services.map((sv) => (
+                      <ServiceCard
+                        key={`${i}-${sv.n}`}
+                        data={sv}
+                        scrollContainerRef={scrollRef}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  s.body
+                )}
+              </SnapSection>
+            );
+          })}
         </div>
       </div>
     </>

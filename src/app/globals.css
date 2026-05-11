@@ -8,6 +8,7 @@
   --font-heavy: var(--font-heavy);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
+  --font-clash: "Clash Display", system-ui, sans-serif;
 }
 
 :root {
