@@ -25,8 +25,8 @@ export function MouseTrail({ disabled = false }: Props) {
   disabledRef.current = disabled;
 
   useEffect(() => {
-    const layer = layerRef.current;
-    if (!layer) return;
+    if (!layerRef.current) return;
+    const layer: HTMLDivElement = layerRef.current;
 
     let imgIndex = 0;
     let lastX = 0;
