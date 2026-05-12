@@ -3,25 +3,32 @@
 import { useScroll, useTransform, motion, type MotionValue } from "motion/react";
 import { useEffect, useRef, type RefObject } from "react";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
+import manifest from "@/data/artworks.json";
 
-type Step = { title: string; desc: string };
+const ART: string[] = (manifest as Array<{ url: string }>).map((m) => m.url);
+
+type Step = { title: string; desc: string; img: string };
 
 const STEPS: Step[] = [
   {
     title: "01. Brief & alignment",
     desc: "We start with a 30-min call. You tell us what's going on. We tell you if we're a fit.",
+    img: ART[5],
   },
   {
     title: "02. Strategy & direction",
     desc: "Before pixels, we agree on what we're solving and how to measure it.",
+    img: ART[22],
   },
   {
     title: "03. Design & build",
     desc: "Founders run the project end-to-end. You see progress weekly, not at the deadline.",
+    img: ART[95],
   },
   {
     title: "04. Launch & after",
     desc: "We hand over a system you can run yourself. And we don't disappear when it ships.",
+    img: ART[165],
   },
 ];
 
@@ -78,7 +85,7 @@ export function ProcessStack({ scrollContainerRef }: Props) {
     >
       <div className="sticky top-0 h-svh w-full flex items-center justify-center">
         <div
-          className="relative w-[88vw] md:w-[70vw] max-w-[640px]"
+          className="relative w-[88vw] md:w-[70vw] max-w-[880px]"
           style={{ height: `${stackHeightVh}vh` }}
         >
           {STEPS.map((step, i) => (
@@ -190,12 +197,27 @@ function ProcessCard({
         zIndex: index,
         transformOrigin: "center top",
       }}
-      className="absolute top-0 left-0 right-0 w-full bg-paper text-ink shadow-card overflow-hidden p-7 md:p-10 rounded-[var(--card-radius,0px)] min-h-[240px] [contain:paint] will-change-transform"
+      className="absolute top-0 left-0 right-0 w-full flex bg-paper text-ink shadow-card overflow-hidden rounded-[var(--card-radius,0px)] min-h-[240px] [contain:paint] will-change-transform"
     >
-      <h3 className="font-heavy text-card-title tracking-[-0.02em] leading-tight mb-3">
-        {step.title}
-      </h3>
-      <p className="text-body leading-snug opacity-80">{step.desc}</p>
+      {/* Square cover on the left — visible from md+ only; on mobile the
+          card is too narrow to share the row with content. */}
+      <div className="hidden md:block relative w-[240px] aspect-square shrink-0 overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={step.img}
+          alt=""
+          draggable={false}
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      </div>
+      <div className="flex-1 p-7 md:p-10 flex flex-col justify-center">
+        <h3 className="font-heavy text-card-title tracking-[-0.02em] leading-tight mb-3">
+          {step.title}
+        </h3>
+        <p className="text-body leading-snug opacity-80">{step.desc}</p>
+      </div>
     </motion.article>
   );
 }
