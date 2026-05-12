@@ -7,6 +7,7 @@ export type PostSummary = {
   slug: string;
   excerpt: string | null;
   publishedAt: string;
+  cover: { asset: { _ref: string } } | null;
 };
 
 export type PostDetail = PostSummary & {
@@ -19,7 +20,8 @@ const allPostsQuery = groq`*[_type == "post" && defined(slug.current)] | order(p
   title,
   "slug": slug.current,
   excerpt,
-  publishedAt
+  publishedAt,
+  cover
 }`;
 
 const postBySlugQuery = groq`*[_type == "post" && slug.current == $slug][0]{

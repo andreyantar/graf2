@@ -284,6 +284,31 @@ export default function Home() {
     };
   }, []);
 
+  // Hash-based deep links (used by subpages like /blog when navigating
+  // back via the menu): scroll to the matching section on first paint,
+  // then strip the hash so refreshes don't re-trigger the jump.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const raw = window.location.hash.slice(1);
+    if (!raw || !(raw in NAV_INDICES)) return;
+    const id = setTimeout(() => {
+      const idx = NAV_INDICES[raw as keyof typeof NAV_INDICES];
+      const el = scrollRef.current;
+      if (!el) return;
+      const targetIndex = sections.length + idx;
+      const section = el.querySelector<HTMLElement>(
+        `[data-section-index="${targetIndex}"]`,
+      );
+      if (!section) return;
+      const sectionRect = section.getBoundingClientRect();
+      const containerRect = el.getBoundingClientRect();
+      const top = el.scrollTop + sectionRect.top - containerRect.top;
+      el.scrollTo({ top, behavior: "auto" });
+      window.history.replaceState(null, "", window.location.pathname);
+    }, 80);
+    return () => clearTimeout(id);
+  }, []);
+
   return (
     <>
       <MenuPanel
