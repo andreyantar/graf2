@@ -37,6 +37,11 @@ const PER_DEPTH_SCALE = 0.025;
 const PER_DEPTH_LIFT_VH = 0.6;
 const MAX_DEPTH = 3;
 
+// Per-card settled rotation. Subtle scatter so the stack reads as a
+// casual pile rather than a perfect column. Each card rotates from 0
+// to its target angle during slide-in.
+const STACK_ROTATIONS = [-2, 1.5, -1, 2.5];
+
 const MAX_RADIUS = 32;
 const SLOT_HEIGHT_VH = 90;
 
@@ -130,6 +135,18 @@ function ProcessCard({
     return 1 - Math.min(depth, MAX_DEPTH) * PER_DEPTH_SCALE;
   });
 
+  // Rotation: ramps from 0 to the per-card scatter angle during the
+  // entry window, then holds. Gives the deck a "casually placed" feel.
+  const targetRotation = STACK_ROTATIONS[index] ?? 0;
+  const rotate = useTransform(entryProgress, (p) => {
+    if (p < slotStart) return 0;
+    if (p < slotEntry) {
+      const ep = (p - slotStart) / (slotEntry - slotStart);
+      return ep * targetRotation;
+    }
+    return targetRotation;
+  });
+
   // Radius is driven by both phases:
   //  - During entry: round → sharp over this card's entry window
   //  - Settled & pinned: sharp
@@ -166,7 +183,13 @@ function ProcessCard({
   return (
     <motion.article
       ref={cardRef}
-      style={{ y, scale, zIndex: index, transformOrigin: "center top" }}
+      style={{
+        y,
+        scale,
+        rotate,
+        zIndex: index,
+        transformOrigin: "center top",
+      }}
       className="absolute top-0 left-0 right-0 w-full bg-paper text-ink shadow-card overflow-hidden p-7 md:p-10 rounded-[var(--card-radius,0px)] min-h-[240px] [contain:paint] will-change-transform"
     >
       <h3 className="font-heavy text-card-title tracking-[-0.02em] leading-tight mb-3">
