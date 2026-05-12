@@ -16,12 +16,24 @@ export type ServiceData = {
 type Props = {
   data: ServiceData;
   scrollContainerRef: RefObject<HTMLDivElement | null>;
+  /** "center" disables the outward translate + tilt, leaving only the
+   *  border-radius envelope. Used for the middle column in 3-card rows. */
+  column?: "left" | "right" | "center";
 };
 
+// Same arc tunables as BlogCard so the families read as one system.
+const DEAD_HALF = 0.3;
+const MAX_X = 60;
+const MAX_ROT = 3;
+const FLIP_ROTATION = false;
 const MAX_RADIUS = 32;
 const RADIUS_DEAD_HALF = 0.1;
 
-export function ServiceCard({ data, scrollContainerRef }: Props) {
+export function ServiceCard({
+  data,
+  scrollContainerRef,
+  column = "left",
+}: Props) {
   const cardRef = useRef<HTMLElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -35,11 +47,20 @@ export function ServiceCard({ data, scrollContainerRef }: Props) {
     if (!card) return;
     if (prefersReducedMotion()) return;
 
+    const isCenter = column === "center";
+    const colSign = column === "right" ? 1 : -1;
+    const rotFlip = FLIP_ROTATION ? -1 : 1;
+
     const apply = (p: number) => {
-      card.style.setProperty(
-        "--card-radius",
-        `${envelope(p, RADIUS_DEAD_HALF) * MAX_RADIUS}px`,
-      );
+      const env = envelope(p, DEAD_HALF);
+      const verticalSign = p < 0.5 ? -1 : 1;
+      const x = isCenter ? 0 : env * MAX_X * colSign;
+      const rot = isCenter
+        ? 0
+        : verticalSign * env * MAX_ROT * colSign * rotFlip;
+      const radius = envelope(p, RADIUS_DEAD_HALF) * MAX_RADIUS;
+      card.style.transform = `translate3d(${x}px, 0, 0) rotate(${rot}deg)`;
+      card.style.setProperty("--card-radius", `${radius}px`);
     };
 
     apply(scrollYProgress.get());
@@ -47,7 +68,7 @@ export function ServiceCard({ data, scrollContainerRef }: Props) {
     return () => {
       unsub();
     };
-  }, [scrollYProgress]);
+  }, [column, scrollYProgress]);
 
   return (
     <article

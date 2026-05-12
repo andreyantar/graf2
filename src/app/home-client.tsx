@@ -366,11 +366,18 @@ export default function Home({ latestPosts }: HomeProps) {
                   </div>
                 ) : isWhatWeDo ? (
                   <div className="relative w-[88vw] md:w-[70vw] mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 py-16">
-                    {services.map((sv) => (
+                    {services.map((sv, idx) => (
                       <ServiceCard
                         key={`${i}-${sv.href}`}
                         data={sv}
                         scrollContainerRef={scrollRef}
+                        column={
+                          idx === 0
+                            ? "left"
+                            : idx === 1
+                            ? "center"
+                            : "right"
+                        }
                       />
                     ))}
                   </div>
