@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useScroll } from "motion/react";
 import gsap from "gsap";
+import { AboutCard } from "@/components/about-card";
 import { BlogCard } from "@/components/blog-card";
 import { CaseCard } from "@/components/case-card";
 import { ProcessStack } from "@/components/process-stack";
@@ -53,6 +54,7 @@ const whitePalette: Palette = { bg: "#ffffff", fg: "#111111" };
 const SELECTED_WORK_INDEX = 1;
 const WHAT_WE_DO_INDEX = 2;
 const PROCESS_INDEX = 3;
+const ABOUT_INDEX = 4;
 const BLOG_INDEX = 5;
 
 const services = [
@@ -115,18 +117,10 @@ const sections: Array<{
   },
   {
     word: "Studio\nGraffiti",
-    body: (
-      <>
-        <p className="font-mono text-[11px] uppercase tracking-widest opacity-60 mb-3">
-          About
-        </p>
-        <p>
-          An independent design practice. We work in small focused teams,
-          ship early, and prefer one decisive direction over three safe
-          explorations.
-        </p>
-      </>
-    ),
+    bare: true,
+    // Body rendered inline below — needs scrollContainerRef for the
+    // radius envelope.
+    body: null,
   },
   {
     word: "Journal",
@@ -349,6 +343,7 @@ export default function Home({ latestPosts }: HomeProps) {
             const isSelectedWork = localIdx === SELECTED_WORK_INDEX;
             const isWhatWeDo = localIdx === WHAT_WE_DO_INDEX;
             const isProcess = localIdx === PROCESS_INDEX;
+            const isAbout = localIdx === ABOUT_INDEX;
             const isBlog = localIdx === BLOG_INDEX;
             return (
               <SnapSection
@@ -381,6 +376,8 @@ export default function Home({ latestPosts }: HomeProps) {
                   </div>
                 ) : isProcess ? (
                   <ProcessStack scrollContainerRef={scrollRef} />
+                ) : isAbout ? (
+                  <AboutCard scrollContainerRef={scrollRef} />
                 ) : isBlog ? (
                   latestPosts.length > 0 ? (
                     <div className="relative w-[88vw] md:w-[70vw] mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 py-16">
