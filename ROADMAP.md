@@ -19,12 +19,26 @@ Living document. Update as items move between sections.
 - Stage transform on menu open (scale + translate + radius)
 
 ### Navigation
-- Menu items (Home / Work / Services / About / Contact) scroll-to-section
-  via `MenuPanel.onNavigate(key)` → page-owned scroll math
+- Menu items (Home / Work / Services / About / Blog / Contact)
+  scroll-to-section via `MenuPanel.onNavigate(key)` → page-owned math
 - Section restructure: standalone footer removed, its big "Studio
   Graffiti" goo text carried into the new About section, its
   copyright/socials folded into Contact
-- "How we work" → "Process"; "What we do" big text → "Services"
+- Blog teaser section added before Contact, links to `/blog`
+- Goo background texts kept original ("What we do", "How we work") —
+  body labels read "Services"/"Process"/"Blog"/"Contact"
+
+### Sanity CMS scaffold
+- `next-sanity` + `sanity` v5 wired in
+- `sanity.config.ts` at repo root, schemas under `src/sanity/schemas/`
+- `post` schema: title / slug / excerpt / cover / publishedAt / body
+- Embedded studio at `/studio` (`src/app/studio/[[...tool]]/`),
+  layout marks it `noindex`
+- Read client + queries in `src/sanity/{client,queries}.ts` —
+  returns `null` / `[]` when env not configured so build still passes
+- `/blog` index + `/blog/[slug]` detail pages (SSG with revalidate 60)
+- `.env.example` documents `NEXT_PUBLIC_SANITY_PROJECT_ID` +
+  `NEXT_PUBLIC_SANITY_DATASET`
 
 ### Subpages (placeholder)
 - `/work/[slug]` — volta, lighthouse, modal, halftone (SSG via
@@ -76,7 +90,14 @@ Living document. Update as items move between sections.
 
 ## 🟡 In planning
 
-_(nothing right now)_
+### Sanity — finish setup (user action)
+- Create a Sanity project at https://www.sanity.io/manage
+- Set `NEXT_PUBLIC_SANITY_PROJECT_ID` + `NEXT_PUBLIC_SANITY_DATASET`
+  in Vercel project env vars (Production + Preview)
+- Open `/studio` on the deployed site, log in, publish first post
+- Verify `/blog` lists posts and individual slugs render
+- Optional: install the Sanity-Vercel Marketplace integration to
+  auto-populate env vars
 
 ## ❌ Rejected
 

@@ -98,12 +98,12 @@ const sections: Array<{
     body: null,
   },
   {
-    word: "Services",
+    word: "What we do",
     bare: true,
     body: null,
   },
   {
-    word: "Process",
+    word: "How we work",
     body: (
       <>
         <p className="font-mono text-[11px] uppercase tracking-widest opacity-60 mb-3">
@@ -128,6 +128,25 @@ const sections: Array<{
           ship early, and prefer one decisive direction over three safe
           explorations.
         </p>
+      </>
+    ),
+  },
+  {
+    word: "Journal",
+    body: (
+      <>
+        <p className="font-mono text-[11px] uppercase tracking-widest opacity-60 mb-3">
+          Blog
+        </p>
+        <p>
+          Notes, takeaways, and field reports from the studio.
+        </p>
+        <a
+          href="/blog"
+          className="mt-4 inline-block font-mono text-xs uppercase tracking-widest border-b border-current"
+        >
+          Read the journal →
+        </a>
       </>
     ),
   },
@@ -179,7 +198,8 @@ const NAV_INDICES = {
   work: 1,
   services: 2,
   about: 4,
-  contact: 5,
+  blog: 5,
+  contact: 6,
 } as const;
 
 export default function Home() {
