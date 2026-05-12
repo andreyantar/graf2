@@ -42,11 +42,11 @@ export function GooBackdrop({ words, progress }: Props) {
 
       <div
         aria-hidden
-        className="pointer-events-none fixed inset-0 z-0 overflow-hidden flex items-center justify-center"
+        className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
         style={{ background: "var(--bg)" }}
       >
         <div
-          className="relative"
+          className="relative w-full h-full"
           style={{ filter: "url(#goo-sharpen)" }}
         >
           {words.map((w, i) => (
@@ -94,8 +94,14 @@ function BlobWord({
 
   return (
     <motion.span
-      style={{ filter, opacity, color: TYPE_COLOR }}
-      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-heavy block text-center whitespace-pre-line leading-[0.88] tracking-[-0.03em] text-[clamp(2rem,11vw,11rem)] w-[92vw] md:max-w-[90rem]"
+      style={{
+        filter,
+        opacity,
+        color: TYPE_COLOR,
+        width: "92vw",
+        maxWidth: "90rem",
+      }}
+      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-heavy block text-center whitespace-pre-line leading-[0.88] tracking-[-0.03em] text-[clamp(2rem,11vw,11rem)]"
     >
       {word}
     </motion.span>
