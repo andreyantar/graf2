@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useScroll } from "motion/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
 import { envelope } from "@/lib/scroll-envelope";
 import { urlFor } from "@/sanity/image";
@@ -19,14 +19,18 @@ const RADIUS_DEAD_HALF = 0.1;
 type Props = {
   post: PostSummary;
   column?: "left" | "right";
+  /** Optional custom scroll container. If omitted, useScroll uses
+   *  the window — used on /blog where the page scrolls natively. On
+   *  the home page we pass the looped scroll-container ref. */
+  scrollContainerRef?: RefObject<HTMLDivElement | null>;
 };
 
-export function BlogCard({ post, column = "left" }: Props) {
+export function BlogCard({ post, column = "left", scrollContainerRef }: Props) {
   const cardRef = useRef<HTMLElement>(null);
 
-  // Window-scroll based — no container prop. Page scrolls natively here.
   const { scrollYProgress } = useScroll({
     target: cardRef,
+    container: scrollContainerRef as RefObject<HTMLElement> | undefined,
     offset: ["start end", "end start"],
   });
 
