@@ -18,6 +18,14 @@ Living document. Update as items move between sections.
 - Reveal menu panel (right side, GSAP `expo.inOut`)
 - Stage transform on menu open (scale + translate + radius)
 
+### Navigation
+- Menu items (Home / Work / Services / About / Contact) scroll-to-section
+  via `MenuPanel.onNavigate(key)` → page-owned scroll math
+- Section restructure: standalone footer removed, its big "Studio
+  Graffiti" goo text carried into the new About section, its
+  copyright/socials folded into Contact
+- "How we work" → "Process"; "What we do" big text → "Services"
+
 ### Subpages (placeholder)
 - `/work/[slug]` — volta, lighthouse, modal, halftone (SSG via
   `generateStaticParams`, per-page `generateMetadata`)
@@ -85,12 +93,12 @@ _(nothing right now)_
 
 ## 🔴 Pending — Product
 
-- **Navigation**: menu items currently point nowhere; need to decide on
-  Work / Services / About / Contact / Index structure
 - **Real case studies** to replace `/work/[slug]` placeholders — copy,
   imagery, layout, takeaway blocks
-- **About page** — studio story / philosophy / team
-- **Contact page or form** — currently just a `mailto:` in section 5
+- **About page** (dedicated) — currently About lives only as a homepage
+  section; a real `/about` route with deeper studio story / philosophy
+- **Contact page or form** — homepage Contact section has mailto +
+  socials; could expand to a real route with a proper form
 - **Hero (section 0)** — body copy is minimal; need to decide whether
   this is the manifesto, a process overview, or stays sparse
 
