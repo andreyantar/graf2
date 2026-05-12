@@ -18,7 +18,9 @@ const RADIUS_DEAD_HALF = 0.1;
 
 type Props = {
   post: PostSummary;
-  column?: "left" | "right";
+  /** "center" disables the outward translate + tilt, leaving only the
+   *  border-radius envelope. Used for the middle column in 3-card rows. */
+  column?: "left" | "right" | "center";
   /** Optional custom scroll container. If omitted, useScroll uses
    *  the window — used on /blog where the page scrolls natively. On
    *  the home page we pass the looped scroll-container ref. */
@@ -39,14 +41,17 @@ export function BlogCard({ post, column = "left", scrollContainerRef }: Props) {
     if (!card) return;
     if (prefersReducedMotion()) return;
 
-    const colSign = column === "right" ? 1 : -1;
+    const isCenter = column === "center";
+    const colSign = column === "right" ? 1 : -1; // unused when center
     const rotFlip = FLIP_ROTATION ? -1 : 1;
 
     const apply = (p: number) => {
       const env = envelope(p, DEAD_HALF);
       const verticalSign = p < 0.5 ? -1 : 1;
-      const x = env * MAX_X * colSign;
-      const rot = verticalSign * env * MAX_ROT * colSign * rotFlip;
+      const x = isCenter ? 0 : env * MAX_X * colSign;
+      const rot = isCenter
+        ? 0
+        : verticalSign * env * MAX_ROT * colSign * rotFlip;
       const radius = envelope(p, RADIUS_DEAD_HALF) * MAX_RADIUS;
       card.style.transform = `translate3d(${x}px, 0, 0) rotate(${rot}deg)`;
       card.style.setProperty("--card-radius", `${radius}px`);

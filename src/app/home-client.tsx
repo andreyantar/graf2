@@ -388,7 +388,13 @@ export default function Home({ latestPosts }: HomeProps) {
                         <BlogCard
                           key={`${i}-${post._id}`}
                           post={post}
-                          column={idx % 2 === 0 ? "left" : "right"}
+                          column={
+                            idx === 0
+                              ? "left"
+                              : idx === 1
+                              ? "center"
+                              : "right"
+                          }
                           scrollContainerRef={scrollRef}
                         />
                       ))}
