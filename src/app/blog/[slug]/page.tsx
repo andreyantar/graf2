@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PortableText, type PortableTextBlock } from "next-sanity";
 import { getAllSlugs, getPostBySlug } from "@/sanity/queries";
+import { portableComponents } from "@/sanity/portable-components";
+import { urlFor } from "@/sanity/image";
 
 export const revalidate = 60;
 
@@ -53,9 +55,25 @@ export default async function PostPage({
           </p>
         )}
 
+        {post.cover && (
+          <figure className="mb-12">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={urlFor(post.cover).width(1280).fit("max").auto("format").url()}
+              alt={post.title}
+              loading="eager"
+              decoding="async"
+              className="block w-full h-auto rounded-[8px]"
+            />
+          </figure>
+        )}
+
         {post.body && (
           <div className="prose-studio text-body-lg leading-relaxed">
-            <PortableText value={post.body as PortableTextBlock[]} />
+            <PortableText
+              value={post.body as PortableTextBlock[]}
+              components={portableComponents}
+            />
           </div>
         )}
 
