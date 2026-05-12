@@ -95,7 +95,7 @@ function ProcessCard({
         <h3 className="font-heavy text-card-title tracking-[-0.02em] leading-tight mb-3">
           {step.title}
         </h3>
-        <p className="text-body-lg leading-snug opacity-80">
+        <p className="text-body leading-snug opacity-80">
           {step.desc}
         </p>
       </motion.article>

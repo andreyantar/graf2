@@ -15,7 +15,7 @@
   --text-display: clamp(40px, 8vw, 64px);          /* h1 on subpages */
   --text-card-title: clamp(24px, 4vw, 34px);       /* CaseCard/ServiceCard h3 */
   --text-body-lg: clamp(15px, 1.2vw + 0.5rem, 17px);
-  --text-body: 14px;                               /* card body, default */
+  --text-body: 16px;                               /* card body, default */
   --text-mono: 11px;                               /* uppercase tracking labels */
 
   /* Soft ambient drop used on white cards */

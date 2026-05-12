@@ -113,7 +113,7 @@ export function CaseCard({
         </p>
         <a
           href={data.href}
-          className="inline-flex items-center gap-1 font-mono text-mono uppercase tracking-widest border-b border-current pb-0.5 hover:opacity-60 transition-opacity"
+          className="inline-flex items-center gap-1 text-body hover:opacity-60 transition-opacity"
         >
           View case →
         </a>
