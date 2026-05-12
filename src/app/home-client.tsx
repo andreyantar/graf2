@@ -7,6 +7,7 @@ import { AboutCard } from "@/components/about-card";
 import { BlogCard } from "@/components/blog-card";
 import { CaseCard } from "@/components/case-card";
 import { ContactCard } from "@/components/contact-card";
+import { HeroTitle } from "@/components/hero-title";
 import { ProcessStack } from "@/components/process-stack";
 import { ServiceCard } from "@/components/service-card";
 import { GooBackdrop } from "@/components/goo-backdrop";
@@ -88,12 +89,8 @@ const sections: Array<{
   {
     word: "We build brands and products for companies moving forward",
     bare: true,
-    body: (
-      <h2 className="font-heavy text-card-title tracking-[-0.02em] leading-tight text-center max-w-[680px] mx-auto px-6">
-        A small independent studio. We design brands, interfaces, and the
-        edges in between.
-      </h2>
-    ),
+    // Body rendered inline below — needs scrollContainerRef for the arc.
+    body: null,
   },
   {
     word: "Selected\nwork",
@@ -308,6 +305,7 @@ export default function Home({ latestPosts }: HomeProps) {
             const localIdx = i % sections.length;
             const isSelectedWork = localIdx === SELECTED_WORK_INDEX;
             const isWhatWeDo = localIdx === WHAT_WE_DO_INDEX;
+            const isHeroIntro = localIdx === 0;
             const isProcess = localIdx === PROCESS_INDEX;
             const isAbout = localIdx === ABOUT_INDEX;
             const isBlog = localIdx === BLOG_INDEX;
@@ -320,7 +318,12 @@ export default function Home({ latestPosts }: HomeProps) {
                 isHero={localIdx === 0}
                 bare={s.bare}
               >
-                {isSelectedWork ? (
+                {isHeroIntro ? (
+                  <HeroTitle scrollContainerRef={scrollRef}>
+                    A small independent studio. We design brands, interfaces,
+                    and the edges in between.
+                  </HeroTitle>
+                ) : isSelectedWork ? (
                   <div className="relative w-[88vw] md:w-[70vw] max-w-[1280px] mx-auto grid grid-cols-1 sm:grid-cols-2 justify-items-center gap-10 md:gap-20">
                     {selectedCases.map((c, idx) => (
                       <CaseCard
