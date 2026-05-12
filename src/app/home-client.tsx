@@ -87,16 +87,12 @@ const sections: Array<{
 }> = [
   {
     word: "We build brands and products for companies moving forward",
+    bare: true,
     body: (
-      <>
-        <p className="font-mono text-[11px] uppercase tracking-widest opacity-60 mb-3">
-          Studio
-        </p>
-        <p>
-          A small independent studio. We design brands, interfaces, and the
-          edges in between.
-        </p>
-      </>
+      <h2 className="font-heavy text-card-title tracking-[-0.02em] leading-tight text-center max-w-[680px] mx-auto px-6">
+        A small independent studio. We design brands, interfaces, and the
+        edges in between.
+      </h2>
     ),
   },
   {
