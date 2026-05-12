@@ -208,6 +208,15 @@ export default function Home() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ container: scrollRef });
 
+  // Lock body overflow only while the home page is mounted. Subpages
+  // (blog, work, services) rely on natural document scroll.
+  useEffect(() => {
+    document.body.classList.add("home-locked");
+    return () => {
+      document.body.classList.remove("home-locked");
+    };
+  }, []);
+
   useEffect(() => {
     if (!stageRef.current) return;
     const verticalMarginPx = 32; // 2rem

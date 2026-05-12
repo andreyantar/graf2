@@ -29,8 +29,10 @@
 }
 
 @layer base {
-  html,
-  body {
+  /* The home page locks body overflow via JS (so the custom scroll
+     container drives navigation). Other routes (e.g. /blog, /work)
+     need natural document flow. */
+  body.home-locked {
     height: 100svh;
     overflow: hidden;
   }
