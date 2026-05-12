@@ -60,11 +60,35 @@ export function MouseTrail({ disabled = false }: Props) {
       cursorInHero = isOverHero(e.clientX, e.clientY);
     };
 
+    // Fade out + remove every in-flight spawn. Called when the cursor
+    // leaves the hero zone — otherwise images live their full 2.6s
+    // timeline and stay visible far past hero as the user scrolls down.
+    const fadeAndClear = () => {
+      const items = Array.from(layer.children) as HTMLElement[];
+      if (!items.length) return;
+      gsap.killTweensOf(items);
+      gsap.to(items, {
+        opacity: 0,
+        duration: 0.3,
+        ease: "power2.out",
+        onComplete: () => {
+          items.forEach((img) => {
+            if (img.parentNode === layer) layer.removeChild(img);
+          });
+        },
+      });
+    };
+
     // Steady drip: fires at MIN_INTERVAL_MS regardless of movement, so a
-    // resting cursor still keeps the stream alive (random rotation/offset
-    // in the entry tween scatters successive spawns visually).
+    // resting cursor still keeps the stream alive. We also re-evaluate
+    // cursorInHero each tick — that way scrolling without moving the
+    // mouse correctly drops the trail when hero leaves the viewport.
     const drip = window.setInterval(() => {
-      if (disabledRef.current || !cursorInHero) return;
+      cursorInHero = isOverHero(lastX, lastY);
+      if (disabledRef.current || !cursorInHero) {
+        fadeAndClear();
+        return;
+      }
       spawn(lastX, lastY);
     }, MIN_INTERVAL_MS);
 
