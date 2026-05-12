@@ -5,10 +5,12 @@ import { useEffect, useRef, type RefObject } from "react";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
 import { envelope } from "@/lib/scroll-envelope";
 
-// Same arc tunables as the card family.
+// Stays at its natural size while sitting in the dead zone (center of
+// the viewport); subtly zooms up toward 1.2× as it enters from below
+// and as it leaves through the top. No translate, no rotate — the
+// headline tracks straight up.
 const DEAD_HALF = 0.3;
-const MAX_X = 60;
-const MAX_ROT = 3;
+const MAX_SCALE_BOOST = 0.2;
 
 type Props = {
   scrollContainerRef: RefObject<HTMLDivElement | null>;
@@ -29,16 +31,10 @@ export function HeroTitle({ scrollContainerRef, children }: Props) {
     if (!el) return;
     if (prefersReducedMotion()) return;
 
-    // Treat the headline as a "left" column card: shifts left and tilts
-    // at the viewport edges, sits perfectly still in the dead zone.
-    const colSign = -1;
-
     const apply = (p: number) => {
       const env = envelope(p, DEAD_HALF);
-      const verticalSign = p < 0.5 ? -1 : 1;
-      const x = env * MAX_X * colSign;
-      const rot = verticalSign * env * MAX_ROT * colSign;
-      el.style.transform = `translate3d(${x}px, 0, 0) rotate(${rot}deg)`;
+      const scale = 1 + env * MAX_SCALE_BOOST;
+      el.style.transform = `scale(${scale})`;
     };
 
     apply(scrollYProgress.get());
