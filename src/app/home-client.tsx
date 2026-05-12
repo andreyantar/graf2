@@ -322,7 +322,7 @@ export default function Home({ latestPosts }: HomeProps) {
                 {isHeroIntro ? (
                   <HeroTitle scrollContainerRef={scrollRef}>
                     A small independent studio. We design brands, interfaces,
-                    and the edges in between.
+                    and the edges in between
                   </HeroTitle>
                 ) : isSelectedWork ? (
                   <div className="relative w-[88vw] md:w-[70vw] max-w-[1280px] mx-auto grid grid-cols-1 sm:grid-cols-2 justify-items-center gap-10 md:gap-20">
