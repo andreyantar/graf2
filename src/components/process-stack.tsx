@@ -5,27 +5,23 @@ import { useEffect, useRef, type RefObject } from "react";
 import { envelope } from "@/lib/scroll-envelope";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
 
-type Step = { n: string; title: string; desc: string };
+type Step = { title: string; desc: string };
 
 const STEPS: Step[] = [
   {
-    n: "01",
-    title: "Brief & alignment",
+    title: "01. Brief & alignment",
     desc: "We start with a 30-min call. You tell us what's going on. We tell you if we're a fit.",
   },
   {
-    n: "02",
-    title: "Strategy & direction",
+    title: "02. Strategy & direction",
     desc: "Before pixels, we agree on what we're solving and how to measure it.",
   },
   {
-    n: "03",
-    title: "Design & build",
+    title: "03. Design & build",
     desc: "Founders run the project end-to-end. You see progress weekly, not at the deadline.",
   },
   {
-    n: "04",
-    title: "Launch & after",
+    title: "04. Launch & after",
     desc: "We hand over a system you can run yourself. And we don't disappear when it ships.",
   },
 ];
@@ -96,9 +92,6 @@ function ProcessCard({
         style={{ scale, y, zIndex: index, transformOrigin: "center top" }}
         className="sticky top-[18vh] w-full bg-paper text-ink shadow-card overflow-hidden p-7 md:p-10 rounded-[var(--card-radius,0px)] [contain:paint] will-change-transform"
       >
-        <p className="font-mono text-mono uppercase tracking-widest opacity-50 mb-4">
-          {step.n}
-        </p>
         <h3 className="font-heavy text-card-title tracking-[-0.02em] leading-tight mb-3">
           {step.title}
         </h3>
