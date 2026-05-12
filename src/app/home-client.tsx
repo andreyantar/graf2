@@ -57,22 +57,22 @@ const BLOG_INDEX = 5;
 
 const services = [
   {
-    n: "01",
     title: "Brand",
     desc: "Identity, naming, brand systems.",
     href: "/services/brand",
+    img: ART_URLS[88],
   },
   {
-    n: "02",
     title: "Web",
     desc: "Framer websites, landing pages, UI design.",
     href: "/services/web",
+    img: ART_URLS[112],
   },
   {
-    n: "03",
     title: "Digital & AI",
     desc: "AI visuals, content direction, campaigns.",
     href: "/services/ai",
+    img: ART_URLS[145],
   },
 ];
 
@@ -373,7 +373,7 @@ export default function Home({ latestPosts }: HomeProps) {
                   <div className="relative w-[88vw] md:w-[70vw] mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 py-16">
                     {services.map((sv) => (
                       <ServiceCard
-                        key={`${i}-${sv.n}`}
+                        key={`${i}-${sv.href}`}
                         data={sv}
                         scrollContainerRef={scrollRef}
                       />
