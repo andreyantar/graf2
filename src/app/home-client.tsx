@@ -8,6 +8,7 @@ import { BlogCard } from "@/components/blog-card";
 import { CaseCard } from "@/components/case-card";
 import { ContactCard } from "@/components/contact-card";
 import { HeroTitle } from "@/components/hero-title";
+import { SiteLogo } from "@/components/site-logo";
 import { ProcessStack } from "@/components/process-stack";
 import { ServiceCard } from "@/components/service-card";
 import { GooBackdrop } from "@/components/goo-backdrop";
@@ -292,8 +293,8 @@ export default function Home({ latestPosts }: HomeProps) {
           progress={scrollYProgress}
         />
 
-        <div className="fixed top-4 left-6 md:left-10 z-50 mix-blend-difference text-white pointer-events-none font-mono text-xs uppercase tracking-widest">
-          Studio Graffiti
+        <div className="fixed top-4 left-6 md:left-10 z-50 mix-blend-difference text-white pointer-events-none">
+          <SiteLogo className="h-[18px] w-auto" />
         </div>
 
         <div

@@ -6,6 +6,7 @@ import { useMotionValue } from "motion/react";
 import { BlogCard } from "@/components/blog-card";
 import { GooBackdrop } from "@/components/goo-backdrop";
 import { MenuPanel, type NavKey } from "@/components/menu-panel";
+import { SiteLogo } from "@/components/site-logo";
 import type { PostSummary } from "@/sanity/queries";
 
 type Props = {
@@ -34,9 +35,10 @@ export function BlogPageClient({ posts }: Props) {
 
       <Link
         href="/"
-        className="fixed top-4 left-6 md:left-10 z-50 mix-blend-difference text-white pointer-events-auto font-mono text-xs uppercase tracking-widest"
+        aria-label="Studio Graffiti — home"
+        className="fixed top-4 left-6 md:left-10 z-50 mix-blend-difference text-white pointer-events-auto"
       >
-        Studio Graffiti
+        <SiteLogo className="h-[18px] w-auto" />
       </Link>
 
       <button
