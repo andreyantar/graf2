@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useScroll } from "motion/react";
 import gsap from "gsap";
 import { CaseCard } from "@/components/case-card";
+import { ProcessStack } from "@/components/process-stack";
 import { ServiceCard } from "@/components/service-card";
 import { GooBackdrop } from "@/components/goo-backdrop";
 import { MenuPanel } from "@/components/menu-panel";
@@ -49,6 +50,7 @@ const whitePalette: Palette = { bg: "#ffffff", fg: "#111111" };
 
 const SELECTED_WORK_INDEX = 1;
 const WHAT_WE_DO_INDEX = 2;
+const PROCESS_INDEX = 3;
 
 const services = [
   {
@@ -104,17 +106,9 @@ const sections: Array<{
   },
   {
     word: "How we work",
-    body: (
-      <>
-        <p className="font-mono text-[11px] uppercase tracking-widest opacity-60 mb-3">
-          Process
-        </p>
-        <p>
-          Tight teams, short loops, opinionated drafts early. We prefer one
-          good direction shipped over three safe ones explored.
-        </p>
-      </>
-    ),
+    bare: true,
+    // Rendered inline below (ProcessStack needs scrollContainerRef).
+    body: null,
   },
   {
     word: "Studio\nGraffiti",
@@ -241,13 +235,20 @@ export default function Home() {
   const looped = [...sections, ...sections, ...sections];
 
   // Smooth-scroll the inner container to a section in the middle copy of
-  // the loop. Used by the menu — closes the panel and rides the scroll.
+  // the loop. Sections aren't all the same height (Process section is a
+  // tall sticky stack), so we resolve the target by querying the actual
+  // DOM node instead of `block / sections.length`.
   const scrollToSection = (sectionIndex: number) => {
     const el = scrollRef.current;
     if (!el) return;
-    const block = el.scrollHeight / 3;
-    const sectionH = block / sections.length;
-    const target = block + sectionIndex * sectionH;
+    const targetIndex = sections.length + sectionIndex; // middle copy
+    const section = el.querySelector<HTMLElement>(
+      `[data-section-index="${targetIndex}"]`,
+    );
+    if (!section) return;
+    const sectionRect = section.getBoundingClientRect();
+    const containerRect = el.getBoundingClientRect();
+    const target = el.scrollTop + sectionRect.top - containerRect.top;
     el.scrollTo({
       top: target,
       behavior: prefersReducedMotion() ? "auto" : "smooth",
@@ -328,6 +329,7 @@ export default function Home() {
             const localIdx = i % sections.length;
             const isSelectedWork = localIdx === SELECTED_WORK_INDEX;
             const isWhatWeDo = localIdx === WHAT_WE_DO_INDEX;
+            const isProcess = localIdx === PROCESS_INDEX;
             return (
               <SnapSection
                 key={i}
@@ -357,6 +359,8 @@ export default function Home() {
                       />
                     ))}
                   </div>
+                ) : isProcess ? (
+                  <ProcessStack scrollContainerRef={scrollRef} />
                 ) : (
                   s.body
                 )}
