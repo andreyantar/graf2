@@ -3,6 +3,7 @@
 import { useScroll } from "motion/react";
 import { useEffect, useRef, type RefObject } from "react";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
+import { envelope } from "@/lib/scroll-envelope";
 
 export type ServiceData = {
   n: string;
@@ -18,15 +19,6 @@ type Props = {
 
 const MAX_RADIUS = 32;
 const RADIUS_DEAD_HALF = 0.1;
-
-function radiusEnvelope(p: number): number {
-  const d = Math.abs(p - 0.5);
-  const t = Math.max(
-    0,
-    Math.min(1, (d - RADIUS_DEAD_HALF) / (0.5 - RADIUS_DEAD_HALF)),
-  );
-  return t * t * (3 - 2 * t);
-}
 
 export function ServiceCard({ data, scrollContainerRef }: Props) {
   const cardRef = useRef<HTMLElement>(null);
@@ -45,7 +37,7 @@ export function ServiceCard({ data, scrollContainerRef }: Props) {
     const apply = (p: number) => {
       card.style.setProperty(
         "--card-radius",
-        `${radiusEnvelope(p) * MAX_RADIUS}px`,
+        `${envelope(p, RADIUS_DEAD_HALF) * MAX_RADIUS}px`,
       );
     };
 
@@ -59,7 +51,7 @@ export function ServiceCard({ data, scrollContainerRef }: Props) {
   return (
     <article
       ref={cardRef}
-      className="flex flex-col md:min-h-[320px] bg-paper text-ink p-7 md:p-8 shadow-card overflow-hidden will-change-transform rounded-[var(--card-radius,0px)]"
+      className="flex flex-col md:min-h-[320px] bg-paper text-ink p-7 md:p-8 shadow-card overflow-hidden will-change-transform rounded-[var(--card-radius,0px)] [contain:paint]"
     >
       <p className="font-mono text-mono uppercase tracking-widest opacity-60 mb-6">
         {data.n}

@@ -3,6 +3,7 @@
 import { useScroll } from "motion/react";
 import { useEffect, useRef, type RefObject } from "react";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
+import { envelope } from "@/lib/scroll-envelope";
 
 export type CaseData = {
   n: string;
@@ -41,13 +42,6 @@ const RADIUS_DEAD_HALF = 0.1; // sharp only inside [0.4, 0.6]
 
 // ───────────────────────────────────────────────────────────────────────
 
-function envelope(p: number, deadHalf: number = DEAD_HALF): number {
-  // 0 inside the dead zone, smoothly ramps to 1 at progress 0 or 1.
-  const d = Math.abs(p - 0.5);
-  const t = Math.max(0, Math.min(1, (d - deadHalf) / (0.5 - deadHalf)));
-  return t * t * (3 - 2 * t); // smoothstep
-}
-
 export function CaseCard({
   data,
   scrollContainerRef,
@@ -73,7 +67,7 @@ export function CaseCard({
     const rotFlip = FLIP_ROTATION ? -1 : 1;
 
     const apply = (p: number) => {
-      const env = envelope(p);
+      const env = envelope(p, DEAD_HALF);
       const verticalSign = p < 0.5 ? -1 : 1; // bottom / top half of traversal
 
       const x = env * MAX_X * colSign;
@@ -97,7 +91,7 @@ export function CaseCard({
   return (
     <article
       ref={cardRef}
-      className="w-full max-w-[600px] bg-paper text-ink shadow-card overflow-hidden will-change-transform rounded-[var(--card-radius,0px)]"
+      className="w-full max-w-[600px] bg-paper text-ink shadow-card overflow-hidden will-change-transform rounded-[var(--card-radius,0px)] [contain:paint]"
     >
       <div className="relative h-[280px] w-full overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}

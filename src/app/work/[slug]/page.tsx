@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -24,6 +25,20 @@ const cases: Record<string, { title: string; tagline: string }> = {
 
 export function generateStaticParams() {
   return Object.keys(cases).map((slug) => ({ slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const data = cases[slug];
+  if (!data) return {};
+  return {
+    title: `${data.title} — Studio Graffiti`,
+    description: data.tagline,
+  };
 }
 
 export default async function CasePage({

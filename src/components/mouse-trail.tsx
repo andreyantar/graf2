@@ -143,7 +143,7 @@ export function MouseTrail({ disabled = false }: Props) {
     return () => {
       window.removeEventListener("mousemove", onMove);
       window.clearInterval(drip);
-      gsap.killTweensOf(layer.children);
+      gsap.killTweensOf(Array.from(layer.children));
       while (layer.firstChild) layer.removeChild(layer.firstChild);
     };
   }, []);
