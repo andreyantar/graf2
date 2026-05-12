@@ -25,12 +25,19 @@ const STEPS: Step[] = [
   },
 ];
 
-// Each newer card lands this far below the previous one. Sized to expose
-// roughly the title strip (h3 + its padding) of every earlier card.
+// Each newer card lands this far below the previous one (in vh) — just
+// enough to expose the title row of every earlier card.
 const TITLE_STRIP_VH = 7;
-
-// What share of each card's scroll slot is spent sliding in from below.
+// Estimate of one card's body height (vh) for centering the whole deck.
+const CARD_BODY_VH = 26;
+// Share of each card's scroll slot used for the slide-in.
 const ENTRY_FRACTION = 0.7;
+// How much each card behind shrinks (per card on top of it).
+const PER_DEPTH_SCALE = 0.025;
+// Slight upward nudge per depth so older cards "lean back" subtly.
+const PER_DEPTH_LIFT_VH = 0.6;
+// Cap so 5th+ card behind doesn't collapse into nothing.
+const MAX_DEPTH = 3;
 
 const MAX_RADIUS = 32;
 const SLOT_HEIGHT_VH = 90;
@@ -48,14 +55,20 @@ export function ProcessStack({ scrollContainerRef }: Props) {
     offset: ["start start", "end end"],
   });
 
+  // Approx visible height of the full stack: titles ladder + last card body.
+  const stackHeightVh = (STEPS.length - 1) * TITLE_STRIP_VH + CARD_BODY_VH;
+
   return (
     <div
       ref={containerRef}
       className="relative w-full"
       style={{ height: `${STEPS.length * SLOT_HEIGHT_VH}vh` }}
     >
-      <div className="sticky top-0 h-svh w-full flex items-start justify-center pt-[15vh]">
-        <div className="relative w-[88vw] md:w-[70vw] max-w-[640px]">
+      <div className="sticky top-0 h-svh w-full flex items-center justify-center">
+        <div
+          className="relative w-[88vw] md:w-[70vw] max-w-[640px]"
+          style={{ height: `${stackHeightVh}vh` }}
+        >
           {STEPS.map((step, i) => (
             <ProcessCard
               key={i}
@@ -84,27 +97,38 @@ function ProcessCard({
 }) {
   const cardRef = useRef<HTMLElement>(null);
 
-  // Where this card lands once it's fully entered. Newer cards (higher
-  // index) settle further down, so the title strip of each earlier card
-  // stays visible above this one.
+  // Final resting Y once fully entered. Newer cards settle further down,
+  // exposing the title strips of older cards above.
   const finalYVh = index * TITLE_STRIP_VH;
 
-  // Slot windows in [0, 1] global progress.
   const slotStart = index / total;
   const slotEntry = (index + ENTRY_FRACTION) / total;
+  const nextSlotStart = (index + 1) / total;
+  const nextSlotEntry = (index + 1 + ENTRY_FRACTION) / total;
 
-  // y goes from 100vh (off-screen below) to finalYVh during the entry
-  // window. After entry it stays at finalYVh. Reverse for scroll-back.
+  // y combines: slide-in from below, target Y, and tiny upward lift as
+  // newer cards land on top (depth-driven).
   const y = useTransform(stackProgress, (p) => {
     if (p < slotStart) return "100vh";
     if (p < slotEntry) {
       const ep = (p - slotStart) / (slotEntry - slotStart);
-      const v = (1 - ep) * 100 + ep * finalYVh;
-      return `${v}vh`;
+      return `${(1 - ep) * 100 + ep * finalYVh}vh`;
     }
-    return `${finalYVh}vh`;
+    const depth = Math.max(0, p * total - index - 1);
+    const lift = -Math.min(depth, MAX_DEPTH) * PER_DEPTH_LIFT_VH;
+    return `${finalYVh + lift}vh`;
   });
 
+  // Scale: 1 while top of stack, shrinks once newer cards arrive.
+  const scale = useTransform(stackProgress, (p) => {
+    if (p < slotEntry) return 1;
+    const depth = Math.max(0, p * total - index - 1);
+    return 1 - Math.min(depth, MAX_DEPTH) * PER_DEPTH_SCALE;
+  });
+
+  // Radius: rounded → sharp during entry; once settled, stays sharp while
+  // this card is the front. When the next card starts entering, this one
+  // rounds back up to MAX_RADIUS over that next card's entry window.
   useEffect(() => {
     const card = cardRef.current;
     if (!card) return;
@@ -116,20 +140,35 @@ function ProcessCard({
       } else if (p < slotEntry) {
         const ep = (p - slotStart) / (slotEntry - slotStart);
         r = MAX_RADIUS * (1 - ep);
-      } else {
+      } else if (p < nextSlotStart || index === total - 1) {
+        // We're the active front (or there's no next card).
         r = 0;
+      } else {
+        const ep = Math.min(
+          1,
+          (p - nextSlotStart) / (nextSlotEntry - nextSlotStart),
+        );
+        r = MAX_RADIUS * ep;
       }
       card.style.setProperty("--card-radius", `${r}px`);
     };
     apply(stackProgress.get());
     const unsub = stackProgress.on("change", apply);
     return () => unsub();
-  }, [stackProgress, slotStart, slotEntry]);
+  }, [
+    stackProgress,
+    slotStart,
+    slotEntry,
+    nextSlotStart,
+    nextSlotEntry,
+    index,
+    total,
+  ]);
 
   return (
     <motion.article
       ref={cardRef}
-      style={{ y, zIndex: index }}
+      style={{ y, scale, zIndex: index, transformOrigin: "center top" }}
       className="absolute top-0 left-0 right-0 w-full bg-paper text-ink shadow-card overflow-hidden p-7 md:p-10 rounded-[var(--card-radius,0px)] min-h-[240px] [contain:paint] will-change-transform"
     >
       <h3 className="font-heavy text-card-title tracking-[-0.02em] leading-tight mb-3">
