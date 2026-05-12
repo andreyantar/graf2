@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter_Tight, JetBrains_Mono, Archivo_Black } from "next/font/google";
+import { Fraunces, Instrument_Sans, JetBrains_Mono, Archivo_Black } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
@@ -16,7 +16,7 @@ const heavy = Archivo_Black({
   weight: "400",
 });
 
-const sans = Inter_Tight({
+const sans = Instrument_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
 });
