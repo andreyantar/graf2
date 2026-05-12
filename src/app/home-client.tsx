@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { AboutCard } from "@/components/about-card";
 import { BlogCard } from "@/components/blog-card";
 import { CaseCard } from "@/components/case-card";
+import { ContactCard } from "@/components/contact-card";
 import { ProcessStack } from "@/components/process-stack";
 import { ServiceCard } from "@/components/service-card";
 import { GooBackdrop } from "@/components/goo-backdrop";
@@ -56,6 +57,7 @@ const WHAT_WE_DO_INDEX = 2;
 const PROCESS_INDEX = 3;
 const ABOUT_INDEX = 4;
 const BLOG_INDEX = 5;
+const CONTACT_INDEX = 6;
 
 const services = [
   {
@@ -130,42 +132,10 @@ const sections: Array<{
   },
   {
     word: "Have a brand worth building?",
-    body: (
-      <>
-        <p className="font-mono text-[11px] uppercase tracking-widest opacity-60 mb-3">
-          Contact
-        </p>
-        <p>
-          Tell us what you are working on. A paragraph is enough.
-        </p>
-        <a
-          href="mailto:hello@example.com"
-          className="mt-4 inline-block font-mono text-xs uppercase tracking-widest border-b border-current"
-        >
-          hello@example.com →
-        </a>
-
-        <hr className="my-6 border-current opacity-15" />
-
-        <p className="font-mono text-[10px] uppercase tracking-widest opacity-50 mb-2">
-          © Studio Graffiti — independent practice.
-        </p>
-        <div className="grid grid-cols-2 gap-2 font-mono text-[11px] uppercase tracking-widest opacity-70">
-          <a href="#" className="hover:opacity-100">
-            Instagram ↗
-          </a>
-          <a href="#" className="hover:opacity-100">
-            Are.na ↗
-          </a>
-          <a href="#" className="hover:opacity-100">
-            LinkedIn ↗
-          </a>
-          <a href="mailto:hello@example.com" className="hover:opacity-100">
-            Email ↗
-          </a>
-        </div>
-      </>
-    ),
+    bare: true,
+    // Body rendered inline below — needs scrollContainerRef for the
+    // radius envelope.
+    body: null,
   },
 ];
 
@@ -345,6 +315,7 @@ export default function Home({ latestPosts }: HomeProps) {
             const isProcess = localIdx === PROCESS_INDEX;
             const isAbout = localIdx === ABOUT_INDEX;
             const isBlog = localIdx === BLOG_INDEX;
+            const isContact = localIdx === CONTACT_INDEX;
             return (
               <SnapSection
                 key={i}
@@ -410,6 +381,8 @@ export default function Home({ latestPosts }: HomeProps) {
                       </p>
                     </div>
                   )
+                ) : isContact ? (
+                  <ContactCard scrollContainerRef={scrollRef} />
                 ) : (
                   s.body
                 )}
