@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useScroll } from "motion/react";
 import { useEffect, useRef, type RefObject } from "react";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
@@ -93,31 +94,30 @@ export function CaseCard({
       ref={cardRef}
       className="w-full max-w-[600px] bg-paper text-ink shadow-card overflow-hidden will-change-transform rounded-[var(--card-radius,0px)] [contain:paint]"
     >
-      <div className="relative h-[280px] w-full overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={data.img}
-          alt=""
-          draggable={false}
-          loading="lazy"
-          decoding="async"
-          className="block w-full h-full object-cover"
-        />
-      </div>
-      <div className="px-6 md:px-7 pb-6 md:pb-7 pt-7">
-        <h3 className="font-heavy text-card-title tracking-[-0.02em] leading-tight mb-2">
-          {data.title}
-        </h3>
-        <p className="text-body leading-snug opacity-80 mb-4 line-clamp-4">
-          {data.desc}
-        </p>
-        <a
-          href={data.href}
-          className="inline-flex items-center gap-1 text-body hover:opacity-60 transition-opacity"
-        >
-          View case →
-        </a>
-      </div>
+      <Link href={data.href} className="group block">
+        <div className="relative h-[280px] w-full overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={data.img}
+            alt=""
+            draggable={false}
+            loading="lazy"
+            decoding="async"
+            className="block w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+        </div>
+        <div className="px-6 md:px-7 pb-6 md:pb-7 pt-7">
+          <h3 className="font-heavy text-card-title tracking-[-0.02em] leading-tight mb-2 group-hover:opacity-80 transition-opacity">
+            {data.title}
+          </h3>
+          <p className="text-body leading-snug opacity-80 mb-4 line-clamp-4">
+            {data.desc}
+          </p>
+          <span className="inline-flex items-center gap-1 text-body group-hover:opacity-60 transition-opacity">
+            View case →
+          </span>
+        </div>
+      </Link>
     </article>
   );
 }
