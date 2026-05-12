@@ -1,6 +1,5 @@
 import type { MetadataRoute } from "next";
-
-const BASE_URL = "https://studio-graffiti.vercel.app";
+import { SITE_URL as BASE_URL } from "@/lib/site";
 
 const cases = ["volta", "lighthouse", "modal", "halftone"];
 const services = ["brand", "web", "ai"];

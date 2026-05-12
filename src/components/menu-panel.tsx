@@ -64,7 +64,7 @@ export function MenuPanel({ open, onNavigate }: Props) {
               key={item.key}
               type="button"
               onClick={() => onNavigate(item.key)}
-              className="text-left px-3 py-1.5 text-3xl md:text-[2.25rem] font-heavy leading-[1.1] tracking-[-0.02em] transition-opacity hover:opacity-50 cursor-pointer"
+              className="text-left px-3 py-1.5 min-h-[44px] text-[length:var(--text-menu)] font-heavy leading-[1.1] tracking-[-0.02em] transition-opacity hover:opacity-50 cursor-pointer"
             >
               {item.label}
             </button>

@@ -16,9 +16,11 @@ const MAX_SCALE_BOOST = 0.2;
 type Props = {
   scrollContainerRef: RefObject<HTMLDivElement | null>;
   children: React.ReactNode;
+  as?: "h1" | "h2";
 };
 
-export function HeroTitle({ scrollContainerRef, children }: Props) {
+export function HeroTitle({ scrollContainerRef, children, as = "h2" }: Props) {
+  const Heading = as;
   const ref = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -58,9 +60,9 @@ export function HeroTitle({ scrollContainerRef, children }: Props) {
         className="w-16 h-16"
       />
 
-      <h2 className="font-heavy text-card-title tracking-[-0.02em] leading-tight text-center">
+      <Heading className="font-heavy text-card-title tracking-[-0.02em] leading-tight text-center">
         {children}
-      </h2>
+      </Heading>
     </div>
   );
 }

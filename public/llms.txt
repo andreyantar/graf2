@@ -1,0 +1,17 @@
+# Studio Graffiti
+
+> A small independent studio. We design brands, interfaces, and the edges in between.
+
+Studio Graffiti is an independent brand and product design studio. We work
+with founders and teams on identity, web, and product interfaces, with
+selective engagements in AI tooling.
+
+## Sections
+
+- [Selected work](https://studio-graffiti.pl/work): case studies from recent client engagements
+- [Services](https://studio-graffiti.pl/services): brand, web, and AI design offerings
+- [Blog](https://studio-graffiti.pl/blog): notes on design practice, process, and tools
+
+## Contact
+
+Reach out through the site's contact section for new project inquiries.

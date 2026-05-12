@@ -21,7 +21,7 @@ export function DraggableBadge({ label }: { label: string }) {
         dragTransition={{ bounceStiffness: 220, bounceDamping: 16 }}
         whileTap={{ scale: 0.96, cursor: "grabbing" }}
         style={{ x, y, rotate }}
-        className="select-none cursor-grab rounded-full bg-[--color-fg] text-[--color-bg] px-7 py-4 font-mono text-sm uppercase tracking-widest shadow-[0_12px_40px_-12px_rgba(0,0,0,0.4)]"
+        className="select-none cursor-grab rounded-full bg-[--color-fg] text-[--color-bg] px-7 py-4 min-h-[44px] inline-flex items-center font-mono text-sm uppercase tracking-widest shadow-[0_12px_40px_-12px_rgba(0,0,0,0.4)]"
       >
         ↳ drag me · {label}
       </motion.div>

@@ -85,7 +85,7 @@ export function BlogCard({ post, column = "left", scrollContainerRef }: Props) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={coverUrl}
-              alt=""
+              alt={post.title}
               draggable={false}
               loading="lazy"
               decoding="async"

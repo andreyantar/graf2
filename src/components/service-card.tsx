@@ -79,7 +79,7 @@ export function ServiceCard({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={data.img}
-          alt=""
+          alt={data.title}
           draggable={false}
           loading="lazy"
           decoding="async"

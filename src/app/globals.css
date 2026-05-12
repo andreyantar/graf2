@@ -11,12 +11,15 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
 
-  /* Fluid typography tokens — single source of truth for scale */
-  --text-display: clamp(40px, 8vw, 64px);          /* h1 on subpages */
-  --text-card-title: clamp(24px, 4vw, 34px);       /* CaseCard/ServiceCard h3 */
-  --text-body-lg: clamp(15px, 1.2vw + 0.5rem, 17px);
-  --text-body: 16px;                               /* card body, default */
-  --text-mono: 11px;                               /* uppercase tracking labels */
+  /* Fluid typography tokens — single source of truth for scale.
+     All sizes in rem so they honour user font-size preferences. */
+  --text-display: clamp(2.5rem, 8vw, 4rem);            /* 40 → 64px, h1 */
+  --text-menu: clamp(1.875rem, 4vw, 2.25rem);          /* 30 → 36px, menu nav */
+  --text-speaker: clamp(2.25rem, 6vw, 3.75rem);        /* 36 → 60px, speaker name */
+  --text-card-title: clamp(1.5rem, 4vw, 2.125rem);     /* 24 → 34px, card h3 */
+  --text-body-lg: clamp(0.9375rem, 0.5vw + 0.8125rem, 1.0625rem); /* 15 → 17px */
+  --text-body: 1rem;                                   /* 16px, card body */
+  --text-mono: 0.6875rem;                              /* 11px, mono labels */
 
   /* Soft ambient drop used on white cards */
   --shadow-card: 0 0 50px 0 rgba(0, 0, 0, 0.1);

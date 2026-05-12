@@ -205,7 +205,7 @@ function ProcessCard({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={step.img}
-          alt=""
+          alt={step.title}
           draggable={false}
           loading="lazy"
           decoding="async"

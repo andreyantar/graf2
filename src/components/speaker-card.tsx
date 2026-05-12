@@ -23,7 +23,7 @@ export function SpeakerCard({ index, name, role, bio, imageHue }: Props) {
         {index}
       </div>
       <div className="col-span-12 md:col-span-6">
-        <h3 className="font-display text-4xl md:text-6xl leading-[0.95] tracking-tight">
+        <h3 className="font-display text-[length:var(--text-speaker)] leading-[0.95] tracking-tight">
           {name}
         </h3>
         <p className="mt-3 font-mono text-xs uppercase tracking-widest text-[--color-fg]/60">
