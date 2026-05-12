@@ -10,6 +10,7 @@ import { MenuPanel } from "@/components/menu-panel";
 import { MouseTrail } from "@/components/mouse-trail";
 import { SnapSection, type Palette } from "@/components/snap-section";
 import manifest from "@/data/artworks.json";
+import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
 
 const ART_URLS: string[] = (manifest as Array<{ url: string }>).map((m) => m.url);
 
@@ -174,12 +175,14 @@ export default function Home() {
       typeof window !== "undefined"
         ? (window.innerHeight - 2 * verticalMarginPx) / window.innerHeight
         : 0.94;
+    // Reduced motion: skip the slide/scale tween, snap to final state.
+    const tweenDuration = prefersReducedMotion() ? 0 : 0.85;
     gsap.to(stageRef.current, {
       scaleX: menuOpen ? 0.85 : 1,
       scaleY: menuOpen ? scaleY : 1,
       x: menuOpen ? "-13vw" : 0,
       borderRadius: menuOpen ? "22px" : "0px",
-      duration: 0.85,
+      duration: tweenDuration,
       ease: "expo.inOut",
       overwrite: "auto",
     });

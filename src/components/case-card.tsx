@@ -2,6 +2,7 @@
 
 import { useScroll } from "motion/react";
 import { useEffect, useRef, type RefObject } from "react";
+import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
 
 export type CaseData = {
   n: string;
@@ -64,6 +65,9 @@ export function CaseCard({
   useEffect(() => {
     const card = cardRef.current;
     if (!card) return;
+    // Respect OS-level reduced-motion: card stays in its natural grid slot,
+    // sharp corners, no scroll-driven arc.
+    if (prefersReducedMotion()) return;
 
     const colSign = column === "right" ? 1 : -1; // outward direction per column
     const rotFlip = FLIP_ROTATION ? -1 : 1;
@@ -76,8 +80,11 @@ export function CaseCard({
       const rot = verticalSign * env * MAX_ROT * colSign * rotFlip;
       const radius = envelope(p, RADIUS_DEAD_HALF) * MAX_RADIUS;
 
+      // border-radius is consumed via CSS var (see className) — keeps the
+      // shape mutation separate from the transform write and lets the
+      // browser optimize the paint hint.
       card.style.transform = `translate3d(${x}px, 0, 0) rotate(${rot}deg)`;
-      card.style.borderRadius = `${radius}px`;
+      card.style.setProperty("--card-radius", `${radius}px`);
     };
 
     apply(scrollYProgress.get());
@@ -90,7 +97,7 @@ export function CaseCard({
   return (
     <article
       ref={cardRef}
-      className="w-full max-w-[600px] bg-white text-[#121212] shadow-[0_0_50px_0_rgba(0,0,0,0.10)] overflow-hidden will-change-transform"
+      className="w-full max-w-[600px] bg-white text-[#121212] shadow-[0_0_50px_0_rgba(0,0,0,0.10)] overflow-hidden will-change-transform rounded-[var(--card-radius,0px)]"
     >
       <div className="relative h-[280px] w-full overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -98,6 +105,8 @@ export function CaseCard({
           src={data.img}
           alt=""
           draggable={false}
+          loading="lazy"
+          decoding="async"
           className="block w-full h-full object-cover"
         />
       </div>

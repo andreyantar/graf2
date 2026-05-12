@@ -2,6 +2,7 @@
 
 import { useScroll } from "motion/react";
 import { useEffect, useRef, type RefObject } from "react";
+import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
 
 export type ServiceData = {
   n: string;
@@ -39,9 +40,13 @@ export function ServiceCard({ data, scrollContainerRef }: Props) {
   useEffect(() => {
     const card = cardRef.current;
     if (!card) return;
+    if (prefersReducedMotion()) return;
 
     const apply = (p: number) => {
-      card.style.borderRadius = `${radiusEnvelope(p) * MAX_RADIUS}px`;
+      card.style.setProperty(
+        "--card-radius",
+        `${radiusEnvelope(p) * MAX_RADIUS}px`,
+      );
     };
 
     apply(scrollYProgress.get());
@@ -54,7 +59,7 @@ export function ServiceCard({ data, scrollContainerRef }: Props) {
   return (
     <article
       ref={cardRef}
-      className="flex flex-col min-h-[320px] bg-white text-[#121212] p-7 md:p-8 shadow-[0_0_50px_0_rgba(0,0,0,0.10)] overflow-hidden will-change-transform"
+      className="flex flex-col min-h-[320px] bg-white text-[#121212] p-7 md:p-8 shadow-[0_0_50px_0_rgba(0,0,0,0.10)] overflow-hidden will-change-transform rounded-[var(--card-radius,0px)]"
     >
       <p className="font-mono text-[11px] uppercase tracking-widest opacity-60 mb-6">
         {data.n}

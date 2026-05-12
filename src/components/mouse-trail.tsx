@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import manifest from "@/data/artworks.json";
+import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
 
 type Artwork = { url: string; width: number; height: number };
 
@@ -26,6 +27,8 @@ export function MouseTrail({ disabled = false }: Props) {
 
   useEffect(() => {
     if (!layerRef.current) return;
+    // Reduced-motion: no decorative trail at all.
+    if (prefersReducedMotion()) return;
     const layer: HTMLDivElement = layerRef.current;
 
     let imgIndex = 0;
@@ -67,6 +70,8 @@ export function MouseTrail({ disabled = false }: Props) {
 
     const spawn = (x: number, y: number) => {
       const img = document.createElement("img");
+      img.decoding = "async";
+      img.loading = "lazy";
       img.src = TRAIL_URLS[imgIndex];
       img.draggable = false;
       img.style.position = "absolute";
