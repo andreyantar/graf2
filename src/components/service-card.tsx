@@ -59,20 +59,20 @@ export function ServiceCard({ data, scrollContainerRef }: Props) {
   return (
     <article
       ref={cardRef}
-      className="flex flex-col min-h-[320px] bg-white text-[#121212] p-7 md:p-8 shadow-[0_0_50px_0_rgba(0,0,0,0.10)] overflow-hidden will-change-transform rounded-[var(--card-radius,0px)]"
+      className="flex flex-col md:min-h-[320px] bg-paper text-ink p-7 md:p-8 shadow-card overflow-hidden will-change-transform rounded-[var(--card-radius,0px)]"
     >
-      <p className="font-mono text-[11px] uppercase tracking-widest opacity-60 mb-6">
+      <p className="font-mono text-mono uppercase tracking-widest opacity-60 mb-6">
         {data.n}
       </p>
-      <h3 className="font-heavy text-[34px] tracking-[-0.02em] leading-tight mb-3">
+      <h3 className="font-heavy text-card-title tracking-[-0.02em] leading-tight mb-3">
         {data.title}
       </h3>
-      <p className="text-[14px] leading-snug opacity-70 mb-8 flex-1">
+      <p className="text-body leading-snug opacity-70 mb-8 flex-1">
         {data.desc}
       </p>
       <a
         href={data.href}
-        className="inline-flex items-center gap-1 font-mono text-[11px] uppercase tracking-widest border-b border-current pb-0.5 self-start hover:opacity-60 transition-opacity"
+        className="inline-flex items-center gap-1 font-mono text-mono uppercase tracking-widest border-b border-current pb-0.5 self-start hover:opacity-60 transition-opacity"
       >
         See ↗
       </a>

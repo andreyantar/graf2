@@ -25,9 +25,9 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Teardown — editorial single-page techniques",
+  title: "Studio Graffiti — independent brand & product studio",
   description:
-    "Educational reconstruction of editorial single-page techniques: vertical rhythm, draggable elements, marquees, hover-states.",
+    "A small independent studio. We design brands, interfaces, and the edges in between.",
 };
 
 export default function RootLayout({
@@ -38,17 +38,6 @@ export default function RootLayout({
       lang="en"
       className={`${display.variable} ${heavy.variable} ${sans.variable} ${mono.variable} antialiased`}
     >
-      <head>
-        <link
-          rel="preconnect"
-          href="https://api.fontshare.com"
-          crossOrigin=""
-        />
-        <link
-          rel="stylesheet"
-          href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap"
-        />
-      </head>
       <body>{children}</body>
     </html>
   );

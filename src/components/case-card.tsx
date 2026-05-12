@@ -97,7 +97,7 @@ export function CaseCard({
   return (
     <article
       ref={cardRef}
-      className="w-full max-w-[600px] bg-white text-[#121212] shadow-[0_0_50px_0_rgba(0,0,0,0.10)] overflow-hidden will-change-transform rounded-[var(--card-radius,0px)]"
+      className="w-full max-w-[600px] bg-paper text-ink shadow-card overflow-hidden will-change-transform rounded-[var(--card-radius,0px)]"
     >
       <div className="relative h-[280px] w-full overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -111,15 +111,15 @@ export function CaseCard({
         />
       </div>
       <div className="px-6 md:px-7 pb-6 md:pb-7 pt-7">
-        <h3 className="font-heavy text-[34px] tracking-[-0.02em] leading-tight mb-2">
+        <h3 className="font-heavy text-card-title tracking-[-0.02em] leading-tight mb-2">
           {data.title}
         </h3>
-        <p className="text-[14px] leading-snug opacity-80 mb-4 line-clamp-4">
+        <p className="text-body leading-snug opacity-80 mb-4 line-clamp-4">
           {data.desc}
         </p>
         <a
           href={data.href}
-          className="inline-flex items-center gap-1 font-mono text-[11px] uppercase tracking-widest border-b border-current pb-0.5 hover:opacity-60 transition-opacity"
+          className="inline-flex items-center gap-1 font-mono text-mono uppercase tracking-widest border-b border-current pb-0.5 hover:opacity-60 transition-opacity"
         >
           View case →
         </a>

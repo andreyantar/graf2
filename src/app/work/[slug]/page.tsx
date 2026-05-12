@@ -36,23 +36,23 @@ export default async function CasePage({
   if (!data) notFound();
 
   return (
-    <main className="min-h-svh bg-white text-[#111] flex flex-col items-center justify-center px-6 py-24">
+    <main className="min-h-svh bg-paper text-ink flex flex-col items-center justify-center px-6 py-24">
       <div className="w-full max-w-[640px]">
-        <p className="font-mono text-[11px] uppercase tracking-widest opacity-60 mb-4">
+        <p className="font-mono text-mono uppercase tracking-widest opacity-60 mb-4">
           Case study
         </p>
-        <h1 className="font-heavy text-[64px] leading-[0.95] tracking-[-0.02em] mb-6">
+        <h1 className="font-heavy text-display leading-[0.95] tracking-[-0.02em] mb-6">
           {data.title}
         </h1>
-        <p className="text-[17px] leading-snug opacity-80 mb-10">
+        <p className="text-body-lg leading-snug opacity-80 mb-10">
           {data.tagline}
         </p>
-        <p className="font-mono text-[12px] uppercase tracking-widest opacity-50 mb-10">
+        <p className="font-mono text-mono uppercase tracking-widest opacity-50 mb-10">
           Full case study in progress.
         </p>
         <Link
           href="/"
-          className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest border-b border-current pb-0.5 hover:opacity-60 transition-opacity"
+          className="inline-flex items-center gap-2 font-mono text-mono uppercase tracking-widest border-b border-current pb-0.5 hover:opacity-60 transition-opacity"
         >
           ← Back to studio
         </Link>

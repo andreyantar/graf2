@@ -3,12 +3,23 @@
 @theme {
   --color-rule: oklch(0 0 0 / 0.12);
   --color-accent: #ff5b1f;
+  --color-ink: #121212;
+  --color-paper: #ffffff;
 
   --font-display: var(--font-display);
   --font-heavy: var(--font-heavy);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
-  --font-clash: "Clash Display", system-ui, sans-serif;
+
+  /* Fluid typography tokens — single source of truth for scale */
+  --text-display: clamp(40px, 8vw, 64px);          /* h1 on subpages */
+  --text-card-title: clamp(24px, 4vw, 34px);       /* CaseCard/ServiceCard h3 */
+  --text-body-lg: clamp(15px, 1.2vw + 0.5rem, 17px);
+  --text-body: 14px;                               /* card body, default */
+  --text-mono: 11px;                               /* uppercase tracking labels */
+
+  /* Soft ambient drop used on white cards */
+  --shadow-card: 0 0 50px 0 rgba(0, 0, 0, 0.1);
 }
 
 :root {
