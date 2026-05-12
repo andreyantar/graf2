@@ -95,7 +95,7 @@ function BlobWord({
   return (
     <motion.span
       style={{ filter, opacity, color: TYPE_COLOR }}
-      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-heavy block text-center whitespace-pre-line break-words leading-[0.88] tracking-[-0.03em] text-[clamp(2rem,11vw,11rem)] w-[min(92vw,90rem)] max-w-[92vw]"
+      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-heavy block text-center whitespace-pre-line break-words leading-[0.88] tracking-[-0.03em] text-[clamp(2rem,11vw,11rem)] w-[92vw] md:max-w-[90rem]"
     >
       {word}
     </motion.span>
