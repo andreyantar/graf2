@@ -3,12 +3,14 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
 
-const navItems = [
-  { label: "Index", href: "#" },
-  { label: "Work", href: "#" },
-  { label: "Studio", href: "#" },
-  { label: "Process", href: "#" },
-  { label: "Contact", href: "mailto:hello@example.com" },
+export type NavKey = "home" | "work" | "services" | "about" | "contact";
+
+const navItems: Array<{ label: string; key: NavKey }> = [
+  { label: "Home", key: "home" },
+  { label: "Work", key: "work" },
+  { label: "Services", key: "services" },
+  { label: "About", key: "about" },
+  { label: "Contact", key: "contact" },
 ];
 
 const socials = [
@@ -17,9 +19,12 @@ const socials = [
   { label: "LinkedIn", href: "#" },
 ];
 
-type Props = { open: boolean };
+type Props = {
+  open: boolean;
+  onNavigate: (key: NavKey) => void;
+};
 
-export function MenuPanel({ open }: Props) {
+export function MenuPanel({ open, onNavigate }: Props) {
   const ref = useRef<HTMLElement>(null);
 
   useLayoutEffect(() => {
@@ -48,13 +53,14 @@ export function MenuPanel({ open }: Props) {
 
         <nav className="flex flex-col -mx-3">
           {navItems.map((item) => (
-            <a
-              key={item.label}
-              href={item.href}
-              className="px-3 py-1.5 text-3xl md:text-[2.25rem] font-heavy leading-[1.1] tracking-[-0.02em] transition-opacity hover:opacity-50"
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => onNavigate(item.key)}
+              className="text-left px-3 py-1.5 text-3xl md:text-[2.25rem] font-heavy leading-[1.1] tracking-[-0.02em] transition-opacity hover:opacity-50 cursor-pointer"
             >
               {item.label}
-            </a>
+            </button>
           ))}
         </nav>
 

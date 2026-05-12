@@ -98,16 +98,16 @@ const sections: Array<{
     body: null,
   },
   {
-    word: "What we do",
+    word: "Services",
     bare: true,
     body: null,
   },
   {
-    word: "How we work",
+    word: "Process",
     body: (
       <>
         <p className="font-mono text-[11px] uppercase tracking-widest opacity-60 mb-3">
-          How we work
+          Process
         </p>
         <p>
           Tight teams, short loops, opinionated drafts early. We prefer one
@@ -117,11 +117,26 @@ const sections: Array<{
     ),
   },
   {
+    word: "Studio\nGraffiti",
+    body: (
+      <>
+        <p className="font-mono text-[11px] uppercase tracking-widest opacity-60 mb-3">
+          About
+        </p>
+        <p>
+          An independent design practice. We work in small focused teams,
+          ship early, and prefer one decisive direction over three safe
+          explorations.
+        </p>
+      </>
+    ),
+  },
+  {
     word: "Have a brand worth building?",
     body: (
       <>
         <p className="font-mono text-[11px] uppercase tracking-widest opacity-60 mb-3">
-          Get in touch
+          Contact
         </p>
         <p>
           Tell us what you are working on. A paragraph is enough.
@@ -132,18 +147,13 @@ const sections: Array<{
         >
           hello@example.com →
         </a>
-      </>
-    ),
-  },
-  {
-    word: "Studio\nGraffiti",
-    body: (
-      <>
-        <p className="font-mono text-[11px] uppercase tracking-widest opacity-60 mb-3">
-          ⌁ Footer
+
+        <hr className="my-6 border-current opacity-15" />
+
+        <p className="font-mono text-[10px] uppercase tracking-widest opacity-50 mb-2">
+          © Studio Graffiti — independent practice.
         </p>
-        <p>© Studio Graffiti — independent practice.</p>
-        <div className="mt-4 grid grid-cols-2 gap-2 font-mono text-[11px] uppercase tracking-widest opacity-70">
+        <div className="grid grid-cols-2 gap-2 font-mono text-[11px] uppercase tracking-widest opacity-70">
           <a href="#" className="hover:opacity-100">
             Instagram ↗
           </a>
@@ -161,6 +171,16 @@ const sections: Array<{
     ),
   },
 ];
+
+// Menu navigation: indices map to the sections array above.
+// Section 3 (Process) intentionally has no menu item.
+const NAV_INDICES = {
+  home: 0,
+  work: 1,
+  services: 2,
+  about: 4,
+  contact: 5,
+} as const;
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -190,6 +210,21 @@ export default function Home() {
 
   // Triple the sections so the user can wrap from end → start invisibly.
   const looped = [...sections, ...sections, ...sections];
+
+  // Smooth-scroll the inner container to a section in the middle copy of
+  // the loop. Used by the menu — closes the panel and rides the scroll.
+  const scrollToSection = (sectionIndex: number) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const block = el.scrollHeight / 3;
+    const sectionH = block / sections.length;
+    const target = block + sectionIndex * sectionH;
+    el.scrollTo({
+      top: target,
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+    });
+    setMenuOpen(false);
+  };
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -221,7 +256,10 @@ export default function Home() {
 
   return (
     <>
-      <MenuPanel open={menuOpen} />
+      <MenuPanel
+        open={menuOpen}
+        onNavigate={(key) => scrollToSection(NAV_INDICES[key])}
+      />
       <MouseTrail disabled={menuOpen} />
 
       {/* Toggle button stays at the viewport corner, never inside the
