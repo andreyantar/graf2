@@ -7,7 +7,6 @@ export type NavKey =
   | "home"
   | "work"
   | "services"
-  | "about"
   | "blog"
   | "contact";
 
@@ -15,7 +14,6 @@ const navItems: Array<{ label: string; key: NavKey }> = [
   { label: "Home", key: "home" },
   { label: "Work", key: "work" },
   { label: "Services", key: "services" },
-  { label: "About", key: "about" },
   { label: "Blog", key: "blog" },
   { label: "Contact", key: "contact" },
 ];

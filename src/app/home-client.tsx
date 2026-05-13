@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useScroll } from "motion/react";
 import gsap from "gsap";
-import { AboutCard } from "@/components/about-card";
 import { BlogCard } from "@/components/blog-card";
 import { CaseCard } from "@/components/case-card";
 import { ContactCard } from "@/components/contact-card";
@@ -57,9 +56,8 @@ const whitePalette: Palette = { bg: "#ffffff", fg: "#111111" };
 const SELECTED_WORK_INDEX = 1;
 const WHAT_WE_DO_INDEX = 2;
 const PROCESS_INDEX = 3;
-const ABOUT_INDEX = 4;
-const BLOG_INDEX = 5;
-const CONTACT_INDEX = 6;
+const BLOG_INDEX = 4;
+const CONTACT_INDEX = 5;
 
 const services = [
   {
@@ -112,13 +110,6 @@ const sections: Array<{
     body: null,
   },
   {
-    word: "Studio\nGraffiti",
-    bare: true,
-    // Body rendered inline below — needs scrollContainerRef for the
-    // radius envelope.
-    body: null,
-  },
-  {
     word: "Journal",
     bare: true,
     // Body is rendered inline below so BlogCard can subscribe to scroll.
@@ -139,9 +130,8 @@ const NAV_INDICES = {
   home: 0,
   work: 1,
   services: 2,
-  about: 4,
-  blog: 5,
-  contact: 6,
+  blog: 4,
+  contact: 5,
 } as const;
 
 type HomeProps = {
@@ -308,7 +298,6 @@ export default function Home({ latestPosts }: HomeProps) {
             const isWhatWeDo = localIdx === WHAT_WE_DO_INDEX;
             const isHeroIntro = localIdx === 0;
             const isProcess = localIdx === PROCESS_INDEX;
-            const isAbout = localIdx === ABOUT_INDEX;
             const isBlog = localIdx === BLOG_INDEX;
             const isContact = localIdx === CONTACT_INDEX;
             return (
@@ -354,8 +343,6 @@ export default function Home({ latestPosts }: HomeProps) {
                   </div>
                 ) : isProcess ? (
                   <ProcessStack scrollContainerRef={scrollRef} />
-                ) : isAbout ? (
-                  <AboutCard scrollContainerRef={scrollRef} />
                 ) : isBlog ? (
                   latestPosts.length > 0 ? (
                     <div className="relative w-[88vw] md:w-[70vw] mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 py-16">

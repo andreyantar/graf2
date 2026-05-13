@@ -50,7 +50,9 @@ const MAX_DEPTH = 3;
 const STACK_ROTATIONS = [-2, 1.5, -1, 2.5];
 
 const MAX_RADIUS = 32;
-const SLOT_HEIGHT_VH = 90;
+// Vertical scroll budget per stack step. Lower = tighter, faster
+// transitions; container height = STEPS.length * SLOT_HEIGHT_VH.
+const SLOT_HEIGHT_VH = 60;
 
 type Props = {
   scrollContainerRef: RefObject<HTMLDivElement | null>;
@@ -123,10 +125,16 @@ function ProcessCard({
   const slotStart = index / total;
   const slotEntry = (index + ENTRY_FRACTION) / total;
 
+  // Card 0 is the "anchor" — it's already sitting at its final position
+  // the moment the section enters the viewport. Without this short-circuit
+  // the user has to scroll ~45vh of empty viewport waiting for card 01 to
+  // slide up from below.
+  const isAnchor = index === 0;
+
   // y combines slide-in + tiny upward lift per stacked card on top.
   const y = useTransform(entryProgress, (p) => {
-    if (p < slotStart) return "100vh";
-    if (p < slotEntry) {
+    if (!isAnchor && p < slotStart) return "100vh";
+    if (!isAnchor && p < slotEntry) {
       const ep = (p - slotStart) / (slotEntry - slotStart);
       return `${(1 - ep) * 100 + ep * finalYVh}vh`;
     }
@@ -137,7 +145,7 @@ function ProcessCard({
 
   // Scale: shrinks once newer cards land on top.
   const scale = useTransform(entryProgress, (p) => {
-    if (p < slotEntry) return 1;
+    if (!isAnchor && p < slotEntry) return 1;
     const depth = Math.max(0, p * total - index - 1);
     return 1 - Math.min(depth, MAX_DEPTH) * PER_DEPTH_SCALE;
   });
@@ -146,6 +154,7 @@ function ProcessCard({
   // entry window, then holds. Gives the deck a "casually placed" feel.
   const targetRotation = STACK_ROTATIONS[index] ?? 0;
   const rotate = useTransform(entryProgress, (p) => {
+    if (isAnchor) return targetRotation;
     if (p < slotStart) return 0;
     if (p < slotEntry) {
       const ep = (p - slotStart) / (slotEntry - slotStart);
@@ -168,6 +177,8 @@ function ProcessCard({
       let r: number;
       if (xp > 0) {
         r = MAX_RADIUS * Math.min(1, xp);
+      } else if (isAnchor) {
+        r = 0;
       } else if (ep < slotStart) {
         r = MAX_RADIUS;
       } else if (ep < slotEntry) {
@@ -185,7 +196,7 @@ function ProcessCard({
       u1();
       u2();
     };
-  }, [entryProgress, exitProgress, slotStart, slotEntry]);
+  }, [entryProgress, exitProgress, slotStart, slotEntry, isAnchor]);
 
   return (
     <motion.article

@@ -82,11 +82,26 @@ function BlobWord({
     Math.min(Math.abs(p - center) / span, 1.4),
   );
 
-  const opacity = useTransform(dist, (d) => Math.max(1 - d, 0));
+  // Plateau-style opacity: full visibility while the section is anywhere
+  // near centered, then a quick fall-off. Wider plateau = title reaches
+  // 100% sooner on entry and stays there longer (fixes "What we do"
+  // arriving late and "How we work" leaving early); sharper tail = no
+  // long fade-out hovering at low opacity (fixes "stays too long").
+  const PLATEAU_END = 0.6;
+  const FADE_END = 0.95;
+  const opacity = useTransform(dist, (d) => {
+    if (d <= PLATEAU_END) return 1;
+    if (d >= FADE_END) return 0;
+    const t = (d - PLATEAU_END) / (FADE_END - PLATEAU_END);
+    // smoothstep for the tail
+    const eased = t * t * (3 - 2 * t);
+    return 1 - eased;
+  });
 
   const blurPx = useTransform(dist, (d) => {
-    const norm = Math.min(d, 1);
-    const eased = norm * norm * (3 - 2 * norm);
+    if (d <= PLATEAU_END) return 0;
+    const t = Math.min((d - PLATEAU_END) / (FADE_END - PLATEAU_END), 1);
+    const eased = t * t * (3 - 2 * t);
     return eased * 18;
   });
 
