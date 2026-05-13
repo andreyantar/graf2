@@ -53,11 +53,18 @@ Living document. Update as items move between sections.
 - `contain: paint` on cards for paint isolation
 - `<img>` in CaseCard and MouseTrail spawns: `loading="lazy"` +
   `decoding="async"`
+- 44px min touch targets on menu toggle, MenuPanel nav items,
+  DraggableBadge
+- Alt audit: CaseCard / ServiceCard / BlogCard / ProcessStack images
+  now use the adjacent title as `alt` (was empty)
 
 ### Design tokens
-- Fluid typography via `@theme` block in `globals.css`:
-  `--text-display`, `--text-card-title`, `--text-body-lg`, `--text-body`,
-  `--text-mono` (clamp-based)
+- Fluid typography via `@theme` block in `globals.css`, all in `rem`
+  for proper user-font-size scaling:
+  `--text-display` (h1, 40→64px), `--text-menu` (30→36px),
+  `--text-speaker` (36→60px), `--text-card-title` (24→34px),
+  `--text-body-lg` (15→17px), `--text-body` (16px),
+  `--text-mono` (11px)
 - Surface tokens: `--color-ink`, `--color-paper`
 - `--shadow-card` (soft ambient drop) used on both card types
 
@@ -71,8 +78,20 @@ Living document. Update as items move between sections.
 ### SEO & analytics
 - `src/app/sitemap.ts` → `/sitemap.xml`
 - `src/app/robots.ts` → `/robots.txt`
-- `generateMetadata` per case/service page
+- `generateMetadata` per case / service / blog slug page
 - `@vercel/analytics` + `@vercel/speed-insights` wired in root layout
+- Central `src/lib/site.ts` exposes `SITE_URL` / `SITE_NAME` /
+  `SITE_DESCRIPTION` (overridable via `NEXT_PUBLIC_SITE_URL`,
+  default `https://studio-graffiti.pl`)
+- Root metadata: `metadataBase`, canonical `/`, title template,
+  `openGraph` (with `/og.png` 1200×630), `twitter` summary_large_image,
+  `robots.googleBot` with `max-image-preview: large`
+- JSON-LD `Organization` injected in `<body>` (read by Google AI
+  Overviews, Perplexity, ChatGPT search)
+- `public/llms.txt` — short LLM-crawler site map
+- `public/og.png` — static social card (1200×630)
+- Home hero promoted to `<h1>` (was missing — every other route had
+  its own `<h1>`)
 
 ### Cleanup
 - Metadata: "Studio Graffiti" (was leftover "Teardown")
@@ -83,7 +102,8 @@ Living document. Update as items move between sections.
 
 ### Infrastructure
 - Repo: github.com/andreyantar/graf2
-- Prod: studio-graffiti.vercel.app
+- Prod target: studio-graffiti.pl (DNS pending; currently aliased
+  to studio-graffiti.vercel.app)
 - Static prerender for all 11 routes
 
 ---
@@ -130,9 +150,28 @@ Living document. Update as items move between sections.
 - First-paint state / font-swap polish (FOUC mitigation)
 - Cookie / privacy notice (EU jurisdictions)
 
+## 🔴 Pending — SEO/LLM (next iteration)
+
+- `Article` JSON-LD on `/blog/[slug]` (author, datePublished,
+  image) — critical for blog discoverability + AI summaries
+- `BreadcrumbList` JSON-LD on `/work/[slug]`, `/services/[slug]`,
+  `/blog/[slug]` — surfaces breadcrumbs in SERP
+- Sitemap: pull blog slugs from Sanity dynamically (currently only
+  hardcoded cases/services land in `sitemap.xml`)
+- Audit `description` quality in each `generateMetadata` (verify
+  none default to a generic boilerplate)
+- Minor fluid hangs: explicit `leading-[1.1]` instead of
+  `leading-tight` on shared h2/h3 components; arbitrary `text-[15px]`
+  / `rounded-[20px]` in `snap-section.tsx` → fluid tokens
+
 ## 🔴 Pending — Misc
 
-- OG image generation via `next/og` (deferred by user)
+- OG image is currently a static `public/og.png`. Could swap to dynamic
+  `opengraph-image.tsx` (`next/og`) for per-route cards once the static
+  one starts feeling limiting.
+- DNS for `studio-graffiti.pl` + `NEXT_PUBLIC_SITE_URL` set in Vercel
+  Production env (currently falls back to `VERCEL_PROJECT_PRODUCTION_URL`
+  → `VERCEL_URL` → hardcoded default in `src/lib/site.ts`)
 - `scrollContainerRef` typed without `as RefObject<HTMLElement>` cast
   (minor)
 - CaseCard renders × 3 in the looped sections — 12 scroll listeners
