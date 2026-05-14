@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { JsonLd, breadcrumbList, creativeWorkSchema } from "@/lib/jsonld";
 
 const cases: Record<string, { title: string; tagline: string }> = {
   volta: {
@@ -50,8 +51,23 @@ export default async function CasePage({
   const data = cases[slug];
   if (!data) notFound();
 
+  const url = `/work/${slug}`;
+  const ld = [
+    creativeWorkSchema({
+      name: data.title,
+      description: data.tagline,
+      url,
+    }),
+    breadcrumbList([
+      { name: "Home", url: "/" },
+      { name: "Work", url: "/#work" },
+      { name: data.title, url },
+    ]),
+  ];
+
   return (
     <main className="min-h-svh bg-paper text-ink flex flex-col items-center justify-center px-6 py-24">
+      <JsonLd data={ld} />
       <div className="w-full max-w-[640px]">
         <p className="font-mono text-mono uppercase tracking-widest opacity-60 mb-4">
           Case study

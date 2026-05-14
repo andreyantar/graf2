@@ -5,6 +5,7 @@ import { PortableText, type PortableTextBlock } from "next-sanity";
 import { getAllSlugs, getPostBySlug } from "@/sanity/queries";
 import { portableComponents } from "@/sanity/portable-components";
 import { urlFor } from "@/sanity/image";
+import { JsonLd, articleSchema, breadcrumbList } from "@/lib/jsonld";
 
 export const revalidate = 60;
 
@@ -36,8 +37,28 @@ export default async function PostPage({
   const post = await getPostBySlug(slug);
   if (!post) notFound();
 
+  const url = `/blog/${slug}`;
+  const coverUrl = post.cover
+    ? urlFor(post.cover).width(1280).fit("max").auto("format").url()
+    : undefined;
+  const ld = [
+    articleSchema({
+      title: post.title,
+      description: post.excerpt,
+      datePublished: post.publishedAt,
+      imageUrl: coverUrl,
+      url,
+    }),
+    breadcrumbList([
+      { name: "Home", url: "/" },
+      { name: "Blog", url: "/blog" },
+      { name: post.title, url },
+    ]),
+  ];
+
   return (
     <main className="min-h-svh bg-paper text-ink px-6 py-24 md:py-32">
+      <JsonLd data={ld} />
       <article className="mx-auto w-full max-w-[680px]">
         <p className="font-mono text-mono uppercase tracking-widest opacity-50 mb-4">
           {new Date(post.publishedAt).toLocaleDateString("en-US", {

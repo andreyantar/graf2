@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { JsonLd, breadcrumbList, serviceSchema } from "@/lib/jsonld";
 
 const services: Record<string, { n: string; title: string; tagline: string }> =
   {
@@ -48,8 +49,19 @@ export default async function ServicePage({
   const data = services[slug];
   if (!data) notFound();
 
+  const url = `/services/${slug}`;
+  const ld = [
+    serviceSchema({ name: data.title, description: data.tagline, url }),
+    breadcrumbList([
+      { name: "Home", url: "/" },
+      { name: "Services", url: "/#services" },
+      { name: data.title, url },
+    ]),
+  ];
+
   return (
     <main className="min-h-svh bg-paper text-ink flex flex-col items-center justify-center px-6 py-24">
+      <JsonLd data={ld} />
       <div className="w-full max-w-[640px]">
         <p className="font-mono text-mono uppercase tracking-widest opacity-60 mb-4">
           {data.n} — Service
