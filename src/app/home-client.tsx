@@ -6,7 +6,10 @@ import gsap from "gsap";
 import { BlogCard } from "@/components/blog-card";
 import { CaseCard } from "@/components/case-card";
 import { ContactCard } from "@/components/contact-card";
-import { HeroTitle } from "@/components/hero-title";
+// HeroTitle is the previous hero (Lottie + headline). Kept in the
+// repo for quick rollback while the gallery hero is in client review.
+// import { HeroTitle } from "@/components/hero-title";
+import { HeroGallery } from "@/components/hero-gallery";
 import { SiteLogo } from "@/components/site-logo";
 import { ProcessStack } from "@/components/process-stack";
 import { ServiceCard } from "@/components/service-card";
@@ -309,10 +312,7 @@ export default function Home({ latestPosts }: HomeProps) {
                 bare={s.bare}
               >
                 {isHeroIntro ? (
-                  <HeroTitle scrollContainerRef={scrollRef} as="h1">
-                    A small independent studio. We design brands, interfaces,
-                    and the edges in between
-                  </HeroTitle>
+                  <HeroGallery />
                 ) : isSelectedWork ? (
                   <div className="relative w-[88vw] md:w-[70vw] max-w-[1280px] mx-auto grid grid-cols-1 sm:grid-cols-2 justify-items-center gap-10 md:gap-20">
                     {selectedCases.map((c, idx) => (
