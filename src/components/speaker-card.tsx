@@ -29,7 +29,7 @@ export function SpeakerCard({ index, name, role, bio, imageHue }: Props) {
         <p className="mt-3 font-mono text-xs uppercase tracking-widest text-[--color-fg]/60">
           {role}
         </p>
-        <p className="mt-6 max-w-md text-[15px] leading-relaxed text-[--color-fg]/80">
+        <p className="mt-6 max-w-md text-body-lg leading-relaxed text-[--color-fg]/80">
           {bio}
         </p>
       </div>

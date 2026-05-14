@@ -66,7 +66,7 @@ export function SectionColor({
       {/* Floating white content card */}
       {children && (
         <div className="relative z-10 w-full max-w-[360px] scale-[0.85] md:scale-[0.95]">
-          <div className="rounded-[20px] bg-white text-[#121212] p-6 md:p-7 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.25)] text-[15px] leading-snug font-medium whitespace-pre-wrap text-pretty">
+          <div className="rounded-[20px] bg-white text-[#121212] p-6 md:p-7 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.25)] text-body-lg leading-snug font-medium whitespace-pre-wrap text-pretty">
             {children}
           </div>
         </div>

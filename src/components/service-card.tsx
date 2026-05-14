@@ -89,7 +89,7 @@ export function ServiceCard({
         <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/35 to-black/15" />
 
         <div className="relative z-10 flex flex-col h-full min-h-[280px] md:min-h-[360px] p-7 md:p-8 text-white">
-          <h3 className="font-heavy text-card-title tracking-[-0.02em] leading-tight mb-3">
+          <h3 className="font-heavy text-card-title tracking-[-0.02em] leading-[1.1] mb-3">
             {data.title}
           </h3>
           <p className="text-body leading-snug opacity-90">{data.desc}</p>

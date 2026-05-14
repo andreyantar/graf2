@@ -69,7 +69,7 @@ export function MenuPanel({ open, onNavigate }: Props) {
           ))}
         </nav>
 
-        <div className="font-mono text-[10px] uppercase tracking-widest">
+        <div className="font-mono text-mono uppercase tracking-widest">
           <p className="opacity-50 mb-2">Socials</p>
           <ul className="flex flex-col gap-1">
             {socials.map((s) => (

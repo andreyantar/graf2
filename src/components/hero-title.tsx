@@ -60,7 +60,7 @@ export function HeroTitle({ scrollContainerRef, children, as = "h2" }: Props) {
         className="w-16 h-16"
       />
 
-      <Heading className="font-heavy text-card-title tracking-[-0.02em] leading-tight text-center">
+      <Heading className="font-heavy text-card-title tracking-[-0.02em] leading-[1.1] text-center">
         {children}
       </Heading>
     </div>

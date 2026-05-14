@@ -97,7 +97,7 @@ export function BlogCard({ post, column = "left", scrollContainerRef }: Props) {
           <p className="font-mono text-mono uppercase tracking-widest opacity-50 mb-3">
             {date}
           </p>
-          <h3 className="font-heavy text-card-title tracking-[-0.02em] leading-tight mb-2 group-hover:opacity-80 transition-opacity">
+          <h3 className="font-heavy text-card-title tracking-[-0.02em] leading-[1.1] mb-2 group-hover:opacity-80 transition-opacity">
             {post.title}
           </h3>
           {post.excerpt && (

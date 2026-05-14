@@ -224,7 +224,7 @@ function ProcessCard({
         />
       </div>
       <div className="flex-1 p-7 md:p-10 flex flex-col justify-center">
-        <h3 className="font-heavy text-card-title tracking-[-0.02em] leading-tight mb-3">
+        <h3 className="font-heavy text-card-title tracking-[-0.02em] leading-[1.1] mb-3">
           {step.title}
         </h3>
         <p className="text-body leading-snug opacity-80">{step.desc}</p>

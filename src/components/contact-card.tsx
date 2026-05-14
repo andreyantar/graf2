@@ -48,7 +48,7 @@ export function ContactCard({ scrollContainerRef }: Props) {
       ref={cardRef}
       className="relative w-[88vw] md:w-[70vw] max-w-[680px] mx-auto bg-paper text-ink shadow-card overflow-hidden p-8 md:p-12 rounded-[var(--card-radius,0px)] will-change-transform [contain:paint]"
     >
-      <h2 className="font-heavy text-card-title tracking-[-0.02em] leading-tight mb-4">
+      <h2 className="font-heavy text-card-title tracking-[-0.02em] leading-[1.1] mb-4">
         Have a brand worth building?
       </h2>
       <p className="text-body leading-relaxed opacity-90 mb-8">
@@ -89,7 +89,7 @@ export function ContactCard({ scrollContainerRef }: Props) {
 
       <hr className="my-8 border-current opacity-15" />
 
-      <p className="font-mono text-[10px] uppercase tracking-widest opacity-50 mb-2">
+      <p className="font-mono text-mono uppercase tracking-widest opacity-50 mb-2">
         © Studio Graffiti — independent practice.
       </p>
       <div className="grid grid-cols-2 gap-2 font-mono text-[11px] uppercase tracking-widest opacity-70">

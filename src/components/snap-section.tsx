@@ -53,7 +53,7 @@ export function SnapSection({
           children
         ) : (
           <div className="relative w-full max-w-[420px]">
-            <div className="rounded-[20px] bg-white text-[#121212] p-6 md:p-7 shadow-[0_8px_28px_-8px_rgba(0,0,0,0.35)] text-[15px] leading-snug font-medium whitespace-pre-wrap text-pretty">
+            <div className="rounded-[20px] bg-white text-[#121212] p-6 md:p-7 shadow-[0_8px_28px_-8px_rgba(0,0,0,0.35)] text-body-lg leading-snug font-medium whitespace-pre-wrap text-pretty">
               {children}
             </div>
           </div>

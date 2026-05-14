@@ -107,7 +107,7 @@ export function CaseCard({
           />
         </div>
         <div className="px-6 md:px-7 pb-6 md:pb-7 pt-7">
-          <h3 className="font-heavy text-card-title tracking-[-0.02em] leading-tight mb-2 group-hover:opacity-80 transition-opacity">
+          <h3 className="font-heavy text-card-title tracking-[-0.02em] leading-[1.1] mb-2 group-hover:opacity-80 transition-opacity">
             {data.title}
           </h3>
           <p className="text-body leading-snug opacity-80 mb-4 line-clamp-4">
