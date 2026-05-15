@@ -49,15 +49,17 @@ export function GooBackdrop({ words, progress }: Props) {
           className="relative w-full h-full"
           style={{ filter: "url(#goo-sharpen)" }}
         >
-          {words.map((w, i) => (
-            <BlobWord
-              key={i}
-              word={w}
-              index={i}
-              progress={progress}
-              total={N}
-            />
-          ))}
+          {words.map((w, i) =>
+            w ? (
+              <BlobWord
+                key={i}
+                word={w}
+                index={i}
+                progress={progress}
+                total={N}
+              />
+            ) : null,
+          )}
         </div>
       </div>
     </>

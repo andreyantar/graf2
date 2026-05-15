@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import manifest from "@/data/artworks.json";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
@@ -9,85 +9,107 @@ const ART_URLS: string[] = (manifest as Array<{ url: string }>).map(
   (m) => m.url,
 );
 
-// Curated indices into the artworks manifest. The 4 anchor indices
-// (7 / 33 / 51 / 62) match the Selected Work case images so the hero
-// previews the studio's actual gallery.
 const HERO_INDICES = [7, 18, 33, 44, 51, 62, 88, 112, 145, 178];
-const HERO_IMAGES = HERO_INDICES.map((i) => ART_URLS[i]).filter(Boolean);
+const HERO_IMAGES_SOURCE = HERO_INDICES.map((i) => ART_URLS[i]).filter(Boolean);
 
-// Per-card geometry. The strip is rendered twice for a seamless wrap.
-const CARD_W = 220; // px
-const CARD_H = 280; // px
-const GAP = 24; // px
-const STEP = CARD_W + GAP;
+const PERSPECTIVE_PX = 900;
+const ARC_GAP_PX = 16; // 1rem fixed gap between cards on the cylinder surface
+const CARD_ASPECT = 240 / 180; // height / width
 
-// Per-frame arc shaping: a card sitting at the viewport center peaks
-// in scale and rotates to 0°; cards toward the edges tilt outward and
-// drop slightly, drawing a fan.
-const ARC_SPAN_PX = 900; // distance from center where arc still affects the card
-const MAX_LIFT = 28; // px upward at center
-const MAX_TILT = 16; // deg at the far edge
-const MAX_SCALE_BOOST = 0.08; // +8% at center
+// Tier-based responsive params. Smaller viewports get fewer cards on
+// the ring — bigger angular step per card → the cylinder curvature
+// reads visibly on narrow screens instead of collapsing into a flat
+// row of 2-3 cards.
+//
+// R is computed from the viewport so the cylinder rim always sits at
+// ~96% of the half-viewport (no awkward empty margins on the sides).
+// cardW is then derived from R + N + gap so the on-cylinder arc
+// length between neighbours stays exactly CARD_W + ARC_GAP_PX.
+//
+// durationSec is the full-revolution time. It's tier-specific because
+// the visual horizontal velocity of a card on screen scales with R —
+// keeping the same N·k formula made the narrow-viewport cylinder feel
+// almost frozen. Hand-picked durations restore a consistent perceived
+// scroll speed across devices.
+const TIERS = [
+  { maxW: 640, N: 8, durationSec: 10, cardWMin: 110 }, // mobile: 4 visible front
+  { maxW: 1024, N: 12, durationSec: 16, cardWMin: 140 }, // tablet: 6 visible front
+  { maxW: Infinity, N: 18, durationSec: 39, cardWMin: 160 }, // desktop: 9 visible front
+] as const;
+
+type Tier = (typeof TIERS)[number];
+
+type RingParams = {
+  R: number;
+  cardW: number;
+  cardH: number;
+  N: number;
+  angleStepDeg: number;
+  durationSec: number;
+};
+
+const R_VIEWPORT_FACTOR = 0.48; // rim sits at ±48% of viewport width
+
+function computeRingParams(viewportW: number): RingParams {
+  const tier: Tier =
+    TIERS.find((t) => viewportW <= t.maxW) ?? TIERS[TIERS.length - 1];
+  const N = tier.N;
+  const stepRad = (2 * Math.PI) / N;
+  const R = Math.max(viewportW * R_VIEWPORT_FACTOR, 180);
+  // Derive cardW so the arc-length gap equals ARC_GAP_PX regardless
+  // of viewport. Cap to a sane minimum so cards never become tiny.
+  const cardW = Math.max(tier.cardWMin, R * stepRad - ARC_GAP_PX);
+  const cardH = cardW * CARD_ASPECT;
+  return {
+    R,
+    cardW,
+    cardH,
+    N,
+    angleStepDeg: 360 / N,
+    durationSec: tier.durationSec,
+  };
+}
 
 export function HeroGallery() {
-  const stripRef = useRef<HTMLDivElement>(null);
-  const wrapRef = useRef<HTMLDivElement>(null);
+  const ringRef = useRef<HTMLDivElement>(null);
+  // Initialise with a sensible mid-size guess; recompute on mount and
+  // every resize. N changes across tiers → image array regenerates.
+  const [{ R, cardW, cardH, N, angleStepDeg, durationSec }, setParams] =
+    useState<RingParams>(() => computeRingParams(1280));
 
   useEffect(() => {
-    const strip = stripRef.current;
-    const wrap = wrapRef.current;
-    if (!strip || !wrap) return;
-
-    const reduceMotion = prefersReducedMotion();
-    const singleSetWidth = HERO_IMAGES.length * STEP;
-
-    // Continuous leftward scroll. Speed is tuned so a full set traverses
-    // roughly every 40s; ease "none" keeps it linear.
-    const tween = reduceMotion
-      ? null
-      : gsap.to(strip, {
-          x: -singleSetWidth,
-          duration: HERO_IMAGES.length * 4,
-          ease: "none",
-          repeat: -1,
-        });
-
-    const cards = Array.from(strip.children) as HTMLElement[];
-    const apply = () => {
-      const wrapRect = wrap.getBoundingClientRect();
-      const wrapCenter = wrapRect.left + wrapRect.width / 2;
-      for (const card of cards) {
-        const r = card.getBoundingClientRect();
-        const cx = r.left + r.width / 2;
-        const d = (cx - wrapCenter) / ARC_SPAN_PX; // -1 .. 1 inside the arc
-        const clamped = Math.max(-1, Math.min(1, d));
-        const lift = -(1 - clamped * clamped) * MAX_LIFT;
-        const tilt = clamped * MAX_TILT;
-        const scale = 1 + (1 - clamped * clamped) * MAX_SCALE_BOOST;
-        card.style.transform = `translateY(${lift}px) rotate(${tilt}deg) scale(${scale})`;
-      }
-    };
-
+    const apply = () => setParams(computeRingParams(window.innerWidth));
     apply();
-    if (reduceMotion) {
-      return;
-    }
-    gsap.ticker.add(apply);
-    return () => {
-      gsap.ticker.remove(apply);
-      tween?.kill();
-    };
+    window.addEventListener("resize", apply);
+    return () => window.removeEventListener("resize", apply);
   }, []);
 
-  // Render the image set twice so the GSAP translate can wrap without
-  // a visible seam. The second copy lives off the right edge until the
-  // first scrolls off the left.
-  const looped = [...HERO_IMAGES, ...HERO_IMAGES];
+  useEffect(() => {
+    const ring = ringRef.current;
+    if (!ring) return;
+    if (prefersReducedMotion()) return;
+    // Full-revolution duration is set per tier so the perceived screen
+    // velocity feels similar across viewports.
+    const tween = gsap.to(ring, {
+      rotateY: 360,
+      duration: durationSec,
+      ease: "none",
+      repeat: -1,
+    });
+    return () => {
+      tween.kill();
+    };
+  }, [N, durationSec]);
+
+  const heroRing = Array.from(
+    { length: N },
+    (_, i) => HERO_IMAGES_SOURCE[i % HERO_IMAGES_SOURCE.length],
+  );
 
   return (
-    <div className="relative w-full flex flex-col items-center gap-10 md:gap-14">
+    <div className="relative w-full flex flex-col items-center gap-12 md:gap-16">
       <div className="text-center px-6 max-w-[720px]">
-        <p className="font-mono text-mono uppercase tracking-widest opacity-50 mb-4">
+        <p className="font-mono text-mono uppercase tracking-widest text-accent mb-4">
           Studio Graffiti
         </p>
         <h1 className="font-heavy text-card-title tracking-[-0.02em] leading-[1.1]">
@@ -97,24 +119,37 @@ export function HeroGallery() {
       </div>
 
       <div
-        ref={wrapRef}
-        className="relative w-screen overflow-hidden"
-        style={{ height: CARD_H + 80 }}
+        className="relative w-screen"
+        style={{
+          height: cardH + 120,
+          perspective: `${PERSPECTIVE_PX}px`,
+          perspectiveOrigin: "50% 50%",
+        }}
         aria-hidden
       >
         <div
-          ref={stripRef}
-          className="absolute top-1/2 left-0 -translate-y-1/2 flex"
-          style={{ gap: `${GAP}px`, willChange: "transform" }}
+          ref={ringRef}
+          className="absolute"
+          style={{
+            top: "50%",
+            left: "50%",
+            width: 0,
+            height: 0,
+            transformStyle: "preserve-3d",
+            willChange: "transform",
+          }}
         >
-          {looped.map((src, i) => (
+          {heroRing.map((src, i) => (
             <div
               key={i}
-              className="relative shrink-0 overflow-hidden rounded-[14px] shadow-card bg-paper"
+              className="absolute overflow-hidden rounded-[14px] bg-paper"
               style={{
-                width: CARD_W,
-                height: CARD_H,
-                transformOrigin: "center center",
+                width: cardW,
+                height: cardH,
+                left: -cardW / 2,
+                top: -cardH / 2,
+                transform: `rotateY(${i * angleStepDeg}deg) translateZ(${-R}px)`,
+                backfaceVisibility: "hidden",
                 willChange: "transform",
               }}
             >

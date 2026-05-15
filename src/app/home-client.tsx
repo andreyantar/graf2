@@ -15,7 +15,9 @@ import { ProcessStack } from "@/components/process-stack";
 import { ServiceCard } from "@/components/service-card";
 import { GooBackdrop } from "@/components/goo-backdrop";
 import { MenuPanel } from "@/components/menu-panel";
-import { MouseTrail } from "@/components/mouse-trail";
+// MouseTrail (hover-spawn canvases on hero) disabled per client v2 spec.
+// Component file kept in repo for quick rollback.
+// import { MouseTrail } from "@/components/mouse-trail";
 import { SnapSection, type Palette } from "@/components/snap-section";
 import manifest from "@/data/artworks.json";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
@@ -89,9 +91,9 @@ const sections: Array<{
   bare?: boolean;
 }> = [
   {
-    word: "We build brands and products for companies moving forward",
+    // Hero v2 has its own gallery layout — no goo backdrop word.
+    word: "",
     bare: true,
-    // Body rendered inline below — needs scrollContainerRef for the arc.
     body: null,
   },
   {
@@ -260,7 +262,6 @@ export default function Home({ latestPosts }: HomeProps) {
         open={menuOpen}
         onNavigate={(key) => scrollToSection(NAV_INDICES[key])}
       />
-      <MouseTrail disabled={menuOpen} />
 
       {/* Toggle button stays at the viewport corner, never inside the
           transformed stage — otherwise it shrinks with the page. */}
