@@ -63,10 +63,10 @@ export function ContactCard({ scrollContainerRef }: Props) {
         Start a project →
       </a>
 
-      <p className="font-mono text-mono uppercase tracking-widest opacity-50 mt-10 mb-3">
+      <p className="text-[13px] opacity-50 mt-10 mb-3">
         Or write directly
       </p>
-      <ul className="text-body leading-relaxed space-y-1">
+      <ul className="text-body leading-relaxed grid grid-cols-2 gap-x-6">
         <li>
           <a
             href={`mailto:${EMAIL}`}
@@ -89,10 +89,7 @@ export function ContactCard({ scrollContainerRef }: Props) {
 
       <hr className="my-8 border-current opacity-15" />
 
-      <p className="font-mono text-mono uppercase tracking-widest opacity-50 mb-2">
-        © Studio Graffiti — independent practice.
-      </p>
-      <div className="grid grid-cols-2 gap-2 font-mono text-[11px] uppercase tracking-widest opacity-70">
+      <div className="grid grid-cols-3 gap-2 text-body opacity-70">
         <a href="#" className="hover:opacity-100">
           Instagram ↗
         </a>
@@ -101,9 +98,6 @@ export function ContactCard({ scrollContainerRef }: Props) {
         </a>
         <a href="#" className="hover:opacity-100">
           LinkedIn ↗
-        </a>
-        <a href={`mailto:${EMAIL}`} className="hover:opacity-100">
-          Email ↗
         </a>
       </div>
     </article>

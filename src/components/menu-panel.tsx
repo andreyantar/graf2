@@ -69,9 +69,9 @@ export function MenuPanel({ open, onNavigate }: Props) {
           ))}
         </nav>
 
-        <div className="font-mono text-mono uppercase tracking-widest">
-          <p className="opacity-50 mb-2">Socials</p>
-          <ul className="flex flex-col gap-1">
+        <div>
+          <p className="text-[13px] opacity-50 mb-2">Socials</p>
+          <ul className="flex flex-col gap-1 text-body">
             {socials.map((s) => (
               <li key={s.label}>
                 <a
@@ -83,6 +83,10 @@ export function MenuPanel({ open, onNavigate }: Props) {
               </li>
             ))}
           </ul>
+          <p className="text-[13px] opacity-50 mt-6">
+            © Studio Graffiti, 2026 —<br />
+            independent practice
+          </p>
         </div>
       </div>
     </aside>

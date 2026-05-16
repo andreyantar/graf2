@@ -1,6 +1,11 @@
 "use client";
 
-import { motion, useTransform, type MotionValue } from "motion/react";
+import {
+  motion,
+  useMotionTemplate,
+  useTransform,
+  type MotionValue,
+} from "motion/react";
 
 type Props = {
   words: string[];
@@ -17,7 +22,9 @@ export function GooBackdrop({ words, progress }: Props) {
     <>
       {/* SVG filter — sharpens alpha only, leaves RGB untouched.
           A blurred gray edge becomes a hard gray edge, so blobs keep
-          their original color. */}
+          their original color. Combined with per-word `filter: blur()`
+          on the fade tail, this is what makes the letters appear to
+          melt into each other during the transition (the "goo"). */}
       <svg
         aria-hidden
         style={{ position: "absolute", width: 0, height: 0 }}
@@ -42,13 +49,7 @@ export function GooBackdrop({ words, progress }: Props) {
       >
         <div
           className="relative w-full h-full"
-          // SVG goo-sharpen filter removed: Chromium re-evaluates the
-          // alpha matrix for the whole surface on every opacity/blur
-          // change of a child word. With 15 BlobWords animating per
-          // scroll frame it stalls the compositor on wide viewports.
-          // Safari handles the filter cheaper, hence the asymmetry.
-          // The soft blurred edges of each BlobWord are now the only
-          // smoothing, which still reads as goo without the cost.
+          style={{ filter: "url(#goo-sharpen)" }}
         >
           {words.map((w, i) =>
             w ? (
@@ -87,24 +88,33 @@ function BlobWord({
 
   // Plateau-style opacity: each word holds at full visibility while
   // its section is somewhere near centred, then fades out quickly.
-  // The wider plateau (0.6) means a word is readable across most of
-  // its section's span instead of flashing past in a single frame on
-  // wide viewports — at the cost of allowing a brief overlap with the
-  // neighbouring word during the transition midpoint.
   const PLATEAU_END = 0.6;
   const FADE_END = 0.95;
   const opacity = useTransform(dist, (d) => {
     if (d <= PLATEAU_END) return 1;
     if (d >= FADE_END) return 0;
     const t = (d - PLATEAU_END) / (FADE_END - PLATEAU_END);
-    // smoothstep for the tail
     const eased = t * t * (3 - 2 * t);
     return 1 - eased;
   });
 
+  // Per-word blur — ramps 0 → 18px across the fade window. Paired with
+  // the parent SVG alpha-sharpen, this is the goo-merge effect: the
+  // blurred edges of adjacent words bleed into each other, then the
+  // filter snaps the alpha back into hard shapes.
+  const blurPx = useTransform(dist, (d) => {
+    if (d <= PLATEAU_END) return 0;
+    const t = Math.min((d - PLATEAU_END) / (FADE_END - PLATEAU_END), 1);
+    const eased = t * t * (3 - 2 * t);
+    return eased * 18;
+  });
+
+  const filter = useMotionTemplate`blur(${blurPx}px)`;
+
   return (
     <motion.span
       style={{
+        filter,
         opacity,
         color: TYPE_COLOR,
         left: "4vw",

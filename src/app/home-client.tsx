@@ -324,7 +324,7 @@ export default function Home({ latestPosts }: HomeProps) {
       <button
         type="button"
         onClick={() => setMenuOpen((v) => !v)}
-        className="fixed top-4 right-6 md:right-10 z-50 mix-blend-difference text-white font-mono text-xs uppercase tracking-widest flex items-center gap-2 cursor-pointer min-h-[44px] min-w-[44px] justify-end"
+        className="fixed top-4 right-6 md:right-10 z-50 mix-blend-difference text-white text-body flex items-center gap-2 cursor-pointer min-h-[44px] min-w-[44px] justify-end"
         aria-expanded={menuOpen}
         aria-label={menuOpen ? "Close menu" : "Open menu"}
       >
