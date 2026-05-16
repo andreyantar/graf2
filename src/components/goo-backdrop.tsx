@@ -47,7 +47,13 @@ export function GooBackdrop({ words, progress }: Props) {
       >
         <div
           className="relative w-full h-full"
-          style={{ filter: "url(#goo-sharpen)" }}
+          // SVG goo-sharpen filter removed: Chromium re-evaluates the
+          // alpha matrix for the whole surface on every opacity/blur
+          // change of a child word. With 15 BlobWords animating per
+          // scroll frame it stalls the compositor on wide viewports.
+          // Safari handles the filter cheaper, hence the asymmetry.
+          // The soft blurred edges of each BlobWord are now the only
+          // smoothing, which still reads as goo without the cost.
         >
           {words.map((w, i) =>
             w ? (
