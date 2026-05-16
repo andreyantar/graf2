@@ -107,20 +107,29 @@ export function HeroGallery() {
   );
 
   return (
-    <div className="relative w-full flex flex-col items-center gap-12 md:gap-16">
-      <div className="text-center px-6 max-w-[720px]">
-        <p className="font-mono text-mono uppercase tracking-widest text-accent mb-4">
-          Studio Graffiti
-        </p>
-        <h1 className="font-heavy text-card-title tracking-[-0.02em] leading-[1.1]">
-          A small independent studio. We design brands, interfaces, and the
-          edges in between.
-        </h1>
-      </div>
+    <div
+      className="relative w-full flex flex-col items-center"
+      style={{ minHeight: "100svh" }}
+    >
+      {/* Title is pushed down ~30vh from the top of the hero. The gap
+          to the gallery below is a fixed 5vh on every viewport so the
+          composition reads the same on mobile, tablet, and desktop —
+          even though the wrapped title height varies between tiers. */}
+      <h1
+        className="text-center px-6 font-heavy text-card-title tracking-[-0.02em] leading-[1.1]"
+        style={{
+          marginTop: "40vh",
+          width: "min(720px, 100vw)",
+        }}
+      >
+        A small independent studio. We design brands, interfaces, and the
+        edges in between.
+      </h1>
 
       <div
         className="relative w-screen"
         style={{
+          marginTop: "-10vh",
           height: cardH + 120,
           perspective: `${PERSPECTIVE_PX}px`,
           perspectiveOrigin: "50% 50%",
