@@ -85,23 +85,10 @@ export function HeroGallery() {
   }, []);
 
   useEffect(() => {
-    const ring = ringRef.current;
-    if (!ring) return;
-    if (prefersReducedMotion()) return;
-    // Plain continuous rotation. Earlier iterations paused/resumed
-    // the tween via IntersectionObserver to relieve the Chromium
-    // compositor, but the pause/resume + wall-clock re-sync each
-    // produced a tiny visible snap on the moment the hero re-entered
-    // view, which the client read as jitter. Let GSAP just run.
-    const tween = gsap.to(ring, {
-      rotateY: 360,
-      duration: durationSec,
-      ease: "none",
-      repeat: -1,
-    });
-    return () => {
-      tween.kill();
-    };
+    // DIAGNOSTIC: GSAP rotation disabled. The ring stays static so we
+    // can confirm whether continuous transform updates are what makes
+    // the goo-backdrop text jitter on wide viewports.
+    return;
   }, [N, durationSec]);
 
   const heroRing = Array.from(
