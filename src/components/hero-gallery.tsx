@@ -104,12 +104,28 @@ export function HeroGallery() {
     // even while the user is scrolled away — that's what saturates
     // the Chromium compositor and shows up as the goo-backdrop
     // "freeze / fast flip" between sections.
+    //
+    // The home page renders three HeroGallery instances (looped 3x),
+    // each with its own tween. Without syncing, the wrap-around
+    // teleport jumps the user from a running tween to a paused one
+    // that froze at a different angle, which reads as a jitter the
+    // moment Contact teleports back to Hero. Anchor each instance to
+    // a shared wall-clock phase whenever it resumes, so the three
+    // tweens always agree on the current rotation.
+    const syncToWallClock = () => {
+      const phase = (performance.now() / 1000 / durationSec) % 1;
+      tween.progress(phase);
+    };
     let io: IntersectionObserver | undefined;
     if (wrap) {
       io = new IntersectionObserver(
         ([entry]) => {
-          if (entry.isIntersecting) tween.resume();
-          else tween.pause();
+          if (entry.isIntersecting) {
+            syncToWallClock();
+            tween.resume();
+          } else {
+            tween.pause();
+          }
         },
         { threshold: 0 },
       );
