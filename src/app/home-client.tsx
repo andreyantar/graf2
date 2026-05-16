@@ -373,6 +373,15 @@ export default function Home({ latestPosts }: HomeProps) {
         <div
           ref={scrollRef}
           className="relative z-10 h-svh overflow-y-auto overscroll-none"
+          // Disable Chrome's scroll-anchoring. Motion-driven children
+          // (ProcessStack cards translating/scaling, hero gallery ring
+          // rotating) shift their visual position every frame; without
+          // this, Chrome compensates by nudging scrollTop, which fires
+          // extra scroll events, jolts scrollYProgress, and shows up
+          // as rapid goo-backdrop word flashing on wide viewports.
+          // Safari ignores scroll-anchoring entirely, hence the
+          // "Safari OK, Chrome broken" symptom from the client.
+          style={{ overflowAnchor: "none" }}
           inert={menuOpen}
         >
           {looped.map((s, i) => {
