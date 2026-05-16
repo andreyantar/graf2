@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useScroll, useTransform } from "motion/react";
+import { useMotionValue } from "motion/react";
 import gsap from "gsap";
 import { BlogCard } from "@/components/blog-card";
 import { CaseCard } from "@/components/case-card";
@@ -147,14 +147,13 @@ export default function Home({ latestPosts }: HomeProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const stageRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ container: scrollRef });
-  // Hero gallery rotation is now scroll-driven instead of running on
-  // its own clock. The ring only moves while the user is scrolling —
-  // the compositor sleeps at rest, which removes the continuous
-  // animation load that was making the goo-backdrop text jitter on
-  // wide viewports. 3 full revolutions per page traverse keeps the
-  // gallery moving lively without going overboard.
-  const heroRotation = useTransform(scrollYProgress, [0, 1], [0, 3 * 360]);
+  // Local 0..1 progress within a single loop block. The goo backdrop
+  // uses this instead of the global scrollYProgress so the teleport
+  // wrap at Contact doesn't make scrollYProgress jump by ~0.333 in one
+  // frame — which previously dragged every word's plateau across the
+  // viewport in a single tick, flashing the whole stack of section
+  // labels as one smear. Local progress stays continuous across wraps.
+  const gooProgress = useMotionValue(0);
 
   // Lock body overflow only while the home page is mounted. Subpages
   // (blog, work, services) rely on natural document scroll.
@@ -258,19 +257,26 @@ export default function Home({ latestPosts }: HomeProps) {
     };
     recompute();
 
-    // Start the user in the middle copy of Hero (same content as the
-    // other two copies). After recompute() runs the safe zone is
-    // [wrapUp, wrapDown); middle-copy Hero sits inside it.
-    const heroMid = el.querySelector<HTMLElement>(
-      `[data-section-index="${sections.length}"]`,
+    // Start the user at the 3rd-copy Hero — this is the only copy that
+    // actually renders the 3D gallery (the others are placeholders),
+    // and it sits inside the safe zone [wrapUp, wrapDown).
+    const hero3 = el.querySelector<HTMLElement>(
+      `[data-section-index="${2 * sections.length}"]`,
     );
-    el.scrollTop = heroMid?.offsetTop ?? block;
+    el.scrollTop = hero3?.offsetTop ?? 2 * block;
 
     const onScroll = () => {
       if (el.scrollTop >= wrapDown) el.scrollTop -= block;
       else if (el.scrollTop < wrapUp) el.scrollTop += block;
+      // Local progress inside one block. Modulo math means the wrap
+      // teleport produces zero change in goo progress → no smear of
+      // every section's label flashing in one frame.
+      const b = block || 1;
+      gooProgress.set((((el.scrollTop % b) + b) % b) / b);
     };
     el.addEventListener("scroll", onScroll, { passive: true });
+    // Prime once so the goo aligns with the initial scrollTop set above.
+    onScroll();
 
     const ro = new ResizeObserver(recompute);
     ro.observe(el);
@@ -333,8 +339,8 @@ export default function Home({ latestPosts }: HomeProps) {
         onClick={() => menuOpen && setMenuOpen(false)}
       >
         <GooBackdrop
-          words={looped.map((s) => s.word)}
-          progress={scrollYProgress}
+          words={sections.map((s) => s.word)}
+          progress={gooProgress}
         />
 
         <div className="fixed top-4 left-6 md:left-10 z-50 mix-blend-difference text-white pointer-events-none">
@@ -372,7 +378,23 @@ export default function Home({ latestPosts }: HomeProps) {
                 bare={s.bare}
               >
                 {isHeroIntro ? (
-                  <HeroGallery rotation={heroRotation} />
+                  // Render the 3D gallery only in the 3rd copy of the
+                  // loop. After wrap-Contact the user only ever sees that
+                  // copy of Hero; the 1st/middle copies sit outside the
+                  // safe zone [wrapUp, wrapDown). Rendering one ring
+                  // instead of three drops the compositor load to a third
+                  // and removes the wide-viewport jitter on Chromium.
+                  // Other copies render a same-sized placeholder so the
+                  // loop block height stays identical across copies.
+                  i === 2 * sections.length ? (
+                    <HeroGallery />
+                  ) : (
+                    <div
+                      className="relative w-full"
+                      style={{ minHeight: "100svh" }}
+                      aria-hidden
+                    />
+                  )
                 ) : isSelectedWork ? (
                   <div className="relative w-[88vw] md:w-[70vw] max-w-[1280px] mx-auto grid grid-cols-1 sm:grid-cols-2 justify-items-center gap-10 md:gap-20">
                     {selectedCases.map((c, idx) => (

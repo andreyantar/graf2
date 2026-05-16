@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, type MotionValue } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 import manifest from "@/data/artworks.json";
+import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
 
 const ART_URLS: string[] = (manifest as Array<{ url: string }>).map(
   (m) => m.url,
@@ -19,17 +19,6 @@ const CARD_ASPECT = 240 / 180; // height / width
 // the ring — bigger angular step per card → the cylinder curvature
 // reads visibly on narrow screens instead of collapsing into a flat
 // row of 2-3 cards.
-//
-// R is computed from the viewport so the cylinder rim always sits at
-// ~96% of the half-viewport (no awkward empty margins on the sides).
-// cardW is then derived from R + N + gap so the on-cylinder arc
-// length between neighbours stays exactly CARD_W + ARC_GAP_PX.
-//
-// durationSec is the full-revolution time. It's tier-specific because
-// the visual horizontal velocity of a card on screen scales with R —
-// keeping the same N·k formula made the narrow-viewport cylinder feel
-// almost frozen. Hand-picked durations restore a consistent perceived
-// scroll speed across devices.
 const TIERS = [
   { maxW: 640, N: 8, durationSec: 10, cardWMin: 110 }, // mobile: 4 visible front
   { maxW: 1024, N: 12, durationSec: 16, cardWMin: 140 }, // tablet: 6 visible front
@@ -55,8 +44,6 @@ function computeRingParams(viewportW: number): RingParams {
   const N = tier.N;
   const stepRad = (2 * Math.PI) / N;
   const R = Math.max(viewportW * R_VIEWPORT_FACTOR, 180);
-  // Derive cardW so the arc-length gap equals ARC_GAP_PX regardless
-  // of viewport. Cap to a sane minimum so cards never become tiny.
   const cardW = Math.max(tier.cardWMin, R * stepRad - ARC_GAP_PX);
   const cardH = cardW * CARD_ASPECT;
   return {
@@ -69,19 +56,10 @@ function computeRingParams(viewportW: number): RingParams {
   };
 }
 
-type HeroGalleryProps = {
-  /** MotionValue driving rotateY (in degrees). Provided by parent so
-   *  all three looped instances share the same source and stay synced;
-   *  parent maps page scrollYProgress → rotation. The ring only moves
-   *  while the user is scrolling — at rest the compositor sleeps. */
-  rotation: MotionValue<number>;
-};
-
-export function HeroGallery({ rotation }: HeroGalleryProps) {
-  // Initialise with a sensible mid-size guess; recompute on mount and
-  // every resize. N changes across tiers → image array regenerates.
-  const [{ R, cardW, cardH, N, angleStepDeg }, setParams] =
+export function HeroGallery() {
+  const [{ R, cardW, cardH, N, angleStepDeg, durationSec }, setParams] =
     useState<RingParams>(() => computeRingParams(1280));
+  const ringRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const apply = () => setParams(computeRingParams(window.innerWidth));
@@ -90,22 +68,54 @@ export function HeroGallery({ rotation }: HeroGalleryProps) {
     return () => window.removeEventListener("resize", apply);
   }, []);
 
+  // WAAPI continuous rotation. Lives on the compositor thread — no
+  // main-thread work per frame, no motion subscription, no scroll
+  // coupling. Pauses when the gallery leaves the viewport so it's not
+  // burning GPU cycles while the user is reading other sections.
+  useEffect(() => {
+    const ring = ringRef.current;
+    if (!ring) return;
+    if (prefersReducedMotion()) return;
+
+    const anim = ring.animate(
+      [
+        { transform: "translate(-50%, -50%) rotateY(0deg)" },
+        { transform: "translate(-50%, -50%) rotateY(360deg)" },
+      ],
+      {
+        duration: durationSec * 1000,
+        iterations: Infinity,
+        easing: "linear",
+      },
+    );
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) anim.play();
+          else anim.pause();
+        }
+      },
+      { threshold: 0 },
+    );
+    io.observe(ring);
+
+    return () => {
+      io.disconnect();
+      anim.cancel();
+    };
+  }, [durationSec]);
+
   const heroRing = Array.from(
     { length: N },
     (_, i) => HERO_IMAGES_SOURCE[i % HERO_IMAGES_SOURCE.length],
   );
-
-  const RENDER_GALLERY = true;
 
   return (
     <div
       className="relative w-full flex flex-col items-center"
       style={{ minHeight: "100svh" }}
     >
-      {/* Title is pushed down ~30vh from the top of the hero. The gap
-          to the gallery below is a fixed 5vh on every viewport so the
-          composition reads the same on mobile, tablet, and desktop —
-          even though the wrapped title height varies between tiers. */}
       <h1
         className="text-center px-6 font-heavy text-card-title tracking-[-0.02em] leading-[1.1]"
         style={{
@@ -117,7 +127,6 @@ export function HeroGallery({ rotation }: HeroGalleryProps) {
         edges in between.
       </h1>
 
-      {RENDER_GALLERY && (
       <div
         className="relative w-screen"
         style={{
@@ -128,18 +137,16 @@ export function HeroGallery({ rotation }: HeroGalleryProps) {
         }}
         aria-hidden
       >
-        <motion.div
+        <div
+          ref={ringRef}
           className="absolute"
           style={{
             top: "50%",
             left: "50%",
             width: 0,
             height: 0,
-            rotateY: rotation,
+            transform: "translate(-50%, -50%)",
             transformStyle: "preserve-3d",
-            // Safari sometimes drops the 3D context (cards bunch at
-            // the rim, centre empty) without the explicit WebKit
-            // prefix on preserve-3d.
             WebkitTransformStyle: "preserve-3d",
             willChange: "transform",
           } as React.CSSProperties}
@@ -156,9 +163,6 @@ export function HeroGallery({ rotation }: HeroGalleryProps) {
                 transform: `rotateY(${i * angleStepDeg}deg) translateZ(${-R}px)`,
                 backfaceVisibility: "hidden",
                 WebkitBackfaceVisibility: "hidden",
-                // No willChange: keep cards out of their own
-                // compositing layers so the rotating ring composes
-                // as a single GPU op instead of N * 3 layers.
               } as React.CSSProperties}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -172,9 +176,8 @@ export function HeroGallery({ rotation }: HeroGalleryProps) {
               />
             </div>
           ))}
-        </motion.div>
+        </div>
       </div>
-      )}
     </div>
   );
 }
