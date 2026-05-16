@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  motion,
-  useMotionTemplate,
-  useTransform,
-  type MotionValue,
-} from "motion/react";
+import { motion, useTransform, type MotionValue } from "motion/react";
 
 type Props = {
   words: string[];
@@ -107,19 +102,9 @@ function BlobWord({
     return 1 - eased;
   });
 
-  const blurPx = useTransform(dist, (d) => {
-    if (d <= PLATEAU_END) return 0;
-    const t = Math.min((d - PLATEAU_END) / (FADE_END - PLATEAU_END), 1);
-    const eased = t * t * (3 - 2 * t);
-    return eased * 18;
-  });
-
-  const filter = useMotionTemplate`blur(${blurPx}px)`;
-
   return (
     <motion.span
       style={{
-        filter,
         opacity,
         color: TYPE_COLOR,
         left: "4vw",
