@@ -72,7 +72,6 @@ function computeRingParams(viewportW: number): RingParams {
 
 export function HeroGallery() {
   const ringRef = useRef<HTMLDivElement>(null);
-  const wrapRef = useRef<HTMLDivElement>(null);
   // Initialise with a sensible mid-size guess; recompute on mount and
   // every resize. N changes across tiers → image array regenerates.
   const [{ R, cardW, cardH, N, angleStepDeg, durationSec }, setParams] =
@@ -87,52 +86,20 @@ export function HeroGallery() {
 
   useEffect(() => {
     const ring = ringRef.current;
-    const wrap = wrapRef.current;
     if (!ring) return;
     if (prefersReducedMotion()) return;
-    // Full-revolution duration is set per tier so the perceived screen
-    // velocity feels similar across viewports.
+    // Plain continuous rotation. Earlier iterations paused/resumed
+    // the tween via IntersectionObserver to relieve the Chromium
+    // compositor, but the pause/resume + wall-clock re-sync each
+    // produced a tiny visible snap on the moment the hero re-entered
+    // view, which the client read as jitter. Let GSAP just run.
     const tween = gsap.to(ring, {
       rotateY: 360,
       duration: durationSec,
       ease: "none",
       repeat: -1,
     });
-    // Pause the tween when hero is off-screen. The 18 perspective-
-    // transformed cards each occupy their own compositing layer; a
-    // continuously rotating ring keeps every layer dirty every frame
-    // even while the user is scrolled away — that's what saturates
-    // the Chromium compositor and shows up as the goo-backdrop
-    // "freeze / fast flip" between sections.
-    //
-    // The home page renders three HeroGallery instances (looped 3x),
-    // each with its own tween. Without syncing, the wrap-around
-    // teleport jumps the user from a running tween to a paused one
-    // that froze at a different angle, which reads as a jitter the
-    // moment Contact teleports back to Hero. Anchor each instance to
-    // a shared wall-clock phase whenever it resumes, so the three
-    // tweens always agree on the current rotation.
-    const syncToWallClock = () => {
-      const phase = (performance.now() / 1000 / durationSec) % 1;
-      tween.progress(phase);
-    };
-    let io: IntersectionObserver | undefined;
-    if (wrap) {
-      io = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            syncToWallClock();
-            tween.resume();
-          } else {
-            tween.pause();
-          }
-        },
-        { threshold: 0 },
-      );
-      io.observe(wrap);
-    }
     return () => {
-      io?.disconnect();
       tween.kill();
     };
   }, [N, durationSec]);
@@ -163,7 +130,6 @@ export function HeroGallery() {
       </h1>
 
       <div
-        ref={wrapRef}
         className="relative w-screen"
         style={{
           marginTop: "-10vh",
