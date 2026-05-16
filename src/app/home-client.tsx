@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useScroll } from "motion/react";
+import { useMotionValueEvent, useScroll, useSpring } from "motion/react";
 import gsap from "gsap";
 import { BlogCard } from "@/components/blog-card";
 import { CaseCard } from "@/components/case-card";
@@ -148,6 +148,28 @@ export default function Home({ latestPosts }: HomeProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ container: scrollRef });
+  // Smoothed scroll progress for the goo backdrop. Raw scrollYProgress
+  // reacts instantly to scroll velocity — on wider viewports the
+  // sections collapse to a single viewport each, so flicking through
+  // the page can flash 10+ section words per second. The spring
+  // damps that noise without making the visual feel laggy.
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 320,
+    damping: 60,
+    restDelta: 0.0005,
+    mass: 0.4,
+  });
+  // The wrap-around teleport (scrollTop -= block) causes a ~1/3 jump
+  // in progress. We don't want the spring to animate THROUGH all the
+  // section centres on its way — that would cause a single huge flash
+  // in addition to the gesture noise. `useMotionValueEvent` catches
+  // the raw progress jump and tells the spring to snap to it.
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    const previous = scrollYProgress.getPrevious() ?? latest;
+    if (Math.abs(latest - previous) > 0.2) {
+      smoothProgress.jump(latest);
+    }
+  });
   // Real scroll-progress center for each looped section. Sections have
   // very uneven heights (Process is sticky-tall, Selected/Blog stack
   // multiple cards), so the goo backdrop word for each section must
@@ -340,7 +362,7 @@ export default function Home({ latestPosts }: HomeProps) {
       >
         <GooBackdrop
           words={looped.map((s) => s.word)}
-          progress={scrollYProgress}
+          progress={smoothProgress}
           centers={sectionCenters}
         />
 
