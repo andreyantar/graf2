@@ -219,17 +219,9 @@ export default function Home({ latestPosts }: HomeProps) {
       if (range <= 0) return;
       const nodes = el.querySelectorAll<HTMLElement>("[data-section-index]");
       if (!nodes.length) return;
-      // We want the *scroll progress* at which each section sits
-      // visually centred in the viewport — useScroll's progress is
-      // scrollTop / range, and a section is centred when
-      //   scrollTop = sectionTop + sectionHeight/2 - clientHeight/2.
-      // The previous formula ignored the half-viewport term and the
-      // word peaked one half-viewport late.
-      const half = el.clientHeight / 2;
-      const next = Array.from(nodes).map((n) => {
-        const v = (n.offsetTop + n.offsetHeight / 2 - half) / range;
-        return Math.max(0, Math.min(1, v));
-      });
+      const next = Array.from(nodes).map(
+        (n) => (n.offsetTop + n.offsetHeight / 2) / range,
+      );
       setSectionCenters((prev) => {
         if (
           prev.length === next.length &&
