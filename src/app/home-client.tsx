@@ -148,11 +148,6 @@ export default function Home({ latestPosts }: HomeProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ container: scrollRef });
-  // Real scroll-progress center for each looped section. Sections have
-  // very uneven heights (Process is sticky-tall, Selected/Blog stack
-  // multiple cards), so the goo backdrop word for each section must
-  // peak at the actually-measured midpoint rather than at i/(N-1).
-  const [sectionCenters, setSectionCenters] = useState<number[]>([]);
 
   // Lock body overflow only while the home page is mounted. Subpages
   // (blog, work, services) rely on natural document scroll.
@@ -207,49 +202,6 @@ export default function Home({ latestPosts }: HomeProps) {
     });
     setMenuOpen(false);
   };
-
-  // Measure where each looped section actually sits in the scroll
-  // container. The result feeds GooBackdrop so its word for each
-  // section peaks at the real centre instead of at uniform i/(N-1).
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const measure = () => {
-      const range = el.scrollHeight - el.clientHeight;
-      if (range <= 0) return;
-      const nodes = el.querySelectorAll<HTMLElement>("[data-section-index]");
-      if (!nodes.length) return;
-      const next = Array.from(nodes).map(
-        (n) => (n.offsetTop + n.offsetHeight / 2) / range,
-      );
-      setSectionCenters((prev) => {
-        if (
-          prev.length === next.length &&
-          prev.every((v, i) => Math.abs(v - next[i]) < 1e-4)
-        ) {
-          return prev;
-        }
-        return next;
-      });
-    };
-    // Run immediately, then again on the next two frames once images
-    // and Sanity content settle the layout.
-    measure();
-    const raf1 = requestAnimationFrame(measure);
-    const raf2 = requestAnimationFrame(() =>
-      requestAnimationFrame(measure),
-    );
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    for (const node of el.querySelectorAll("[data-section-index]")) {
-      ro.observe(node);
-    }
-    return () => {
-      cancelAnimationFrame(raf1);
-      cancelAnimationFrame(raf2);
-      ro.disconnect();
-    };
-  }, []);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -333,7 +285,6 @@ export default function Home({ latestPosts }: HomeProps) {
         <GooBackdrop
           words={looped.map((s) => s.word)}
           progress={scrollYProgress}
-          centers={sectionCenters}
         />
 
         <div className="fixed top-4 left-6 md:left-10 z-50 mix-blend-difference text-white pointer-events-none">

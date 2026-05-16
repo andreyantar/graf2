@@ -11,23 +11,12 @@ type Props = {
   words: string[];
   /** 0..1 scroll progress through the container above. */
   progress: MotionValue<number>;
-  /**
-   * Real scroll-progress center for each word (matching `words` length).
-   * Pass when sections have unequal heights — the BlobWord fades will
-   * peak at the measured position instead of `i / (total - 1)`. When
-   * omitted (or shorter than `words`), the uniform fallback is used.
-   */
-  centers?: number[];
 };
 
 const TYPE_COLOR = "#B4B4B4";
 
-export function GooBackdrop({ words, progress, centers }: Props) {
+export function GooBackdrop({ words, progress }: Props) {
   const N = Math.max(words.length, 1);
-  const haveCenters = centers && centers.length === words.length;
-
-  const centerOf = (i: number) =>
-    haveCenters ? centers![i] : i / Math.max(N - 1, 1);
 
   return (
     <>
@@ -60,28 +49,17 @@ export function GooBackdrop({ words, progress, centers }: Props) {
           className="relative w-full h-full"
           style={{ filter: "url(#goo-sharpen)" }}
         >
-          {words.map((w, i) => {
-            if (!w) return null;
-            const center = centerOf(i);
-            // Distance to neighbours on the scroll progress axis. With
-            // uneven section heights these aren't symmetric — use the
-            // appropriate one depending on which side `progress` is on.
-            const prev = i > 0 ? centerOf(i - 1) : center - 1 / Math.max(N - 1, 1);
-            const next =
-              i < N - 1 ? centerOf(i + 1) : center + 1 / Math.max(N - 1, 1);
-            const spanBefore = Math.max(center - prev, 1e-4);
-            const spanAfter = Math.max(next - center, 1e-4);
-            return (
+          {words.map((w, i) =>
+            w ? (
               <BlobWord
                 key={i}
                 word={w}
-                center={center}
-                spanBefore={spanBefore}
-                spanAfter={spanAfter}
+                index={i}
                 progress={progress}
+                total={N}
               />
-            );
-          })}
+            ) : null,
+          )}
         </div>
       </div>
     </>
@@ -90,30 +68,30 @@ export function GooBackdrop({ words, progress, centers }: Props) {
 
 function BlobWord({
   word,
-  center,
-  spanBefore,
-  spanAfter,
+  index,
   progress,
+  total,
 }: {
   word: string;
-  center: number;
-  spanBefore: number;
-  spanAfter: number;
+  index: number;
   progress: MotionValue<number>;
+  total: number;
 }) {
-  const dist = useTransform(progress, (p) => {
-    const delta = p - center;
-    const span = delta < 0 ? spanBefore : spanAfter;
-    return Math.min(Math.abs(delta) / span, 1.4);
-  });
+  const center = index / Math.max(total - 1, 1);
+  const span = 1 / Math.max(total - 1, 1);
 
-  // Plateau-style opacity scoped to a single section's span. Half-units
-  // are measured against the *appropriate* neighbour span, so words
-  // with a tall section on one side and a short section on the other
-  // still crossfade cleanly at the actual midpoint of each transition.
-  //  - PLATEAU_END is the half-width of the "fully visible" zone.
-  //  - FADE_END < 0.5 keeps neighbours from sharing screen at full
-  //    opacity; just under 0.5 gives a brief crossfade at the midpoint.
+  const dist = useTransform(progress, (p) =>
+    Math.min(Math.abs(p - center) / span, 1.4),
+  );
+
+  // Plateau-style opacity scoped to a single section's span.
+  //  - PLATEAU_END is the half-width of the "fully visible" zone, in
+  //    units of `span` (so 0.2 = ±20% of the way to the next section).
+  //  - FADE_END is where the word reaches zero. Keep it < 0.5 of the
+  //    span and neighbouring words can't be on screen at the same
+  //    time; setting it just under 0.5 gives a brief crossfade at the
+  //    transition midpoint without ever stacking two words at full
+  //    opacity.
   const PLATEAU_END = 0.2;
   const FADE_END = 0.6;
   const opacity = useTransform(dist, (d) => {
