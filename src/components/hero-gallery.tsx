@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import gsap from "gsap";
 import manifest from "@/data/artworks.json";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
 
@@ -85,10 +84,26 @@ export function HeroGallery() {
   }, []);
 
   useEffect(() => {
-    // DIAGNOSTIC: GSAP rotation disabled. The ring stays static so we
-    // can confirm whether continuous transform updates are what makes
-    // the goo-backdrop text jitter on wide viewports.
-    return;
+    const ring = ringRef.current;
+    if (!ring) return;
+    if (prefersReducedMotion()) return;
+    // Web Animations API instead of GSAP. The browser hands a
+    // transform-only animation entirely to the compositor thread —
+    // main thread never wakes up per frame, so the 18 perspective-
+    // transformed cards no longer compete with scroll handlers and
+    // motion subscribers. GSAP's tween (and earlier RAF-driven
+    // alternatives) updated inline style.transform every frame on
+    // the main thread, which on wide viewports starved scroll
+    // updates and showed up as goo-backdrop text jitter.
+    const anim = ring.animate(
+      [{ transform: "rotateY(0deg)" }, { transform: "rotateY(360deg)" }],
+      {
+        duration: durationSec * 1000,
+        iterations: Infinity,
+        easing: "linear",
+      },
+    );
+    return () => anim.cancel();
   }, [N, durationSec]);
 
   const heroRing = Array.from(
