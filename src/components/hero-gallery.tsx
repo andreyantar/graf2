@@ -72,6 +72,7 @@ function computeRingParams(viewportW: number): RingParams {
 
 export function HeroGallery() {
   const ringRef = useRef<HTMLDivElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
   // Initialise with a sensible mid-size guess; recompute on mount and
   // every resize. N changes across tiers → image array regenerates.
   const [{ R, cardW, cardH, N, angleStepDeg, durationSec }, setParams] =
@@ -86,6 +87,7 @@ export function HeroGallery() {
 
   useEffect(() => {
     const ring = ringRef.current;
+    const wrap = wrapRef.current;
     if (!ring) return;
     if (prefersReducedMotion()) return;
     // Full-revolution duration is set per tier so the perceived screen
@@ -96,7 +98,25 @@ export function HeroGallery() {
       ease: "none",
       repeat: -1,
     });
+    // Pause the tween when hero is off-screen. The 18 perspective-
+    // transformed cards each occupy their own compositing layer; a
+    // continuously rotating ring keeps every layer dirty every frame
+    // even while the user is scrolled away — that's what saturates
+    // the Chromium compositor and shows up as the goo-backdrop
+    // "freeze / fast flip" between sections.
+    let io: IntersectionObserver | undefined;
+    if (wrap) {
+      io = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) tween.resume();
+          else tween.pause();
+        },
+        { threshold: 0 },
+      );
+      io.observe(wrap);
+    }
     return () => {
+      io?.disconnect();
       tween.kill();
     };
   }, [N, durationSec]);
@@ -127,6 +147,7 @@ export function HeroGallery() {
       </h1>
 
       <div
+        ref={wrapRef}
         className="relative w-screen"
         style={{
           marginTop: "-10vh",
