@@ -234,9 +234,16 @@ export default function Home({ latestPosts }: HomeProps) {
         `[data-section-index="${2 * sections.length + 5}"]`,
       );
       if (ref) {
-        const contactMid = ref.offsetTop + ref.offsetHeight / 2;
-        wrapDown = contactMid;
-        wrapUp = contactMid - block;
+        // Use the scrollTop at which Contact is *visually centred* in
+        // the viewport, not the section's centre in scroll coords.
+        // The previous formula put wrapDown past the max scrollTop
+        // (scrollHeight - clientHeight) on tall sections, which meant
+        // the wrap could never fire going down — the page just ran out
+        // at the bottom of the 3rd copy.
+        const visualCenter =
+          ref.offsetTop + ref.offsetHeight / 2 - el.clientHeight / 2;
+        wrapDown = visualCenter;
+        wrapUp = visualCenter - block;
       } else {
         wrapDown = 2 * block;
         wrapUp = block;
