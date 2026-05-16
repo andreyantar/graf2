@@ -207,22 +207,58 @@ export default function Home({ latestPosts }: HomeProps) {
     const el = scrollRef.current;
     if (!el) return;
 
-    // Start in the middle copy. Same content as the other copies, so
-    // the user sees the hero — they just can't scroll all the way out
-    // in either direction without us snapping them back.
+    // The looped sections are rendered three times so the user can
+    // scroll past either end without seeing a real edge. The teleport
+    // happens at a fixed scroll-distance `block` between identical
+    // positions across copies.
+    //
+    // The seam is anchored *inside the Contact section* rather than at
+    // the hero boundary. Contact is static — no goo backdrop animation
+    // on this section, no GSAP-driven hero ring, no scroll-driven card
+    // arcs — so the instant scrollTop jump is invisible. At the hero
+    // boundary the wrap exposed brief misalignments in the hero
+    // gallery (three independent ring tweens) every full cycle, which
+    // read as a jitter the moment Contact looped back to Hero.
     let block = el.scrollHeight / 3;
-    el.scrollTop = block;
+    let wrapDown = 2 * block; // fallback before sections are measured
+    let wrapUp = block;
+
+    // Use the middle-copy Contact section centre as the "safe spot",
+    // its 3rd-copy twin as the lower teleport, and its 1st-copy twin
+    // as the upper teleport. recompute() refreshes after any layout
+    // change (image load, viewport resize, etc.).
+    const recompute = () => {
+      block = el.scrollHeight / 3;
+      const ref = el.querySelector<HTMLElement>(
+        // 3rd copy of Contact (looped index 2*sections.length + 5).
+        `[data-section-index="${2 * sections.length + 5}"]`,
+      );
+      if (ref) {
+        const contactMid = ref.offsetTop + ref.offsetHeight / 2;
+        wrapDown = contactMid;
+        wrapUp = contactMid - block;
+      } else {
+        wrapDown = 2 * block;
+        wrapUp = block;
+      }
+    };
+    recompute();
+
+    // Start the user in the middle copy of Hero (same content as the
+    // other two copies). After recompute() runs the safe zone is
+    // [wrapUp, wrapDown); middle-copy Hero sits inside it.
+    const heroMid = el.querySelector<HTMLElement>(
+      `[data-section-index="${sections.length}"]`,
+    );
+    el.scrollTop = heroMid?.offsetTop ?? block;
 
     const onScroll = () => {
-      block = el.scrollHeight / 3;
-      if (el.scrollTop >= 2 * block) el.scrollTop -= block;
-      else if (el.scrollTop < block) el.scrollTop += block;
+      if (el.scrollTop >= wrapDown) el.scrollTop -= block;
+      else if (el.scrollTop < wrapUp) el.scrollTop += block;
     };
     el.addEventListener("scroll", onScroll, { passive: true });
 
-    const ro = new ResizeObserver(() => {
-      block = el.scrollHeight / 3;
-    });
+    const ro = new ResizeObserver(recompute);
     ro.observe(el);
 
     return () => {
