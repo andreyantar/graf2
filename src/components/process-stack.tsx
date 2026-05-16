@@ -83,7 +83,15 @@ export function ProcessStack({ scrollContainerRef }: Props) {
     <div
       ref={containerRef}
       className="relative w-full"
-      style={{ height: `${STEPS.length * SLOT_HEIGHT_VH}vh` }}
+      style={{
+        height: `${STEPS.length * SLOT_HEIGHT_VH}vh`,
+        // Belt-and-braces: SnapSection is a flex container, so its
+        // child can be shrunk below its explicit height if min-height
+        // collapses. flexShrink:0 + minHeight pin the scroll budget
+        // the sticky stack needs to drive its animation.
+        minHeight: `${STEPS.length * SLOT_HEIGHT_VH}vh`,
+        flexShrink: 0,
+      }}
     >
       <div className="sticky top-0 h-svh w-full flex items-center justify-center">
         <div
