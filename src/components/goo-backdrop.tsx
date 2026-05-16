@@ -84,16 +84,14 @@ function BlobWord({
     Math.min(Math.abs(p - center) / span, 1.4),
   );
 
-  // Plateau-style opacity scoped to a single section's span.
-  //  - PLATEAU_END is the half-width of the "fully visible" zone, in
-  //    units of `span` (so 0.2 = ±20% of the way to the next section).
-  //  - FADE_END is where the word reaches zero. Keep it < 0.5 of the
-  //    span and neighbouring words can't be on screen at the same
-  //    time; setting it just under 0.5 gives a brief crossfade at the
-  //    transition midpoint without ever stacking two words at full
-  //    opacity.
-  const PLATEAU_END = 0.2;
-  const FADE_END = 0.6;
+  // Plateau-style opacity: each word holds at full visibility while
+  // its section is somewhere near centred, then fades out quickly.
+  // The wider plateau (0.6) means a word is readable across most of
+  // its section's span instead of flashing past in a single frame on
+  // wide viewports — at the cost of allowing a brief overlap with the
+  // neighbouring word during the transition midpoint.
+  const PLATEAU_END = 0.6;
+  const FADE_END = 0.95;
   const opacity = useTransform(dist, (d) => {
     if (d <= PLATEAU_END) return 1;
     if (d >= FADE_END) return 0;
