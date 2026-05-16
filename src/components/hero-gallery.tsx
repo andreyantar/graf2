@@ -174,7 +174,9 @@ export function HeroGallery() {
                 transform: `rotateY(${i * angleStepDeg}deg) translateZ(${-R}px)`,
                 backfaceVisibility: "hidden",
                 WebkitBackfaceVisibility: "hidden",
-                willChange: "transform",
+                // No willChange: keep cards out of their own
+                // compositing layers so the rotating ring composes
+                // as a single GPU op instead of N * 3 layers.
               } as React.CSSProperties}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
