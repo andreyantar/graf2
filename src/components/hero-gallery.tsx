@@ -109,6 +109,11 @@ export function HeroGallery() {
     (_, i) => HERO_IMAGES_SOURCE[i % HERO_IMAGES_SOURCE.length],
   );
 
+  // DIAGNOSTIC: toggle to false to render the page without the
+  // cylindrical gallery, isolating whether the client-reported
+  // freeze comes from the gallery's compositing cost.
+  const RENDER_GALLERY = false;
+
   return (
     <div
       className="relative w-full flex flex-col items-center"
@@ -129,6 +134,7 @@ export function HeroGallery() {
         edges in between.
       </h1>
 
+      {RENDER_GALLERY && (
       <div
         className="relative w-screen"
         style={{
@@ -185,6 +191,7 @@ export function HeroGallery() {
           ))}
         </div>
       </div>
+      )}
     </div>
   );
 }
