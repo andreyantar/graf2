@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useScroll } from "motion/react";
+import { useScroll, useTransform } from "motion/react";
 import gsap from "gsap";
 import { BlogCard } from "@/components/blog-card";
 import { CaseCard } from "@/components/case-card";
@@ -148,6 +148,13 @@ export default function Home({ latestPosts }: HomeProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ container: scrollRef });
+  // Hero gallery rotation is now scroll-driven instead of running on
+  // its own clock. The ring only moves while the user is scrolling —
+  // the compositor sleeps at rest, which removes the continuous
+  // animation load that was making the goo-backdrop text jitter on
+  // wide viewports. 3 full revolutions per page traverse keeps the
+  // gallery moving lively without going overboard.
+  const heroRotation = useTransform(scrollYProgress, [0, 1], [0, 3 * 360]);
 
   // Lock body overflow only while the home page is mounted. Subpages
   // (blog, work, services) rely on natural document scroll.
@@ -365,7 +372,7 @@ export default function Home({ latestPosts }: HomeProps) {
                 bare={s.bare}
               >
                 {isHeroIntro ? (
-                  <HeroGallery />
+                  <HeroGallery rotation={heroRotation} />
                 ) : isSelectedWork ? (
                   <div className="relative w-[88vw] md:w-[70vw] max-w-[1280px] mx-auto grid grid-cols-1 sm:grid-cols-2 justify-items-center gap-10 md:gap-20">
                     {selectedCases.map((c, idx) => (

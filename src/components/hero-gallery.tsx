@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { motion, type MotionValue } from "motion/react";
 import manifest from "@/data/artworks.json";
-import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
 
 const ART_URLS: string[] = (manifest as Array<{ url: string }>).map(
   (m) => m.url,
@@ -69,11 +69,18 @@ function computeRingParams(viewportW: number): RingParams {
   };
 }
 
-export function HeroGallery() {
-  const ringRef = useRef<HTMLDivElement>(null);
+type HeroGalleryProps = {
+  /** MotionValue driving rotateY (in degrees). Provided by parent so
+   *  all three looped instances share the same source and stay synced;
+   *  parent maps page scrollYProgress → rotation. The ring only moves
+   *  while the user is scrolling — at rest the compositor sleeps. */
+  rotation: MotionValue<number>;
+};
+
+export function HeroGallery({ rotation }: HeroGalleryProps) {
   // Initialise with a sensible mid-size guess; recompute on mount and
   // every resize. N changes across tiers → image array regenerates.
-  const [{ R, cardW, cardH, N, angleStepDeg, durationSec }, setParams] =
+  const [{ R, cardW, cardH, N, angleStepDeg }, setParams] =
     useState<RingParams>(() => computeRingParams(1280));
 
   useEffect(() => {
@@ -82,29 +89,6 @@ export function HeroGallery() {
     window.addEventListener("resize", apply);
     return () => window.removeEventListener("resize", apply);
   }, []);
-
-  useEffect(() => {
-    const ring = ringRef.current;
-    if (!ring) return;
-    if (prefersReducedMotion()) return;
-    // Web Animations API instead of GSAP. The browser hands a
-    // transform-only animation entirely to the compositor thread —
-    // main thread never wakes up per frame, so the 18 perspective-
-    // transformed cards no longer compete with scroll handlers and
-    // motion subscribers. GSAP's tween (and earlier RAF-driven
-    // alternatives) updated inline style.transform every frame on
-    // the main thread, which on wide viewports starved scroll
-    // updates and showed up as goo-backdrop text jitter.
-    const anim = ring.animate(
-      [{ transform: "rotateY(0deg)" }, { transform: "rotateY(360deg)" }],
-      {
-        duration: durationSec * 1000,
-        iterations: Infinity,
-        easing: "linear",
-      },
-    );
-    return () => anim.cancel();
-  }, [N, durationSec]);
 
   const heroRing = Array.from(
     { length: N },
@@ -144,20 +128,18 @@ export function HeroGallery() {
         }}
         aria-hidden
       >
-        <div
-          ref={ringRef}
+        <motion.div
           className="absolute"
           style={{
             top: "50%",
             left: "50%",
             width: 0,
             height: 0,
+            rotateY: rotation,
             transformStyle: "preserve-3d",
             // Safari sometimes drops the 3D context (cards bunch at
             // the rim, centre empty) without the explicit WebKit
-            // prefix on preserve-3d. willChange already promotes the
-            // ring to its own compositing layer — don't write a fixed
-            // transform here, GSAP owns ring.style.transform.
+            // prefix on preserve-3d.
             WebkitTransformStyle: "preserve-3d",
             willChange: "transform",
           } as React.CSSProperties}
@@ -190,7 +172,7 @@ export function HeroGallery() {
               />
             </div>
           ))}
-        </div>
+        </motion.div>
       </div>
       )}
     </div>
