@@ -145,8 +145,14 @@ export function HeroGallery() {
             width: 0,
             height: 0,
             transformStyle: "preserve-3d",
+            // Safari sometimes drops the 3D context (cards bunch at
+            // the rim, centre empty) without the explicit WebKit
+            // prefix on preserve-3d. willChange already promotes the
+            // ring to its own compositing layer — don't write a fixed
+            // transform here, GSAP owns ring.style.transform.
+            WebkitTransformStyle: "preserve-3d",
             willChange: "transform",
-          }}
+          } as React.CSSProperties}
         >
           {heroRing.map((src, i) => (
             <div
@@ -159,8 +165,9 @@ export function HeroGallery() {
                 top: -cardH / 2,
                 transform: `rotateY(${i * angleStepDeg}deg) translateZ(${-R}px)`,
                 backfaceVisibility: "hidden",
+                WebkitBackfaceVisibility: "hidden",
                 willChange: "transform",
-              }}
+              } as React.CSSProperties}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
