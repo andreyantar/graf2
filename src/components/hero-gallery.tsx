@@ -119,7 +119,7 @@ export function HeroGallery() {
       <h1
         className="text-center px-6 font-heavy text-card-title tracking-[-0.02em] leading-[1.1]"
         style={{
-          marginTop: "40vh",
+          marginTop: "30vh",
           width: "min(720px, 100vw)",
         }}
       >
@@ -130,7 +130,7 @@ export function HeroGallery() {
       <div
         className="relative w-screen"
         style={{
-          marginTop: "-10vh",
+          marginTop: "-3vh",
           height: cardH + 120,
           perspective: `${PERSPECTIVE_PX}px`,
           perspectiveOrigin: "50% 50%",

@@ -44,7 +44,7 @@ export function BlogPageClient({ posts }: Props) {
       <button
         type="button"
         onClick={() => setMenuOpen((v) => !v)}
-        className="fixed top-4 right-6 md:right-10 z-50 mix-blend-difference text-white font-mono text-xs uppercase tracking-widest flex items-center gap-2 cursor-pointer"
+        className="fixed top-4 right-6 md:right-10 z-50 mix-blend-difference text-white text-body flex items-center gap-2 cursor-pointer"
         aria-expanded={menuOpen}
         aria-label={menuOpen ? "Close menu" : "Open menu"}
       >
@@ -52,12 +52,17 @@ export function BlogPageClient({ posts }: Props) {
         <span aria-hidden>{menuOpen ? "✕" : "☰"}</span>
       </button>
 
-      <GooBackdrop words={["Journal"]} progress={staticProgress} />
+      <GooBackdrop
+        specs={[
+          { word: "Journal", peakCenter: 0.5, plateauHalf: 1, fadeHalf: 1 },
+        ]}
+        progress={staticProgress}
+      />
 
       <main className="relative z-10 min-h-svh px-6 md:px-10 py-32">
         {posts.length === 0 ? (
           <div className="mx-auto w-full max-w-[640px] text-center py-32">
-            <p className="font-mono text-mono uppercase tracking-widest opacity-50">
+            <p className="text-body opacity-50">
               No posts yet.
             </p>
           </div>

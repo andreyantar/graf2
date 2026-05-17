@@ -19,14 +19,14 @@ export function SpeakerCard({ index, name, role, bio, imageHue }: Props) {
       onMouseLeave={() => setHovered(false)}
       className="grid grid-cols-12 gap-6 py-12 md:py-16 group"
     >
-      <div className="col-span-12 md:col-span-2 font-mono text-xs uppercase tracking-widest text-[--color-fg]/60">
+      <div className="col-span-12 md:col-span-2 text-body text-[--color-fg]/60">
         {index}
       </div>
       <div className="col-span-12 md:col-span-6">
-        <h3 className="font-display text-[length:var(--text-speaker)] leading-[0.95] tracking-tight">
+        <h3 className="font-heavy text-[length:var(--text-speaker)] leading-[0.95] tracking-tight">
           {name}
         </h3>
-        <p className="mt-3 font-mono text-xs uppercase tracking-widest text-[--color-fg]/60">
+        <p className="mt-3 text-body text-[--color-fg]/60">
           {role}
         </p>
         <p className="mt-6 max-w-md text-body-lg leading-relaxed text-[--color-fg]/80">
@@ -48,7 +48,7 @@ export function SpeakerCard({ index, name, role, bio, imageHue }: Props) {
           <motion.div
             animate={{ y: hovered ? -8 : 0 }}
             transition={{ type: "spring", stiffness: 180, damping: 20 }}
-            className="h-full w-full grid place-items-center font-display text-8xl text-white/40 mix-blend-overlay"
+            className="h-full w-full grid place-items-center font-heavy text-8xl text-white/40 mix-blend-overlay"
           >
             {name
               .split(" ")

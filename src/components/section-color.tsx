@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-export type Palette = { bg: string; fg: string };
+export type Palette = { bg: string };
 
 type Props = {
   index: number;
@@ -28,7 +28,6 @@ export function SectionColor({
     if (!el) return;
     const apply = () => {
       document.documentElement.style.setProperty("--bg", palette.bg);
-      document.documentElement.style.setProperty("--fg", palette.fg);
     };
     const io = new IntersectionObserver(
       (entries) => {

@@ -51,7 +51,7 @@ export function MenuPanel({ open, onNavigate }: Props) {
     <aside
       ref={ref}
       aria-hidden={!open}
-      className="pointer-events-auto fixed inset-y-0 right-0 z-30 w-full md:w-[280px] bg-[var(--frame)] text-[#111]"
+      className="pointer-events-auto fixed inset-y-0 right-0 z-30 w-[50vw] min-[541px]:w-[33vw] md:w-[280px] overflow-hidden bg-[var(--frame)] text-[#111]"
     >
       <div className="h-full flex flex-col justify-between px-6 md:px-7 py-8 md:py-10">
         <div />

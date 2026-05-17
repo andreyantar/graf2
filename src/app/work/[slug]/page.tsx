@@ -69,7 +69,7 @@ export default async function CasePage({
     <main className="min-h-svh bg-paper text-ink flex flex-col items-center justify-center px-6 py-24">
       <JsonLd data={ld} />
       <div className="w-full max-w-[640px]">
-        <p className="font-mono text-mono uppercase tracking-widest opacity-60 mb-4">
+        <p className="text-body opacity-60 mb-4">
           Case study
         </p>
         <h1 className="font-heavy text-display leading-[0.95] tracking-[-0.02em] mb-6">
@@ -78,12 +78,12 @@ export default async function CasePage({
         <p className="text-body-lg leading-snug opacity-80 mb-10">
           {data.tagline}
         </p>
-        <p className="font-mono text-mono uppercase tracking-widest opacity-50 mb-10">
+        <p className="text-body opacity-50 mb-10">
           Full case study in progress.
         </p>
         <Link
           href="/"
-          className="inline-flex items-center gap-2 font-mono text-mono uppercase tracking-widest border-b border-current pb-0.5 hover:opacity-60 transition-opacity"
+          className="inline-flex items-center gap-2 text-body border-b border-current pb-0.5 hover:opacity-60 transition-opacity"
         >
           ← Back to studio
         </Link>

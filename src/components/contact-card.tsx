@@ -66,7 +66,7 @@ export function ContactCard({ scrollContainerRef }: Props) {
       <p className="text-[13px] opacity-50 mt-10 mb-3">
         Or write directly
       </p>
-      <ul className="text-body leading-relaxed grid grid-cols-2 gap-x-6">
+      <ul className="text-body leading-relaxed flex flex-col gap-y-2 min-[481px]:flex-row min-[481px]:justify-between min-[481px]:gap-x-6 min-[481px]:gap-y-0 lg:grid lg:grid-cols-2">
         <li>
           <a
             href={`mailto:${EMAIL}`}
@@ -89,7 +89,7 @@ export function ContactCard({ scrollContainerRef }: Props) {
 
       <hr className="my-8 border-current opacity-15" />
 
-      <div className="grid grid-cols-3 gap-2 text-body opacity-70">
+      <div className="flex justify-between gap-2 xl:grid xl:grid-cols-3 text-body opacity-70">
         <a href="#" className="hover:opacity-100">
           Instagram ↗
         </a>

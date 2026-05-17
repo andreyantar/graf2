@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
-import { Fraunces, Instrument_Sans, JetBrains_Mono, Archivo_Black } from "next/font/google";
+import { Instrument_Sans, Archivo_Black } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/site";
 import "./globals.css";
-
-const display = Fraunces({
-  variable: "--font-display",
-  subsets: ["latin"],
-  axes: ["opsz", "SOFT"],
-});
 
 const heavy = Archivo_Black({
   variable: "--font-heavy",
@@ -19,11 +13,6 @@ const heavy = Archivo_Black({
 
 const sans = Instrument_Sans({
   variable: "--font-sans",
-  subsets: ["latin"],
-});
-
-const mono = JetBrains_Mono({
-  variable: "--font-mono",
   subsets: ["latin"],
 });
 
@@ -85,7 +74,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${display.variable} ${heavy.variable} ${sans.variable} ${mono.variable} antialiased`}
+      className={`${heavy.variable} ${sans.variable} antialiased`}
     >
       <body>
         <script

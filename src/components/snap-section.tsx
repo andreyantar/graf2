@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-export type Palette = { bg: string; fg: string };
+export type Palette = { bg: string };
 
 type Props = {
   index: number;
@@ -10,6 +10,11 @@ type Props = {
   isHero?: boolean;
   /** Skip the default rounded-white card wrap — children render raw. */
   bare?: boolean;
+  /** Override the section's horizontal padding class.
+   *  Default: "px-6 md:px-10". Sections with viewport-scaled card rows
+   *  pass their own (e.g. "px-4 lg:px-0", "px-0 md:px-10") so the
+   *  section padding doesn't fight the content width. */
+  xPadding?: string;
   children?: React.ReactNode;
 };
 
@@ -18,6 +23,7 @@ export function SnapSection({
   palette,
   isHero,
   bare,
+  xPadding = "px-6 md:px-10",
   children,
 }: Props) {
   const ref = useRef<HTMLElement>(null);
@@ -27,7 +33,6 @@ export function SnapSection({
     if (!el) return;
     const apply = () => {
       document.documentElement.style.setProperty("--bg", palette.bg);
-      document.documentElement.style.setProperty("--fg", palette.fg);
     };
     const io = new IntersectionObserver(
       (entries) => {
@@ -46,7 +51,7 @@ export function SnapSection({
       ref={ref}
       data-section-index={index}
       data-hero={isHero ? "true" : undefined}
-      className="relative min-h-screen flex items-center justify-center px-6 md:px-10 py-24"
+      className={`relative min-h-screen flex items-center justify-center py-24 ${xPadding}`}
     >
       {children &&
         (bare ? (

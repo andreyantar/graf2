@@ -128,6 +128,8 @@ function ProcessCard({
   exitProgress: MotionValue<number>;
 }) {
   const cardRef = useRef<HTMLElement>(null);
+  const imgMobileRef = useRef<HTMLImageElement>(null);
+  const imgDesktopRef = useRef<HTMLImageElement>(null);
 
   const finalYVh = index * TITLE_STRIP_VH;
   const slotStart = index / total;
@@ -206,6 +208,35 @@ function ProcessCard({
     };
   }, [entryProgress, exitProgress, slotStart, slotEntry, isAnchor]);
 
+  // Image zoom keyed to the card's slide-in. Pinned cards don't move
+  // through the viewport like CaseCard / BlogCard etc. — they enter
+  // from below into a fixed stack position. So we treat each card's
+  // entry window (slotStart → slotEntry) as the equivalent of the
+  // "bottom-to-top viewport traversal" and zoom the image 1.3 → 1.0
+  // across it. After landing the image holds at 1.0. Anchor card
+  // (index 0) is treated as already landed.
+  useEffect(() => {
+    if (prefersReducedMotion()) return;
+    const apply = () => {
+      const p = entryProgress.get();
+      let s: number;
+      if (isAnchor || p >= slotEntry) {
+        s = 1;
+      } else if (p < slotStart) {
+        s = 1.3;
+      } else {
+        const ep = (p - slotStart) / (slotEntry - slotStart);
+        s = 1.3 - 0.3 * ep;
+      }
+      const tr = `scale(${s})`;
+      if (imgMobileRef.current) imgMobileRef.current.style.transform = tr;
+      if (imgDesktopRef.current) imgDesktopRef.current.style.transform = tr;
+    };
+    apply();
+    const unsub = entryProgress.on("change", apply);
+    return () => unsub();
+  }, [entryProgress, slotStart, slotEntry, isAnchor]);
+
   return (
     <motion.article
       ref={cardRef}
@@ -218,20 +249,37 @@ function ProcessCard({
       }}
       className="absolute top-0 left-0 right-0 w-full flex bg-paper text-ink shadow-card overflow-hidden rounded-[var(--card-radius,0px)] min-h-[240px] [contain:paint] will-change-transform"
     >
+      {/* Mobile: same image as a card-wide background, full opacity,
+          no veil. The card's bg-paper stays underneath in case the
+          image fails to load. */}
+      <div className="md:hidden absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          ref={imgMobileRef}
+          src={step.img}
+          alt=""
+          draggable={false}
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover will-change-transform"
+        />
+      </div>
+
       {/* Square cover on the left — visible from md+ only; on mobile the
           card is too narrow to share the row with content. */}
       <div className="hidden md:block relative w-[240px] aspect-square shrink-0 overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
+          ref={imgDesktopRef}
           src={step.img}
           alt={step.title}
           draggable={false}
           loading="lazy"
           decoding="async"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover will-change-transform"
         />
       </div>
-      <div className="flex-1 p-7 md:p-10 flex flex-col justify-center">
+      <div className="relative z-10 flex-1 p-7 md:p-10 flex flex-col justify-center text-white md:text-ink">
         <h3 className="font-heavy text-card-title tracking-[-0.02em] leading-[1.1] mb-3">
           {step.title}
         </h3>

@@ -7,24 +7,39 @@ import {
   type MotionValue,
 } from "motion/react";
 
+/** One word + its scroll-anchored visibility window. Positions and
+ *  half-widths are expressed as fractions of a single loop block
+ *  (block = scrollHeight / 3, computed by the host). */
+export type WordSpec = {
+  word: string;
+  /** Block-fraction where the word should peak (full opacity).
+   *  Should match the scrollTop at which the section's cards are
+   *  centred in the viewport. */
+  peakCenter: number;
+  /** Half-width of the plateau (full opacity) around peakCenter.
+   *  Tall sticky sections (Process) pass a wide plateau so the word
+   *  stays up while the cards are pinned. */
+  plateauHalf: number;
+  /** Half-width of the full visibility window (plateau + fade tail).
+   *  Beyond this the word is fully invisible. */
+  fadeHalf: number;
+};
+
 type Props = {
-  words: string[];
-  /** 0..1 scroll progress through the container above. */
+  specs: WordSpec[];
+  /** 0..1 progress within a single loop block. */
   progress: MotionValue<number>;
 };
 
 const TYPE_COLOR = "#B4B4B4";
 
-export function GooBackdrop({ words, progress }: Props) {
-  const N = Math.max(words.length, 1);
-
+export function GooBackdrop({ specs, progress }: Props) {
   return (
     <>
       {/* SVG filter — sharpens alpha only, leaves RGB untouched.
-          A blurred gray edge becomes a hard gray edge, so blobs keep
-          their original color. Combined with per-word `filter: blur()`
-          on the fade tail, this is what makes the letters appear to
-          melt into each other during the transition (the "goo"). */}
+          A blurred gray edge becomes a hard gray edge, so the per-word
+          `filter: blur()` melts adjacent letters into each other and
+          this filter snaps them back into hard shapes — the goo. */}
       <svg
         aria-hidden
         style={{ position: "absolute", width: 0, height: 0 }}
@@ -51,15 +66,9 @@ export function GooBackdrop({ words, progress }: Props) {
           className="relative w-full h-full"
           style={{ filter: "url(#goo-sharpen)" }}
         >
-          {words.map((w, i) =>
-            w ? (
-              <BlobWord
-                key={i}
-                word={w}
-                index={i}
-                progress={progress}
-                total={N}
-              />
+          {specs.map((s, i) =>
+            s.word ? (
+              <BlobWord key={i} spec={s} progress={progress} />
             ) : null,
           )}
         </div>
@@ -69,42 +78,39 @@ export function GooBackdrop({ words, progress }: Props) {
 }
 
 function BlobWord({
-  word,
-  index,
+  spec,
   progress,
-  total,
 }: {
-  word: string;
-  index: number;
+  spec: WordSpec;
   progress: MotionValue<number>;
-  total: number;
 }) {
-  const center = index / Math.max(total - 1, 1);
-  const span = 1 / Math.max(total - 1, 1);
+  const { word, peakCenter, plateauHalf, fadeHalf } = spec;
 
-  const dist = useTransform(progress, (p) =>
-    Math.min(Math.abs(p - center) / span, 1.4),
-  );
+  // Circular distance on the 0..1 loop. Hero and Contact sit at the
+  // wrap seam — without the circular form a word peaked at ~0 would
+  // appear "far" from progress ~0.95 and miss its own fade-in.
+  const dist = useTransform(progress, (p) => {
+    const raw = Math.abs(p - peakCenter);
+    return Math.min(raw, 1 - raw);
+  });
 
-  // Plateau-style opacity: each word holds at full visibility while
-  // its section is somewhere near centred, then fades out quickly.
-  const PLATEAU_END = 0.6;
-  const FADE_END = 0.95;
   const opacity = useTransform(dist, (d) => {
-    if (d <= PLATEAU_END) return 1;
-    if (d >= FADE_END) return 0;
-    const t = (d - PLATEAU_END) / (FADE_END - PLATEAU_END);
+    if (d <= plateauHalf) return 1;
+    if (d >= fadeHalf) return 0;
+    const t = (d - plateauHalf) / Math.max(fadeHalf - plateauHalf, 1e-6);
     const eased = t * t * (3 - 2 * t);
     return 1 - eased;
   });
 
-  // Per-word blur — ramps 0 → 18px across the fade window. Paired with
-  // the parent SVG alpha-sharpen, this is the goo-merge effect: the
-  // blurred edges of adjacent words bleed into each other, then the
-  // filter snaps the alpha back into hard shapes.
+  // Per-word blur — 0 on plateau, ramps to 18px over the fade tail.
+  // Paired with the wrapper's alpha-sharpen this is what produces the
+  // letterforms melting into each other on transition.
   const blurPx = useTransform(dist, (d) => {
-    if (d <= PLATEAU_END) return 0;
-    const t = Math.min((d - PLATEAU_END) / (FADE_END - PLATEAU_END), 1);
+    if (d <= plateauHalf) return 0;
+    const t = Math.min(
+      (d - plateauHalf) / Math.max(fadeHalf - plateauHalf, 1e-6),
+      1,
+    );
     const eased = t * t * (3 - 2 * t);
     return eased * 18;
   });

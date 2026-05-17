@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useMotionValue } from "motion/react";
+import type { WordSpec } from "@/components/goo-backdrop";
 import gsap from "gsap";
 import { BlogCard } from "@/components/blog-card";
 import { CaseCard } from "@/components/case-card";
@@ -56,7 +57,7 @@ const selectedCases = [
   },
 ];
 
-const whitePalette: Palette = { bg: "#ffffff", fg: "#111111" };
+const whitePalette: Palette = { bg: "#ffffff" };
 
 const SELECTED_WORK_INDEX = 1;
 const WHAT_WE_DO_INDEX = 2;
@@ -154,6 +155,20 @@ export default function Home({ latestPosts }: HomeProps) {
   // viewport in a single tick, flashing the whole stack of section
   // labels as one smear. Local progress stays continuous across wraps.
   const gooProgress = useMotionValue(0);
+  // Word specs anchored to actual section positions in the DOM.
+  // Rebuilt on layout change so each word peaks exactly when its
+  // section's cards are centred — not at uniform 1/N intervals, which
+  // made the tall Process section flash by while its label barely had
+  // time to read. Initial value is the uniform fallback used until the
+  // first measurement lands.
+  const [gooSpecs, setGooSpecs] = useState<WordSpec[]>(() =>
+    sections.map((s, i) => ({
+      word: s.word,
+      peakCenter: i / Math.max(sections.length - 1, 1),
+      plateauHalf: 0.05,
+      fadeHalf: 0.12,
+    })),
+  );
 
   // Lock body overflow only while the home page is mounted. Subpages
   // (blog, work, services) rely on natural document scroll.
@@ -166,35 +181,72 @@ export default function Home({ latestPosts }: HomeProps) {
 
   useEffect(() => {
     if (!stageRef.current) return;
+    if (typeof window === "undefined") return;
+
+    const STAGE_SCALE_X = 0.85;
+    const RIGHT_GAP_PX = 12; // visible gap between stage's right edge and menu
     const verticalMarginPx = 32; // 2rem
-    const scaleY =
-      typeof window !== "undefined"
-        ? (window.innerHeight - 2 * verticalMarginPx) / window.innerHeight
-        : 0.94;
-    // Reduced motion: skip the slide/scale tween, snap to final state.
-    const tweenDuration = prefersReducedMotion() ? 0 : 0.85;
-    gsap.to(stageRef.current, {
-      scaleX: menuOpen ? 0.85 : 1,
-      scaleY: menuOpen ? scaleY : 1,
-      x: menuOpen ? "-13vw" : 0,
-      borderRadius: menuOpen ? "22px" : "0px",
-      duration: tweenDuration,
-      ease: "expo.inOut",
-      overwrite: "auto",
-    });
+
+    // Mirror MenuPanel's responsive widths: w-[50vw] / min-[541px]:w-[33vw] / md:w-[280px].
+    const menuWidthPx = (vw: number) => {
+      if (vw >= 768) return 280;
+      if (vw >= 541) return vw * 0.33;
+      return vw * 0.5;
+    };
+
+    // Push the stage left so its right edge — after scaling — lands a
+    // few pixels left of the menu's left edge. Without this the menu
+    // visually clips the stage's rounded right corners on narrower
+    // viewports, which read as "square cut" of an otherwise rounded
+    // shape. Formula:
+    //   right_edge_after = vw*(0.5 + scaleX/2) + xPx
+    //   want right_edge_after = (vw − menuW) − gap
+    //   ⇒ xPx = vw*(0.5 − scaleX/2) − menuW − gap
+    const targetXPx = (vw: number) =>
+      vw * (0.5 - STAGE_SCALE_X / 2) - menuWidthPx(vw) - RIGHT_GAP_PX;
+
+    const tween = () => {
+      const vw = window.innerWidth;
+      const scaleY =
+        (window.innerHeight - 2 * verticalMarginPx) / window.innerHeight;
+      const tweenDuration = prefersReducedMotion() ? 0 : 0.85;
+      gsap.to(stageRef.current, {
+        scaleX: menuOpen ? STAGE_SCALE_X : 1,
+        scaleY: menuOpen ? scaleY : 1,
+        x: menuOpen ? targetXPx(vw) : 0,
+        borderRadius: menuOpen ? "22px" : "0px",
+        duration: tweenDuration,
+        ease: "expo.inOut",
+        overwrite: "auto",
+      });
+    };
+
+    tween();
+
+    // While the menu is open, recompute on resize so the stage tracks
+    // the menu's responsive width (50vw / 33vw / 280px). When closed
+    // the tween targets are static (scale 1, x 0) — no need to re-fire.
+    if (!menuOpen) return;
+    const onResize = () => tween();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, [menuOpen]);
 
   // Triple the sections so the user can wrap from end → start invisibly.
   const looped = [...sections, ...sections, ...sections];
 
-  // Smooth-scroll the inner container to a section in the middle copy of
-  // the loop. Sections aren't all the same height (Process section is a
-  // tall sticky stack), so we resolve the target by querying the actual
-  // DOM node instead of `block / sections.length`.
+  // Smooth-scroll the inner container to a section in the 3rd copy of
+  // the loop. The safe-zone after wrap-Contact is [middle_contact_center,
+  // 3rd_contact_center) — i.e. it spans the 3rd copy. Targeting the
+  // middle copy means the smooth scroll crosses wrapUp mid-animation,
+  // the scroll handler teleports +block, and the user lands on the
+  // 3rd-copy Contact (visually the footer) instead of the requested
+  // section. Sections aren't all the same height (Process is a tall
+  // sticky stack), so we resolve the target by querying the DOM node.
   const scrollToSection = (sectionIndex: number) => {
     const el = scrollRef.current;
     if (!el) return;
-    const targetIndex = sections.length + sectionIndex; // middle copy
+    const targetIndex = 2 * sections.length + sectionIndex; // 3rd copy
     const section = el.querySelector<HTMLElement>(
       `[data-section-index="${targetIndex}"]`,
     );
@@ -235,6 +287,7 @@ export default function Home({ latestPosts }: HomeProps) {
     // change (image load, viewport resize, etc.).
     const recompute = () => {
       block = el.scrollHeight / 3;
+      const cH = el.clientHeight;
       const ref = el.querySelector<HTMLElement>(
         // 3rd copy of Contact (looped index 2*sections.length + 5).
         `[data-section-index="${2 * sections.length + 5}"]`,
@@ -247,12 +300,60 @@ export default function Home({ latestPosts }: HomeProps) {
         // the wrap could never fire going down — the page just ran out
         // at the bottom of the 3rd copy.
         const visualCenter =
-          ref.offsetTop + ref.offsetHeight / 2 - el.clientHeight / 2;
-        wrapDown = visualCenter;
-        wrapUp = visualCenter - block;
+          ref.offsetTop + ref.offsetHeight / 2 - cH / 2;
+        // 3rd-copy Contact sits at the very tail of scrollHeight, so
+        // visualCenter can land at or above maxScrollTop. Floating-
+        // point in scrollTop means `>= wrapDown` then never fires and
+        // the wrap-down breaks while wrap-up keeps working (asymmetric
+        // because wrapUp has slack above 0). Clamp wrapDown a few px
+        // below maxScrollTop so it's always reachable.
+        const maxScrollTop = el.scrollHeight - cH;
+        wrapDown = Math.min(visualCenter, maxScrollTop - 4);
+        wrapUp = wrapDown - block;
       } else {
         wrapDown = 2 * block;
         wrapUp = block;
+      }
+
+      // Build goo word specs anchored to first-copy section positions.
+      // For each section: peak = scrollTop where its centre sits in the
+      // middle of the viewport; plateau extends across the section's
+      // pinned/visible window (so Process keeps its label up while its
+      // sticky stack is pinned across ~240vh).
+      const FADE_TAIL_VH = 0.35; // 35vh fade margin past the plateau
+      const SIDE_MARGIN_VH = 0.3; // 30vh of plateau outside the section
+      if (block > 0) {
+        const specs: WordSpec[] = sections.map((s, idx) => {
+          const section = el.querySelector<HTMLElement>(
+            `[data-section-index="${idx}"]`,
+          );
+          if (!section) {
+            return {
+              word: s.word,
+              peakCenter: idx / Math.max(sections.length - 1, 1),
+              plateauHalf: 0.05,
+              fadeHalf: 0.12,
+            };
+          }
+          const sectionH = section.offsetHeight;
+          const centerPx = section.offsetTop + sectionH / 2 - cH / 2;
+          // Plateau half = half the "extra" tall-section pinning time
+          // plus a small margin past the section edges. For a 100vh
+          // section this is ~30vh; for the 240vh Process it's ~100vh.
+          const plateauHalfPx =
+            Math.max(0, (sectionH - cH) / 2) + cH * SIDE_MARGIN_VH;
+          const fadeHalfPx = plateauHalfPx + cH * FADE_TAIL_VH;
+          return {
+            word: s.word,
+            // Wrap into [0,1) — Hero is at scrollTop 0 in copy 1, so
+            // its centerPx can be slightly negative; modulo keeps it
+            // consistent with the circular dist in BlobWord.
+            peakCenter: ((centerPx % block) + block) % block / block,
+            plateauHalf: plateauHalfPx / block,
+            fadeHalf: fadeHalfPx / block,
+          };
+        });
+        setGooSpecs(specs);
       }
     };
     recompute();
@@ -298,7 +399,7 @@ export default function Home({ latestPosts }: HomeProps) {
       const idx = NAV_INDICES[raw as keyof typeof NAV_INDICES];
       const el = scrollRef.current;
       if (!el) return;
-      const targetIndex = sections.length + idx;
+      const targetIndex = 2 * sections.length + idx; // 3rd copy = safe zone
       const section = el.querySelector<HTMLElement>(
         `[data-section-index="${targetIndex}"]`,
       );
@@ -338,12 +439,9 @@ export default function Home({ latestPosts }: HomeProps) {
         className="relative z-10 h-svh w-screen overflow-hidden bg-white"
         onClick={() => menuOpen && setMenuOpen(false)}
       >
-        <GooBackdrop
-          words={sections.map((s) => s.word)}
-          progress={gooProgress}
-        />
+        <GooBackdrop specs={gooSpecs} progress={gooProgress} />
 
-        <div className="fixed top-4 left-6 md:left-10 z-50 mix-blend-difference text-white pointer-events-none">
+        <div className="fixed top-4 left-6 md:left-10 z-50 mix-blend-difference text-white pointer-events-none flex items-center min-h-[44px]">
           <SiteLogo className="h-[18px] w-auto" />
         </div>
 
@@ -376,6 +474,19 @@ export default function Home({ latestPosts }: HomeProps) {
                 palette={whitePalette}
                 isHero={localIdx === 0}
                 bare={s.bare}
+                // Per-section horizontal padding overrides so the
+                // section box doesn't fight viewport-scaled card rows:
+                //   – WhatWeDo / Journal: 1rem on ≤1023, none on lg+
+                //     (card row lands at 90vw lg / 70vw ≥1440)
+                //   – Selected work: 1rem on ≤767 (matches WhatWeDo),
+                //     default 40px on md+ (desktop rhythm intact)
+                xPadding={
+                  isWhatWeDo || isBlog
+                    ? "px-4 lg:px-0"
+                    : isSelectedWork
+                    ? "px-4 md:px-10"
+                    : undefined
+                }
               >
                 {isHeroIntro ? (
                   // Render the 3D gallery only in the 3rd copy of the
@@ -396,18 +507,19 @@ export default function Home({ latestPosts }: HomeProps) {
                     />
                   )
                 ) : isSelectedWork ? (
-                  <div className="relative w-[88vw] md:w-[70vw] max-w-[1280px] mx-auto grid grid-cols-1 sm:grid-cols-2 justify-items-center gap-10 md:gap-20">
+                  <div className="relative w-full md:w-[70vw] max-w-[1280px] mx-auto grid grid-cols-1 sm:grid-cols-2 justify-items-center gap-4 md:gap-20">
                     {selectedCases.map((c, idx) => (
                       <CaseCard
                         key={`${i}-${c.n}`}
                         data={c}
                         scrollContainerRef={scrollRef}
                         column={idx % 2 === 0 ? "left" : "right"}
+                        cardIndex={idx}
                       />
                     ))}
                   </div>
                 ) : isWhatWeDo ? (
-                  <div className="relative w-[88vw] md:w-[70vw] mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 py-16">
+                  <div className="relative w-full lg:w-[90vw] min-[1440px]:w-[70vw] mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 py-16">
                     {services.map((sv, idx) => (
                       <ServiceCard
                         key={`${i}-${sv.href}`}
@@ -420,6 +532,7 @@ export default function Home({ latestPosts }: HomeProps) {
                             ? "center"
                             : "right"
                         }
+                        cardIndex={idx}
                       />
                     ))}
                   </div>
@@ -427,7 +540,7 @@ export default function Home({ latestPosts }: HomeProps) {
                   <ProcessStack scrollContainerRef={scrollRef} />
                 ) : isBlog ? (
                   latestPosts.length > 0 ? (
-                    <div className="relative w-[88vw] md:w-[70vw] mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 py-16">
+                    <div className="relative w-full lg:w-[90vw] min-[1440px]:w-[70vw] mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 py-16">
                       {latestPosts.slice(0, 3).map((post, idx) => (
                         <BlogCard
                           key={`${i}-${post._id}`}
@@ -440,12 +553,13 @@ export default function Home({ latestPosts }: HomeProps) {
                               : "right"
                           }
                           scrollContainerRef={scrollRef}
+                          cardIndex={idx}
                         />
                       ))}
                     </div>
                   ) : (
                     <div className="mx-auto max-w-[420px] text-center px-6">
-                      <p className="font-mono text-mono uppercase tracking-widest opacity-50">
+                      <p className="text-body opacity-50">
                         No posts yet.
                       </p>
                     </div>

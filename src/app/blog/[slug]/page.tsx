@@ -60,7 +60,7 @@ export default async function PostPage({
     <main className="min-h-svh bg-paper text-ink px-6 py-24 md:py-32">
       <JsonLd data={ld} />
       <article className="mx-auto w-full max-w-[680px]">
-        <p className="font-mono text-mono uppercase tracking-widest opacity-50 mb-4">
+        <p className="text-body opacity-50 mb-4">
           {new Date(post.publishedAt).toLocaleDateString("en-US", {
             year: "numeric",
             month: "short",
@@ -100,7 +100,7 @@ export default async function PostPage({
 
         <Link
           href="/blog"
-          className="mt-16 inline-flex items-center gap-2 font-mono text-mono uppercase tracking-widest border-b border-current pb-0.5 hover:opacity-60 transition-opacity"
+          className="mt-16 inline-flex items-center gap-2 text-body border-b border-current pb-0.5 hover:opacity-60 transition-opacity"
         >
           ← All posts
         </Link>

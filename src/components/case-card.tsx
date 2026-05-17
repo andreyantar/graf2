@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useScroll } from "motion/react";
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
 import { envelope } from "@/lib/scroll-envelope";
 
@@ -18,6 +18,11 @@ type Props = {
   data: CaseData;
   scrollContainerRef: RefObject<HTMLDivElement | null>;
   column?: "left" | "right";
+  /** Position in the row (0 = first). On ≤767px every card past the
+   *  first stays static — no transform, no radius envelope — so the
+   *  mobile stack doesn't feel like five separate scroll-driven loops
+   *  competing for attention. */
+  cardIndex?: number;
 };
 
 // ─── Tunables ──────────────────────────────────────────────────────────
@@ -47,8 +52,11 @@ export function CaseCard({
   data,
   scrollContainerRef,
   column = "left",
+  cardIndex = 0,
 }: Props) {
   const cardRef = useRef<HTMLElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [mobileSkip, setMobileSkip] = useState(false);
 
   // 0 = card top at viewport bottom (entering), 1 = card bottom at viewport top (exiting)
   const { scrollYProgress } = useScroll({
@@ -57,12 +65,31 @@ export function CaseCard({
     offset: ["start end", "end start"],
   });
 
+  // Watch the ≤767 breakpoint — only relevant past the first card.
+  useEffect(() => {
+    if (cardIndex === 0) return;
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => setMobileSkip(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, [cardIndex]);
+
   useEffect(() => {
     const card = cardRef.current;
+    const img = imgRef.current;
     if (!card) return;
     // Respect OS-level reduced-motion: card stays in its natural grid slot,
     // sharp corners, no scroll-driven arc.
     if (prefersReducedMotion()) return;
+    // On mobile every card past the first sits in its natural place.
+    if (mobileSkip) {
+      card.style.transform = "";
+      card.style.setProperty("--card-radius", "0px");
+      if (img) img.style.transform = "";
+      return;
+    }
 
     const colSign = column === "right" ? 1 : -1; // outward direction per column
     const rotFlip = FLIP_ROTATION ? -1 : 1;
@@ -80,6 +107,10 @@ export function CaseCard({
       // browser optimize the paint hint.
       card.style.transform = `translate3d(${x}px, 0, 0) rotate(${rot}deg)`;
       card.style.setProperty("--card-radius", `${radius}px`);
+      // Scroll-driven image zoom: linear 1.3 (card at viewport bottom)
+      // → 1.0 (card at viewport top). Symmetric in scroll direction
+      // because it tracks card position, not scroll velocity.
+      if (img) img.style.transform = `scale(${1.3 - 0.3 * p})`;
     };
 
     apply(scrollYProgress.get());
@@ -87,7 +118,7 @@ export function CaseCard({
     return () => {
       unsub();
     };
-  }, [column, scrollYProgress]);
+  }, [column, mobileSkip, scrollYProgress]);
 
   return (
     <article
@@ -98,12 +129,13 @@ export function CaseCard({
         <div className="relative h-[280px] w-full overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
+            ref={imgRef}
             src={data.img}
             alt={data.title}
             draggable={false}
             loading="lazy"
             decoding="async"
-            className="block w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            className="block w-full h-full object-cover will-change-transform"
           />
         </div>
         <div className="px-6 md:px-7 pb-6 md:pb-7 pt-7">
