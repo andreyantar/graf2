@@ -48,7 +48,7 @@ export function ContactCard({ scrollContainerRef }: Props) {
       ref={cardRef}
       className="relative w-[88vw] md:w-[70vw] max-w-[680px] mx-auto bg-paper text-ink shadow-card overflow-hidden p-8 md:p-12 rounded-[var(--card-radius,0px)] will-change-transform [contain:paint]"
     >
-      <h2 className="font-heavy text-card-title tracking-[-0.02em] leading-[1.1] mb-4">
+      <h2 className="font-archivo text-card-title tracking-[-0.02em] leading-[1.1] mb-4">
         Have a brand worth building?
       </h2>
       <p className="text-body leading-relaxed opacity-90 mb-8">

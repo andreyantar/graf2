@@ -1,19 +1,18 @@
 import type { Metadata } from "next";
-import { Instrument_Sans, Archivo_Black } from "next/font/google";
+import { Archivo } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/site";
 import "./globals.css";
 
-const heavy = Archivo_Black({
-  variable: "--font-heavy",
+// Variable Archivo (wght + wdth axes) is now the only typeface on
+// the site — body inherits the default instance, headings/goo/menu
+// override via the `.font-archivo` utility class in globals.css
+// (wdth 125 / wght 450). Instrument Sans removed.
+const archivo = Archivo({
+  variable: "--font-archivo",
   subsets: ["latin"],
-  weight: "400",
-});
-
-const sans = Instrument_Sans({
-  variable: "--font-sans",
-  subsets: ["latin"],
+  axes: ["wdth"],
 });
 
 export const metadata: Metadata = {
@@ -74,7 +73,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${heavy.variable} ${sans.variable} antialiased`}
+      className={`${archivo.variable} antialiased`}
     >
       <body>
         <script

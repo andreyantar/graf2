@@ -19,9 +19,6 @@ type Props = {
   /** "center" disables the outward translate + tilt, leaving only the
    *  border-radius envelope. Used for the middle column in 3-card rows. */
   column?: "left" | "right" | "center";
-  /** Position in the row (0 = first). On ≤767px every card past the
-   *  first stays static so the mobile stack reads as a calm list. */
-  cardIndex?: number;
 };
 
 // Same arc tunables as BlogCard so the families read as one system.
@@ -36,11 +33,10 @@ export function ServiceCard({
   data,
   scrollContainerRef,
   column = "left",
-  cardIndex = 0,
 }: Props) {
   const cardRef = useRef<HTMLElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
-  const [mobileSkip, setMobileSkip] = useState(false);
+  const [mobileFlat, setMobileFlat] = useState(false);
 
   const { scrollYProgress } = useScroll({
     target: cardRef,
@@ -48,27 +44,22 @@ export function ServiceCard({
     offset: ["start end", "end start"],
   });
 
+  // On ≤767 px the 3-col row collapses to single column → side
+  // translate + tilt make no sense. Keep radius + image zoom only.
   useEffect(() => {
-    if (cardIndex === 0) return;
     if (typeof window === "undefined") return;
     const mq = window.matchMedia("(max-width: 767px)");
-    const update = () => setMobileSkip(mq.matches);
+    const update = () => setMobileFlat(mq.matches);
     update();
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
-  }, [cardIndex]);
+  }, []);
 
   useEffect(() => {
     const card = cardRef.current;
     const img = imgRef.current;
     if (!card) return;
     if (prefersReducedMotion()) return;
-    if (mobileSkip) {
-      card.style.transform = "";
-      card.style.setProperty("--card-radius", "0px");
-      if (img) img.style.transform = "";
-      return;
-    }
 
     const isCenter = column === "center";
     const colSign = column === "right" ? 1 : -1;
@@ -77,8 +68,9 @@ export function ServiceCard({
     const apply = (p: number) => {
       const env = envelope(p, DEAD_HALF);
       const verticalSign = p < 0.5 ? -1 : 1;
-      const x = isCenter ? 0 : env * MAX_X * colSign;
-      const rot = isCenter
+      const flatten = mobileFlat || isCenter;
+      const x = flatten ? 0 : env * MAX_X * colSign;
+      const rot = flatten
         ? 0
         : verticalSign * env * MAX_ROT * colSign * rotFlip;
       const radius = envelope(p, RADIUS_DEAD_HALF) * MAX_RADIUS;
@@ -98,7 +90,7 @@ export function ServiceCard({
     return () => {
       unsub();
     };
-  }, [column, mobileSkip, scrollYProgress]);
+  }, [column, mobileFlat, scrollYProgress]);
 
   return (
     <article
@@ -120,7 +112,7 @@ export function ServiceCard({
         <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/35 to-black/15" />
 
         <div className="relative z-10 flex flex-col h-full min-h-[280px] md:min-h-[360px] p-7 md:p-8 text-white">
-          <h3 className="font-heavy text-card-title tracking-[-0.02em] leading-[1.1] mb-3">
+          <h3 className="font-archivo text-card-title tracking-[-0.02em] leading-[1.1] mb-3 line-clamp-2 min-h-[2lh]">
             {data.title}
           </h3>
           <p className="text-body leading-snug opacity-90">{data.desc}</p>

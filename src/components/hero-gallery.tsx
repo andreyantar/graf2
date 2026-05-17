@@ -117,7 +117,7 @@ export function HeroGallery() {
       style={{ minHeight: "100svh" }}
     >
       <h1
-        className="text-center px-6 font-heavy text-card-title tracking-[-0.02em] leading-[1.1]"
+        className="text-center px-6 font-archivo text-card-title tracking-[-0.02em] leading-[1.1]"
         style={{
           marginTop: "30vh",
           width: "min(720px, 100vw)",

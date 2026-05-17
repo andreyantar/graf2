@@ -67,7 +67,7 @@ export default async function PostPage({
             day: "numeric",
           })}
         </p>
-        <h1 className="font-heavy text-display leading-[0.95] tracking-[-0.02em] mb-8">
+        <h1 className="font-archivo text-display leading-[0.95] tracking-[-0.02em] mb-8">
           {post.title}
         </h1>
         {post.excerpt && (

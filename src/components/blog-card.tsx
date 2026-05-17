@@ -25,20 +25,16 @@ type Props = {
    *  the window — used on /blog where the page scrolls natively. On
    *  the home page we pass the looped scroll-container ref. */
   scrollContainerRef?: RefObject<HTMLDivElement | null>;
-  /** Position in the row (0 = first). On ≤767px every card past the
-   *  first stays static so the mobile stack reads as a calm list. */
-  cardIndex?: number;
 };
 
 export function BlogCard({
   post,
   column = "left",
   scrollContainerRef,
-  cardIndex = 0,
 }: Props) {
   const cardRef = useRef<HTMLElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
-  const [mobileSkip, setMobileSkip] = useState(false);
+  const [mobileFlat, setMobileFlat] = useState(false);
 
   const { scrollYProgress } = useScroll({
     target: cardRef,
@@ -46,27 +42,22 @@ export function BlogCard({
     offset: ["start end", "end start"],
   });
 
+  // On ≤767 the 3-col row collapses to a single column → no outward
+  // direction to slide/tilt to. Keep radius + image zoom only.
   useEffect(() => {
-    if (cardIndex === 0) return;
     if (typeof window === "undefined") return;
     const mq = window.matchMedia("(max-width: 767px)");
-    const update = () => setMobileSkip(mq.matches);
+    const update = () => setMobileFlat(mq.matches);
     update();
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
-  }, [cardIndex]);
+  }, []);
 
   useEffect(() => {
     const card = cardRef.current;
     const img = imgRef.current;
     if (!card) return;
     if (prefersReducedMotion()) return;
-    if (mobileSkip) {
-      card.style.transform = "";
-      card.style.setProperty("--card-radius", "0px");
-      if (img) img.style.transform = "";
-      return;
-    }
 
     const isCenter = column === "center";
     const colSign = column === "right" ? 1 : -1; // unused when center
@@ -75,8 +66,9 @@ export function BlogCard({
     const apply = (p: number) => {
       const env = envelope(p, DEAD_HALF);
       const verticalSign = p < 0.5 ? -1 : 1;
-      const x = isCenter ? 0 : env * MAX_X * colSign;
-      const rot = isCenter
+      const flatten = mobileFlat || isCenter;
+      const x = flatten ? 0 : env * MAX_X * colSign;
+      const rot = flatten
         ? 0
         : verticalSign * env * MAX_ROT * colSign * rotFlip;
       const radius = envelope(p, RADIUS_DEAD_HALF) * MAX_RADIUS;
@@ -92,7 +84,7 @@ export function BlogCard({
     return () => {
       unsub();
     };
-  }, [column, mobileSkip, scrollYProgress]);
+  }, [column, mobileFlat, scrollYProgress]);
 
   const coverUrl = post.cover
     ? urlFor(post.cover).width(880).fit("max").auto("format").url()
@@ -107,9 +99,9 @@ export function BlogCard({
   return (
     <article
       ref={cardRef}
-      className="w-full max-w-[600px] bg-paper text-ink shadow-card overflow-hidden will-change-transform rounded-[var(--card-radius,0px)] [contain:paint]"
+      className="w-full md:max-w-[600px] h-full flex flex-col bg-paper text-ink shadow-card overflow-hidden will-change-transform rounded-[var(--card-radius,0px)] [contain:paint]"
     >
-      <Link href={`/blog/${post.slug}`} className="group block">
+      <Link href={`/blog/${post.slug}`} className="group flex flex-col h-full">
         {coverUrl && (
           <div className="relative h-[280px] w-full overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -124,11 +116,11 @@ export function BlogCard({
             />
           </div>
         )}
-        <div className="px-6 md:px-7 pb-6 md:pb-7 pt-7">
+        <div className="px-6 md:px-7 pb-6 md:pb-7 pt-7 flex flex-col flex-1">
           <p className="text-body opacity-50 mb-3">
             {date}
           </p>
-          <h3 className="font-heavy text-card-title tracking-[-0.02em] leading-[1.1] mb-2 group-hover:opacity-80 transition-opacity">
+          <h3 className="font-archivo text-card-title tracking-[-0.02em] leading-[1.1] mb-2 line-clamp-2 min-h-[2lh] group-hover:opacity-80 transition-opacity">
             {post.title}
           </h3>
           {post.excerpt && (
@@ -136,7 +128,7 @@ export function BlogCard({
               {post.excerpt}
             </p>
           )}
-          <span className="inline-flex items-center gap-1 text-body group-hover:opacity-60 transition-opacity">
+          <span className="mt-auto inline-flex items-center gap-1 text-body group-hover:opacity-60 transition-opacity">
             Read article →
           </span>
         </div>

@@ -52,7 +52,7 @@ export function SectionColor({
         aria-hidden
         className={[
           "pointer-events-none select-none absolute inset-0 flex items-center justify-center",
-          "font-heavy whitespace-nowrap leading-[0.78] tracking-[-0.06em]",
+          "font-archivo whitespace-nowrap leading-[0.78] tracking-[-0.06em]",
           "text-[clamp(7rem,28vw,22rem)]",
           outlined
             ? "text-transparent [-webkit-text-stroke:2px_currentColor] md:[-webkit-text-stroke:4px_currentColor]"

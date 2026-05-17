@@ -18,11 +18,6 @@ type Props = {
   data: CaseData;
   scrollContainerRef: RefObject<HTMLDivElement | null>;
   column?: "left" | "right";
-  /** Position in the row (0 = first). On ≤767px every card past the
-   *  first stays static — no transform, no radius envelope — so the
-   *  mobile stack doesn't feel like five separate scroll-driven loops
-   *  competing for attention. */
-  cardIndex?: number;
 };
 
 // ─── Tunables ──────────────────────────────────────────────────────────
@@ -52,11 +47,10 @@ export function CaseCard({
   data,
   scrollContainerRef,
   column = "left",
-  cardIndex = 0,
 }: Props) {
   const cardRef = useRef<HTMLElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
-  const [mobileSkip, setMobileSkip] = useState(false);
+  const [mobileFlat, setMobileFlat] = useState(false);
 
   // 0 = card top at viewport bottom (entering), 1 = card bottom at viewport top (exiting)
   const { scrollYProgress } = useScroll({
@@ -65,16 +59,18 @@ export function CaseCard({
     offset: ["start end", "end start"],
   });
 
-  // Watch the ≤767 breakpoint — only relevant past the first card.
+  // On ≤767 px the row collapses to a single column, so the outward
+  // x-translate and tilt have nothing to push outward against. Cards
+  // animate only the radius envelope + image zoom and travel straight
+  // bottom-to-top like a stack.
   useEffect(() => {
-    if (cardIndex === 0) return;
     if (typeof window === "undefined") return;
     const mq = window.matchMedia("(max-width: 767px)");
-    const update = () => setMobileSkip(mq.matches);
+    const update = () => setMobileFlat(mq.matches);
     update();
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
-  }, [cardIndex]);
+  }, []);
 
   useEffect(() => {
     const card = cardRef.current;
@@ -83,13 +79,6 @@ export function CaseCard({
     // Respect OS-level reduced-motion: card stays in its natural grid slot,
     // sharp corners, no scroll-driven arc.
     if (prefersReducedMotion()) return;
-    // On mobile every card past the first sits in its natural place.
-    if (mobileSkip) {
-      card.style.transform = "";
-      card.style.setProperty("--card-radius", "0px");
-      if (img) img.style.transform = "";
-      return;
-    }
 
     const colSign = column === "right" ? 1 : -1; // outward direction per column
     const rotFlip = FLIP_ROTATION ? -1 : 1;
@@ -98,8 +87,10 @@ export function CaseCard({
       const env = envelope(p, DEAD_HALF);
       const verticalSign = p < 0.5 ? -1 : 1; // bottom / top half of traversal
 
-      const x = env * MAX_X * colSign;
-      const rot = verticalSign * env * MAX_ROT * colSign * rotFlip;
+      const x = mobileFlat ? 0 : env * MAX_X * colSign;
+      const rot = mobileFlat
+        ? 0
+        : verticalSign * env * MAX_ROT * colSign * rotFlip;
       const radius = envelope(p, RADIUS_DEAD_HALF) * MAX_RADIUS;
 
       // border-radius is consumed via CSS var (see className) — keeps the
@@ -118,14 +109,14 @@ export function CaseCard({
     return () => {
       unsub();
     };
-  }, [column, mobileSkip, scrollYProgress]);
+  }, [column, mobileFlat, scrollYProgress]);
 
   return (
     <article
       ref={cardRef}
-      className="w-full max-w-[600px] bg-paper text-ink shadow-card overflow-hidden will-change-transform rounded-[var(--card-radius,0px)] [contain:paint]"
+      className="w-full max-w-[600px] h-full flex flex-col bg-paper text-ink shadow-card overflow-hidden will-change-transform rounded-[var(--card-radius,0px)] [contain:paint]"
     >
-      <Link href={data.href} className="group block">
+      <Link href={data.href} className="group flex flex-col h-full">
         <div className="relative h-[280px] w-full overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -138,14 +129,14 @@ export function CaseCard({
             className="block w-full h-full object-cover will-change-transform"
           />
         </div>
-        <div className="px-6 md:px-7 pb-6 md:pb-7 pt-7">
-          <h3 className="font-heavy text-card-title tracking-[-0.02em] leading-[1.1] mb-2 group-hover:opacity-80 transition-opacity">
+        <div className="px-6 md:px-7 pb-6 md:pb-7 pt-7 flex flex-col flex-1">
+          <h3 className="font-archivo text-card-title tracking-[-0.02em] leading-[1.1] mb-2 line-clamp-2 min-h-[2lh] group-hover:opacity-80 transition-opacity">
             {data.title}
           </h3>
           <p className="text-body leading-snug opacity-80 mb-4 line-clamp-4">
             {data.desc}
           </p>
-          <span className="inline-flex items-center gap-1 text-body group-hover:opacity-60 transition-opacity">
+          <span className="mt-auto inline-flex items-center gap-1 text-body group-hover:opacity-60 transition-opacity">
             View case →
           </span>
         </div>

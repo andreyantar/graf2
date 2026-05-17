@@ -280,7 +280,7 @@ function ProcessCard({
         />
       </div>
       <div className="relative z-10 flex-1 p-7 md:p-10 flex flex-col justify-center text-white md:text-ink">
-        <h3 className="font-heavy text-card-title tracking-[-0.02em] leading-[1.1] mb-3">
+        <h3 className="font-archivo text-card-title tracking-[-0.02em] leading-[1.1] mb-3 line-clamp-2 min-h-[2lh]">
           {step.title}
         </h3>
         <p className="text-body leading-snug opacity-80">{step.desc}</p>

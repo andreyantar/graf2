@@ -23,7 +23,7 @@ export function SpeakerCard({ index, name, role, bio, imageHue }: Props) {
         {index}
       </div>
       <div className="col-span-12 md:col-span-6">
-        <h3 className="font-heavy text-[length:var(--text-speaker)] leading-[0.95] tracking-tight">
+        <h3 className="font-archivo text-[length:var(--text-speaker)] leading-[0.95] tracking-tight">
           {name}
         </h3>
         <p className="mt-3 text-body text-[--color-fg]/60">
@@ -48,7 +48,7 @@ export function SpeakerCard({ index, name, role, bio, imageHue }: Props) {
           <motion.div
             animate={{ y: hovered ? -8 : 0 }}
             transition={{ type: "spring", stiffness: 180, damping: 20 }}
-            className="h-full w-full grid place-items-center font-heavy text-8xl text-white/40 mix-blend-overlay"
+            className="h-full w-full grid place-items-center font-archivo text-8xl text-white/40 mix-blend-overlay"
           >
             {name
               .split(" ")

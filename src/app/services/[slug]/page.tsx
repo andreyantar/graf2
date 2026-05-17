@@ -66,7 +66,7 @@ export default async function ServicePage({
         <p className="text-body opacity-60 mb-4">
           {data.n} — Service
         </p>
-        <h1 className="font-heavy text-display leading-[0.95] tracking-[-0.02em] mb-6">
+        <h1 className="font-archivo text-display leading-[0.95] tracking-[-0.02em] mb-6">
           {data.title}
         </h1>
         <p className="text-body-lg leading-snug opacity-80 mb-10">

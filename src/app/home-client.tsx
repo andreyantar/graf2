@@ -514,7 +514,6 @@ export default function Home({ latestPosts }: HomeProps) {
                         data={c}
                         scrollContainerRef={scrollRef}
                         column={idx % 2 === 0 ? "left" : "right"}
-                        cardIndex={idx}
                       />
                     ))}
                   </div>
@@ -532,7 +531,6 @@ export default function Home({ latestPosts }: HomeProps) {
                             ? "center"
                             : "right"
                         }
-                        cardIndex={idx}
                       />
                     ))}
                   </div>
@@ -553,8 +551,7 @@ export default function Home({ latestPosts }: HomeProps) {
                               : "right"
                           }
                           scrollContainerRef={scrollRef}
-                          cardIndex={idx}
-                        />
+                          />
                       ))}
                     </div>
                   ) : (

@@ -6,8 +6,7 @@
   --color-ink: #121212;
   --color-paper: #ffffff;
 
-  --font-heavy: var(--font-heavy);
-  --font-sans: var(--font-sans);
+  --font-archivo: var(--font-archivo);
 
   /* Fluid typography tokens — single source of truth for scale.
      All sizes in rem so they honour user font-size preferences. */
@@ -47,7 +46,7 @@
   body {
     background-color: var(--frame);
     color: var(--color-ink);
-    font-family: var(--font-sans), system-ui, sans-serif;
+    font-family: var(--font-archivo), system-ui, sans-serif;
     transition-property: background-color, color, border-color;
     transition-duration: 0.32s;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -60,5 +59,16 @@
   ::selection {
     background: var(--color-accent);
     color: var(--bg);
+  }
+}
+
+@layer utilities {
+  /* Single heading face — variable Archivo at the expanded end of the
+     wdth axis (125) and 450 on wght. Used for every h1/h2/h3, the goo
+     backdrop word, and the side-menu nav items. Variation-settings is
+     not expressible as a Tailwind atomic, hence the utility. */
+  .font-archivo {
+    font-family: var(--font-archivo), system-ui, sans-serif;
+    font-variation-settings: "wdth" 125, "wght" 450;
   }
 }
