@@ -50,6 +50,7 @@ const MAX_DEPTH = 3;
 const STACK_ROTATIONS = [-2, 1.5, -1, 2.5];
 
 const MAX_RADIUS = 32;
+const MIN_RADIUS = 16; // settled state — softer than fully square
 // Vertical scroll budget per stack step. Lower = tighter, faster
 // transitions; container height = STEPS.length * SLOT_HEIGHT_VH.
 const SLOT_HEIGHT_VH = 60;
@@ -186,16 +187,16 @@ function ProcessCard({
       const xp = exitProgress.get();
       let r: number;
       if (xp > 0) {
-        r = MAX_RADIUS * Math.min(1, xp);
+        r = MIN_RADIUS + (MAX_RADIUS - MIN_RADIUS) * Math.min(1, xp);
       } else if (isAnchor) {
-        r = 0;
+        r = MIN_RADIUS;
       } else if (ep < slotStart) {
         r = MAX_RADIUS;
       } else if (ep < slotEntry) {
         const t = (ep - slotStart) / (slotEntry - slotStart);
-        r = MAX_RADIUS * (1 - t);
+        r = MIN_RADIUS + (MAX_RADIUS - MIN_RADIUS) * (1 - t);
       } else {
-        r = 0;
+        r = MIN_RADIUS;
       }
       card.style.setProperty("--card-radius", `${r}px`);
     };
@@ -247,7 +248,7 @@ function ProcessCard({
         zIndex: index,
         transformOrigin: "center top",
       }}
-      className="absolute top-0 left-0 right-0 w-full flex bg-paper text-ink shadow-card overflow-hidden rounded-[var(--card-radius,0px)] min-h-[240px] [contain:paint] will-change-transform"
+      className="absolute top-0 left-0 right-0 w-full flex bg-paper text-ink shadow-card overflow-hidden rounded-[var(--card-radius,1rem)] min-h-[240px] [contain:paint] will-change-transform"
     >
       {/* Mobile: same image as a card-wide background, full opacity,
           no veil. The card's bg-paper stays underneath in case the
@@ -280,7 +281,7 @@ function ProcessCard({
         />
       </div>
       <div className="relative z-10 flex-1 p-7 md:p-10 flex flex-col justify-center text-white md:text-ink">
-        <h3 className="font-archivo text-card-title tracking-[-0.02em] leading-[1.1] mb-3 line-clamp-2 min-h-[2lh]">
+        <h3 className="font-archivo text-card-h3 tracking-[-0.02em] leading-[1.1] mb-3">
           {step.title}
         </h3>
         <p className="text-body leading-snug opacity-80">{step.desc}</p>

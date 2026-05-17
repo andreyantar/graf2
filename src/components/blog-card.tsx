@@ -14,6 +14,7 @@ const MAX_X = 60;
 const MAX_ROT = 3;
 const FLIP_ROTATION = false;
 const MAX_RADIUS = 32;
+const MIN_RADIUS = 16; // settled state — softer than fully square
 const RADIUS_DEAD_HALF = 0.1;
 
 type Props = {
@@ -71,7 +72,8 @@ export function BlogCard({
       const rot = flatten
         ? 0
         : verticalSign * env * MAX_ROT * colSign * rotFlip;
-      const radius = envelope(p, RADIUS_DEAD_HALF) * MAX_RADIUS;
+      const radius =
+        MIN_RADIUS + envelope(p, RADIUS_DEAD_HALF) * (MAX_RADIUS - MIN_RADIUS);
       card.style.transform = `translate3d(${x}px, 0, 0) rotate(${rot}deg)`;
       card.style.setProperty("--card-radius", `${radius}px`);
       // Scroll-driven image zoom — linear 1.3 → 1.0 across the card's
@@ -99,7 +101,7 @@ export function BlogCard({
   return (
     <article
       ref={cardRef}
-      className="w-full md:max-w-[600px] h-full flex flex-col bg-paper text-ink shadow-card overflow-hidden will-change-transform rounded-[var(--card-radius,0px)] [contain:paint]"
+      className="w-full md:max-w-[600px] h-full flex flex-col bg-paper text-ink shadow-card overflow-hidden will-change-transform rounded-[var(--card-radius,1rem)] [contain:paint]"
     >
       <Link href={`/blog/${post.slug}`} className="group flex flex-col h-full">
         {coverUrl && (
@@ -120,7 +122,7 @@ export function BlogCard({
           <p className="text-body opacity-50 mb-3">
             {date}
           </p>
-          <h3 className="font-archivo text-card-title tracking-[-0.02em] leading-[1.1] mb-2 line-clamp-2 min-h-[2lh] group-hover:opacity-80 transition-opacity">
+          <h3 className="font-archivo text-card-h3 tracking-[-0.02em] leading-[1.1] mb-2 line-clamp-2 min-h-[2lh] group-hover:opacity-80 transition-opacity">
             {post.title}
           </h3>
           {post.excerpt && (

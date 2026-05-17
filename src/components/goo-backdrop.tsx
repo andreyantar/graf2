@@ -126,6 +126,9 @@ function BlobWord({
         left: "4vw",
         right: "4vw",
         textAlign: "center",
+        // Override .font-archivo's default 450 wght with 800 for the
+        // backdrop word — wants more visual weight than headings.
+        fontVariationSettings: '"wdth" 125, "wght" 800',
       }}
       className="absolute top-1/2 -translate-y-1/2 font-archivo block whitespace-pre-line leading-[0.88] tracking-[-0.03em] text-[clamp(2rem,11vw,11rem)]"
     >

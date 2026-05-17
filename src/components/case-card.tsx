@@ -39,7 +39,9 @@ const FLIP_ROTATION = false;
 // rounding once the card visibly approaches the viewport edge, well before
 // the tilt/translate envelope kicks in.
 const MAX_RADIUS = 32; // px at progress 0 / 1
-const RADIUS_DEAD_HALF = 0.1; // sharp only inside [0.4, 0.6]
+const MIN_RADIUS = 16; // px at viewport centre (was 0; client asked for a
+                       // softer settled state so cards never read fully square)
+const RADIUS_DEAD_HALF = 0.1;
 
 // ───────────────────────────────────────────────────────────────────────
 
@@ -91,7 +93,8 @@ export function CaseCard({
       const rot = mobileFlat
         ? 0
         : verticalSign * env * MAX_ROT * colSign * rotFlip;
-      const radius = envelope(p, RADIUS_DEAD_HALF) * MAX_RADIUS;
+      const radius =
+        MIN_RADIUS + envelope(p, RADIUS_DEAD_HALF) * (MAX_RADIUS - MIN_RADIUS);
 
       // border-radius is consumed via CSS var (see className) — keeps the
       // shape mutation separate from the transform write and lets the
@@ -114,7 +117,7 @@ export function CaseCard({
   return (
     <article
       ref={cardRef}
-      className="w-full max-w-[600px] h-full flex flex-col bg-paper text-ink shadow-card overflow-hidden will-change-transform rounded-[var(--card-radius,0px)] [contain:paint]"
+      className="w-full max-w-[600px] h-full flex flex-col bg-paper text-ink shadow-card overflow-hidden will-change-transform rounded-[var(--card-radius,1rem)] [contain:paint]"
     >
       <Link href={data.href} className="group flex flex-col h-full">
         <div className="relative h-[280px] w-full overflow-hidden">
@@ -130,7 +133,7 @@ export function CaseCard({
           />
         </div>
         <div className="px-6 md:px-7 pb-6 md:pb-7 pt-7 flex flex-col flex-1">
-          <h3 className="font-archivo text-card-title tracking-[-0.02em] leading-[1.1] mb-2 line-clamp-2 min-h-[2lh] group-hover:opacity-80 transition-opacity">
+          <h3 className="font-archivo text-card-h3 tracking-[-0.02em] leading-[1.1] mb-2 line-clamp-2 min-h-[2lh] group-hover:opacity-80 transition-opacity">
             {data.title}
           </h3>
           <p className="text-body leading-snug opacity-80 mb-4 line-clamp-4">

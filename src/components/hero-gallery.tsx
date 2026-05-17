@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import manifest from "@/data/artworks.json";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
+import { SiteLogo } from "@/components/site-logo";
 
 const ART_URLS: string[] = (manifest as Array<{ url: string }>).map(
   (m) => m.url,
@@ -116,15 +117,35 @@ export function HeroGallery() {
       className="relative w-full flex flex-col items-center"
       style={{ minHeight: "100svh" }}
     >
-      <h1
-        className="text-center px-6 font-archivo text-card-title tracking-[-0.02em] leading-[1.1]"
+      {/* Logo badge — wordmark + icon in a soft pill, sits above the
+          tagline. Padding values are vw so the pill scales with the
+          viewport; the SVG inside uses currentColor and rem-based
+          height so the type stays legible on small screens. */}
+      <div
+        className="inline-flex items-center bg-[var(--frame)] rounded-full text-[var(--color-ink)]"
         style={{
           marginTop: "30vh",
+          // Pin a floor (figma px values @ ~1600vw) so the pill
+          // doesn't collapse to invisible padding on narrow viewports.
+          // Above ~1600px the vw values take over and the pill scales
+          // proportionally.
+          paddingTop: "max(0.31vw, 5px)",
+          paddingBottom: "max(0.31vw, 5px)",
+          paddingLeft: "max(0.88vw, 14px)",
+          paddingRight: "max(0.62vw, 10px)",
+        }}
+      >
+        <SiteLogo className="h-[1rem] w-auto" />
+      </div>
+
+      <h1
+        className="text-center px-6 font-archivo text-card-title tracking-[-0.02em] leading-[1.1] mt-[1.25rem] min-[413px]:mt-[1.4vw] md:mt-[0.8vw]"
+        style={{
           width: "min(720px, 100vw)",
         }}
       >
         A small independent studio. We design brands, interfaces, and the
-        edges in between.
+        edges in between
       </h1>
 
       <div

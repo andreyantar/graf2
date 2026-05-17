@@ -53,7 +53,10 @@ export function MenuPanel({ open, onNavigate }: Props) {
       aria-hidden={!open}
       className="pointer-events-auto fixed inset-y-0 right-0 z-30 w-[50vw] min-[541px]:w-[33vw] md:w-[280px] overflow-hidden bg-[var(--frame)] text-[#111]"
     >
-      <div className="h-full flex flex-col justify-between px-6 md:px-7 py-8 md:py-10">
+      {/* 3-row grid [1fr | auto | 1fr] vertically centres the nav
+          regardless of how tall the socials block grows. The socials
+          stay anchored to the bottom of the panel via self-end. */}
+      <div className="h-full grid grid-rows-[1fr_auto_1fr] px-6 md:px-7 py-8 md:py-10">
         <div />
 
         <nav className="flex flex-col -mx-3">
@@ -62,6 +65,9 @@ export function MenuPanel({ open, onNavigate }: Props) {
               key={item.key}
               type="button"
               onClick={() => onNavigate(item.key)}
+              // Override .font-archivo's default 450 with 800 — nav
+              // items match the goo backdrop weight.
+              style={{ fontVariationSettings: '"wdth" 125, "wght" 800' }}
               className="text-left px-3 py-1.5 min-h-[44px] text-[length:var(--text-menu)] font-archivo leading-[1.1] tracking-[-0.02em] transition-opacity hover:opacity-50 cursor-pointer"
             >
               {item.label}
@@ -69,7 +75,7 @@ export function MenuPanel({ open, onNavigate }: Props) {
           ))}
         </nav>
 
-        <div>
+        <div className="self-end">
           <p className="text-[13px] opacity-50 mb-2">Socials</p>
           <ul className="flex flex-col gap-1 text-body">
             {socials.map((s) => (

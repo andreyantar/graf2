@@ -13,7 +13,8 @@
   --text-display: clamp(2.5rem, 8vw, 4rem);            /* 40 → 64px, h1 */
   --text-menu: clamp(1.875rem, 4vw, 2.25rem);          /* 30 → 36px, menu nav */
   --text-speaker: clamp(2.25rem, 6vw, 3.75rem);        /* 36 → 60px, speaker name */
-  --text-card-title: clamp(1.5rem, 4vw, 2.125rem);     /* 24 → 34px, card h3 */
+  --text-card-title: clamp(1.5rem, 4vw, 2.125rem);     /* 24 → 34px, Hero h1 + Contact h2 */
+  --text-card-h3: clamp(1.25rem, 3.3vw, 1.75rem);      /* 20 → 28px, card h3 (proportional to card-title) */
   --text-body-lg: clamp(0.9375rem, 0.5vw + 0.8125rem, 1.0625rem); /* 15 → 17px */
   --text-body: 1rem;                                   /* 16px, card body */
 

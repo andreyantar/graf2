@@ -6,6 +6,7 @@ import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
 import { envelope } from "@/lib/scroll-envelope";
 
 const MAX_RADIUS = 32;
+const MIN_RADIUS = 16; // settled state — softer than fully square
 const RADIUS_DEAD_HALF = 0.1;
 
 const EMAIL = "hello@studio-graffiti.pl";
@@ -32,7 +33,7 @@ export function ContactCard({ scrollContainerRef }: Props) {
     const apply = (p: number) => {
       card.style.setProperty(
         "--card-radius",
-        `${envelope(p, RADIUS_DEAD_HALF) * MAX_RADIUS}px`,
+        `${MIN_RADIUS + envelope(p, RADIUS_DEAD_HALF) * (MAX_RADIUS - MIN_RADIUS)}px`,
       );
     };
 
@@ -46,7 +47,7 @@ export function ContactCard({ scrollContainerRef }: Props) {
   return (
     <article
       ref={cardRef}
-      className="relative w-[88vw] md:w-[70vw] max-w-[680px] mx-auto bg-paper text-ink shadow-card overflow-hidden p-8 md:p-12 rounded-[var(--card-radius,0px)] will-change-transform [contain:paint]"
+      className="relative w-[88vw] md:w-[70vw] max-w-[680px] mx-auto bg-paper text-ink shadow-card overflow-hidden p-8 md:p-12 rounded-[var(--card-radius,1rem)] will-change-transform [contain:paint]"
     >
       <h2 className="font-archivo text-card-title tracking-[-0.02em] leading-[1.1] mb-4">
         Have a brand worth building?
