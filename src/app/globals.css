@@ -58,7 +58,7 @@
     }
   }
   ::selection {
-    background: var(--color-accent);
+    background: #141754;
     color: var(--bg);
   }
 }
@@ -71,44 +71,36 @@ html[data-preloader-seen] [data-preloader-overlay] {
   display: none !important;
 }
 
-/* Preloader liquid-blob spinner — 8 circles orbiting the centre,
-   scaling between 0.5 and 7 (orbit radius 30→70 px). At peak the
-   discs overlap heavily and read as one organic blob. Adapted from
-   a Mikhail Bespalov CodePen, recoloured for our palette:
-   var(--frame) bg + #070707 discs. */
+/* Preloader liquid-blob spinner — SVG vector. 8 circles orbit the
+   centre at distance 30→70 px while scaling 0.5↔7. The SVG goo
+   filter (feGaussianBlur + feColorMatrix alpha-sharpen) fuses
+   overlapping circles into one organic shape with smooth edges —
+   so on a light overlay with dark fills they read as one liquid
+   blob rather than 8 discrete discs. Container also spins 0→360deg
+   for extra dynamism. */
 .preloader-spinner {
-  position: relative;
-  width: 200px;
-  height: 200px;
+  display: block;
+  width: 240px;
+  height: 240px;
   animation: preloader-orbit 8s linear infinite;
-}
-.preloader-spinner span {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 20px;
-  height: 20px;
-  margin: -10px 0 0 -10px;
-  border-radius: 50%;
-  background: #070707;
   transform-origin: center;
-  transform:
-    rotate(calc(360deg / 8 * var(--i)))
-    translate(30px)
-    scale(0.5);
+}
+.preloader-spinner circle {
+  transform-box: fill-box;
+  transform-origin: center;
   animation: preloader-blob 8s ease-in-out infinite;
 }
 @keyframes preloader-blob {
   0%, 100% {
     transform:
       rotate(calc(360deg / 8 * var(--i)))
-      translate(30px)
+      translate(30px, 0)
       scale(0.5);
   }
   50% {
     transform:
       rotate(calc(360deg / 8 * var(--i)))
-      translate(70px)
+      translate(70px, 0)
       scale(7);
   }
 }
@@ -116,32 +108,10 @@ html[data-preloader-seen] [data-preloader-overlay] {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 }
-/* Shrink the loader + tame the orbit radius on small screens so the
-   peak-blob doesn't run past the overlay edges. */
 @media (max-width: 600px) {
   .preloader-spinner {
-    width: 140px;
-    height: 140px;
-  }
-  .preloader-spinner span {
-    width: 14px;
-    height: 14px;
-    margin: -7px 0 0 -7px;
-    animation-name: preloader-blob-sm;
-  }
-}
-@keyframes preloader-blob-sm {
-  0%, 100% {
-    transform:
-      rotate(calc(360deg / 8 * var(--i)))
-      translate(22px)
-      scale(0.5);
-  }
-  50% {
-    transform:
-      rotate(calc(360deg / 8 * var(--i)))
-      translate(50px)
-      scale(6);
+    width: 160px;
+    height: 160px;
   }
 }
 

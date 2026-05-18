@@ -161,15 +161,48 @@ export function Preloader({ onDone }: { onDone: () => void }) {
       style={{ width: "100vw", height: "100svh" }}
       aria-hidden={phase !== "loading"}
     >
-      {/* Loading phase: spinner centred, progress text near the bottom */}
+      {/* Loading phase: SVG goo-blob spinner centred, progress text
+          near the bottom. Vector — feGaussianBlur stdDeviation 8 +
+          feColorMatrix alpha-sharpen fuse the 8 orbiting circles
+          into a single morphing liquid shape. */}
       {phase === "loading" && (
         <>
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="preloader-spinner" aria-hidden>
-              {Array.from({ length: 8 }).map((_, i) => (
-                <span key={i} style={{ ["--i" as never]: i }} />
-              ))}
-            </div>
+            <svg
+              className="preloader-spinner"
+              viewBox="0 0 200 200"
+              aria-hidden
+            >
+              <defs>
+                <filter
+                  id="preloader-goo"
+                  x="-20%"
+                  y="-20%"
+                  width="140%"
+                  height="140%"
+                >
+                  <feGaussianBlur in="SourceGraphic" stdDeviation="8" />
+                  <feColorMatrix
+                    values="1 0 0 0 0
+                            0 1 0 0 0
+                            0 0 1 0 0
+                            0 0 0 20 -10"
+                  />
+                </filter>
+              </defs>
+              <g filter="url(#preloader-goo)">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <circle
+                    key={i}
+                    cx="100"
+                    cy="100"
+                    r="10"
+                    fill="#070707"
+                    style={{ ["--i" as never]: i } as React.CSSProperties}
+                  />
+                ))}
+              </g>
+            </svg>
           </div>
           <div
             className="absolute left-1/2 -translate-x-1/2 font-archivo tabular-nums whitespace-nowrap"

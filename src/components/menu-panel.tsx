@@ -68,7 +68,7 @@ export function MenuPanel({ open, onNavigate }: Props) {
               // Override .font-archivo's default 450 with 800 — nav
               // items match the goo backdrop weight.
               style={{ fontVariationSettings: '"wdth" 125, "wght" 800' }}
-              className="text-left px-3 py-1.5 min-h-[44px] text-[length:var(--text-menu)] font-archivo leading-[1.1] tracking-[-0.02em] transition-opacity hover:opacity-50 cursor-pointer"
+              className="text-left px-3 py-1.5 min-h-[44px] text-[length:var(--text-menu)] font-archivo leading-[1.1] tracking-[-0.02em] transition-colors hover:text-[#9CA1AE] cursor-pointer"
             >
               {item.label}
             </button>
