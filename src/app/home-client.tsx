@@ -529,7 +529,7 @@ export default function Home({ latestPosts }: HomeProps) {
                     ))}
                   </div>
                 ) : isWhatWeDo ? (
-                  <div className="relative w-full lg:w-[90vw] min-[1440px]:w-[70vw] mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 py-16">
+                  <div className="relative w-full lg:w-[90vw] min-[1440px]:w-[70vw] max-w-[1920px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 py-16">
                     {services.map((sv, idx) => (
                       <ServiceCard
                         key={`${i}-${sv.href}`}
@@ -549,7 +549,7 @@ export default function Home({ latestPosts }: HomeProps) {
                   <ProcessStack scrollContainerRef={scrollRef} />
                 ) : isBlog ? (
                   latestPosts.length > 0 ? (
-                    <div className="relative w-full lg:w-[90vw] min-[1440px]:w-[70vw] mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 py-16">
+                    <div className="relative w-full lg:w-[90vw] min-[1440px]:w-[70vw] max-w-[1920px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 py-16">
                       {latestPosts.slice(0, 3).map((post, idx) => (
                         <BlogCard
                           key={`${i}-${post._id}`}

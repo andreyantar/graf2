@@ -71,31 +71,77 @@ html[data-preloader-seen] [data-preloader-overlay] {
   display: none !important;
 }
 
-@layer utilities {
-  /* Preloader dot ring — 8 dots in a circle, fading sequentially.
-     Used by <Preloader/> during the initial loading phase. */
+/* Preloader liquid-blob spinner — 8 circles orbiting the centre,
+   scaling between 0.5 and 7 (orbit radius 30→70 px). At peak the
+   discs overlap heavily and read as one organic blob. Adapted from
+   a Mikhail Bespalov CodePen, recoloured for our palette:
+   var(--frame) bg + #070707 discs. */
+.preloader-spinner {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  animation: preloader-orbit 8s linear infinite;
+}
+.preloader-spinner span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border-radius: 50%;
+  background: #070707;
+  transform-origin: center;
+  transform:
+    rotate(calc(360deg / 8 * var(--i)))
+    translate(30px)
+    scale(0.5);
+  animation: preloader-blob 8s ease-in-out infinite;
+}
+@keyframes preloader-blob {
+  0%, 100% {
+    transform:
+      rotate(calc(360deg / 8 * var(--i)))
+      translate(30px)
+      scale(0.5);
+  }
+  50% {
+    transform:
+      rotate(calc(360deg / 8 * var(--i)))
+      translate(70px)
+      scale(7);
+  }
+}
+@keyframes preloader-orbit {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+/* Shrink the loader + tame the orbit radius on small screens so the
+   peak-blob doesn't run past the overlay edges. */
+@media (max-width: 600px) {
   .preloader-spinner {
-    position: relative;
-    width: 56px;
-    height: 56px;
+    width: 140px;
+    height: 140px;
   }
   .preloader-spinner span {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 6px;
-    height: 6px;
-    margin: -3px 0 0 -3px;
-    border-radius: 50%;
-    background: var(--color-ink);
-    transform: rotate(calc(var(--i) * 45deg)) translateY(-22px);
-    animation: preloader-fade 1s linear infinite;
-    animation-delay: calc(var(--i) * -0.125s);
-    opacity: 0.2;
+    width: 14px;
+    height: 14px;
+    margin: -7px 0 0 -7px;
+    animation-name: preloader-blob-sm;
   }
-  @keyframes preloader-fade {
-    0%, 80%, 100% { opacity: 0.2; }
-    40%           { opacity: 1; }
+}
+@keyframes preloader-blob-sm {
+  0%, 100% {
+    transform:
+      rotate(calc(360deg / 8 * var(--i)))
+      translate(22px)
+      scale(0.5);
+  }
+  50% {
+    transform:
+      rotate(calc(360deg / 8 * var(--i)))
+      translate(50px)
+      scale(6);
   }
 }
 
