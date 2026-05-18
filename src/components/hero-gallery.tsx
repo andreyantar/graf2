@@ -187,8 +187,13 @@ export function HeroGallery() {
                 src={src}
                 alt=""
                 draggable={false}
-                loading="lazy"
+                // Hero images sit on the first viewport — load them
+                // eagerly so the cylinder doesn't show blank `bg-paper`
+                // tiles for the cards that are facing away or sitting
+                // off-screen until the ring rotates them into view.
+                loading="eager"
                 decoding="async"
+                fetchPriority="high"
                 className="block w-full h-full object-cover"
               />
             </div>
