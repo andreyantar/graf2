@@ -58,8 +58,11 @@ export function ContactCard({ scrollContainerRef }: Props) {
       </p>
 
       <a
-        href={`mailto:${EMAIL}`}
-        className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-ink text-paper text-body hover:opacity-90 transition-opacity"
+        href="https://t.me/YuraShavrov"
+        target="_blank"
+        rel="noreferrer"
+        style={{ fontVariationSettings: '"wdth" 125, "wght" 800' }}
+        className="block w-full text-center bg-ink text-paper rounded-full px-6 py-4 font-archivo text-[length:var(--text-card-h3)] leading-[1.1] tracking-[-0.02em] hover:opacity-90 transition-opacity"
       >
         Start a project →
       </a>
