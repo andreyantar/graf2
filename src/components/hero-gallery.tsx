@@ -1,16 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import manifest from "@/data/artworks.json";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
+import { HERO_IMAGE_URLS } from "@/lib/hero-images";
 import { SiteLogo } from "@/components/site-logo";
 
-const ART_URLS: string[] = (manifest as Array<{ url: string }>).map(
-  (m) => m.url,
-);
-
-const HERO_INDICES = [7, 18, 33, 44, 51, 62, 88, 112, 145, 178];
-const HERO_IMAGES_SOURCE = HERO_INDICES.map((i) => ART_URLS[i]).filter(Boolean);
+const HERO_IMAGES_SOURCE = HERO_IMAGE_URLS;
 
 const PERSPECTIVE_PX = 900;
 const ARC_GAP_PX = 16; // 1rem fixed gap between cards on the cylinder surface
@@ -122,6 +117,7 @@ export function HeroGallery() {
           viewport; the SVG inside uses currentColor and rem-based
           height so the type stays legible on small screens. */}
       <div
+        data-hero-badge
         className="inline-flex items-center bg-[var(--frame)] rounded-full text-[var(--color-ink)]"
         style={{
           marginTop: "30vh",

@@ -74,8 +74,18 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${archivo.variable} antialiased`}
+      suppressHydrationWarning
     >
       <body>
+        {/* Pre-hydration: mark <html> if the preloader has already
+            played this session. Pairs with the CSS rule in globals.css
+            that hides [data-preloader-overlay] synchronously, so
+            repeat visits don't flash the loading frame. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(sessionStorage.getItem('sg-preloader-seen')==='1'){document.documentElement.setAttribute('data-preloader-seen','1')}}catch(e){}`,
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

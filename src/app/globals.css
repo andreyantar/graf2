@@ -24,7 +24,7 @@
 
 :root {
   --bg: #ffffff;
-  --frame: #f0f0f0;
+  --frame: #EBEDF1;
 }
 
 @layer base {
@@ -60,6 +60,42 @@
   ::selection {
     background: var(--color-accent);
     color: var(--bg);
+  }
+}
+
+/* Preloader visibility kill-switch. The inline script in layout.tsx
+   sets [data-preloader-seen] on <html> before hydration when the
+   session flag is present — this rule then hides the SSR-rendered
+   overlay synchronously so repeat visits never see it flash. */
+html[data-preloader-seen] [data-preloader-overlay] {
+  display: none !important;
+}
+
+@layer utilities {
+  /* Preloader dot ring — 8 dots in a circle, fading sequentially.
+     Used by <Preloader/> during the initial loading phase. */
+  .preloader-spinner {
+    position: relative;
+    width: 56px;
+    height: 56px;
+  }
+  .preloader-spinner span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    margin: -3px 0 0 -3px;
+    border-radius: 50%;
+    background: var(--color-ink);
+    transform: rotate(calc(var(--i) * 45deg)) translateY(-22px);
+    animation: preloader-fade 1s linear infinite;
+    animation-delay: calc(var(--i) * -0.125s);
+    opacity: 0.2;
+  }
+  @keyframes preloader-fade {
+    0%, 80%, 100% { opacity: 0.2; }
+    40%           { opacity: 1; }
   }
 }
 

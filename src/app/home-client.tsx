@@ -16,6 +16,7 @@ import { ProcessStack } from "@/components/process-stack";
 import { ServiceCard } from "@/components/service-card";
 import { GooBackdrop } from "@/components/goo-backdrop";
 import { MenuPanel } from "@/components/menu-panel";
+import { Preloader } from "@/components/preloader";
 // MouseTrail (hover-spawn canvases on hero) disabled per client v2 spec.
 // Component file kept in repo for quick rollback.
 // import { MouseTrail } from "@/components/mouse-trail";
@@ -146,6 +147,15 @@ type HomeProps = {
 
 export default function Home({ latestPosts }: HomeProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [preloaderDone, setPreloaderDone] = useState(false);
+  useEffect(() => {
+    // Pre-hydration inline script in layout.tsx flips this attribute
+    // when the session flag is present. Unmount the Preloader on
+    // mount in that case so it never runs its phases on repeat visits.
+    if (document.documentElement.hasAttribute("data-preloader-seen")) {
+      setPreloaderDone(true);
+    }
+  }, []);
   const stageRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   // Local 0..1 progress within a single loop block. The goo backdrop
@@ -415,6 +425,7 @@ export default function Home({ latestPosts }: HomeProps) {
 
   return (
     <>
+      {!preloaderDone && <Preloader onDone={() => setPreloaderDone(true)} />}
       <MenuPanel
         open={menuOpen}
         onNavigate={(key) => scrollToSection(NAV_INDICES[key])}
