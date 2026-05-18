@@ -58,7 +58,7 @@ const selectedCases = [
   },
 ];
 
-const whitePalette: Palette = { bg: "#F7F8FA" };
+const whitePalette: Palette = { bg: "#ffffff" };
 
 const SELECTED_WORK_INDEX = 1;
 const WHAT_WE_DO_INDEX = 2;

@@ -31,7 +31,7 @@ type Props = {
   progress: MotionValue<number>;
 };
 
-const TYPE_COLOR = "#E8ECF4";
+const TYPE_COLOR = "#F7F8FA";
 
 export function GooBackdrop({ specs, progress }: Props) {
   return (

@@ -23,7 +23,7 @@
 }
 
 :root {
-  --bg: #F7F8FA;
+  --bg: #ffffff;
   --frame: #EBEDF1;
 }
 
@@ -58,7 +58,7 @@
     }
   }
   ::selection {
-    background: #141754;
+    background: #30336A;
     color: var(--bg);
   }
 }
