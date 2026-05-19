@@ -71,49 +71,64 @@ html[data-preloader-seen] [data-preloader-overlay] {
   display: none !important;
 }
 
-/* Preloader liquid-blob spinner — SVG vector. 8 circles orbit the
-   centre at distance 30→70 px while scaling 0.5↔7. The SVG goo
-   filter (feGaussianBlur + feColorMatrix alpha-sharpen) fuses
-   overlapping circles into one organic shape with smooth edges —
-   so on a light overlay with dark fills they read as one liquid
-   blob rather than 8 discrete discs. Container also spins 0→360deg
-   for extra dynamism. */
-.preloader-spinner {
-  display: block;
+/* Orb wrapper — sized container for the Spark1 Lottie inside <Orb/>.
+   The animation itself ships via /public/spark_loader.json. No
+   shadow / halo per design — wrapper is transparent and only
+   provides the bounding box. */
+.orb-shell {
+  position: relative;
+  display: inline-block;
+}
+
+/* Contact CTA backdrop — two heavily-blurred coloured discs (green
+   #2EAB7B + blue #0970AF) cross-fade behind the pill on slow,
+   independent loops. Hosts the glass-effect button on top so its
+   backdrop-filter has movement to refract. */
+.contact-orb-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  isolation: isolate;
+  pointer-events: none;
+  /* Muted deep-blue base — no neon. */
+  background: linear-gradient(90deg, #0a3a6a 0%, #0970AF 55%, #0a3a6a 100%);
+}
+.contact-orb-bg__disc {
+  position: absolute;
+  border-radius: 50%;
+  top: 50%;
+  filter: blur(28px);
+  will-change: transform;
+}
+/* Mid-blue accent for tonal depth. */
+.contact-orb-bg__disc--blue {
+  background: #1a6dc9;
   width: 240px;
   height: 240px;
-  animation: preloader-orbit 8s linear infinite;
-  transform-origin: center;
+  left: 75%;
+  opacity: 0.7;
+  animation: contact-orb-b 18s ease-in-out infinite;
+  animation-delay: -4s;
 }
-.preloader-spinner circle {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: preloader-blob 8s ease-in-out infinite;
+/* Green accent — bigger / more visible than before. */
+.contact-orb-bg__disc--green {
+  background: #2EAB7B;
+  width: 180px;
+  height: 180px;
+  left: 22%;
+  opacity: 0.85;
+  animation: contact-orb-a 14s ease-in-out infinite;
 }
-@keyframes preloader-blob {
-  0%, 100% {
-    transform:
-      rotate(calc(360deg / 8 * var(--i)))
-      translate(30px, 0)
-      scale(0.5);
-  }
-  50% {
-    transform:
-      rotate(calc(360deg / 8 * var(--i)))
-      translate(70px, 0)
-      scale(7);
-  }
+@keyframes contact-orb-a {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50%      { transform: translate(160%, -50%) scale(1.15); }
 }
-@keyframes preloader-orbit {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+@keyframes contact-orb-b {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50%      { transform: translate(-140%, -50%) scale(1.1); }
 }
-@media (max-width: 600px) {
-  .preloader-spinner {
-    width: 160px;
-    height: 160px;
-  }
-}
+
 
 @layer utilities {
   /* Single heading face — variable Archivo at the expanded end of the

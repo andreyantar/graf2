@@ -16,6 +16,7 @@ import { ProcessStack } from "@/components/process-stack";
 import { ServiceCard } from "@/components/service-card";
 import { GooBackdrop } from "@/components/goo-backdrop";
 import { MenuPanel } from "@/components/menu-panel";
+import { FloatingCTA } from "@/components/floating-cta";
 import { Preloader } from "@/components/preloader";
 // MouseTrail (hover-spawn canvases on hero) disabled per client v2 spec.
 // Component file kept in repo for quick rollback.
@@ -426,6 +427,7 @@ export default function Home({ latestPosts }: HomeProps) {
   return (
     <>
       {!preloaderDone && <Preloader onDone={() => setPreloaderDone(true)} />}
+      {preloaderDone && <FloatingCTA />}
       <MenuPanel
         open={menuOpen}
         onNavigate={(key) => scrollToSection(NAV_INDICES[key])}

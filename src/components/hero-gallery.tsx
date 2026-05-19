@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
 import { HERO_IMAGE_URLS } from "@/lib/hero-images";
-import { SiteLogo } from "@/components/site-logo";
+import { Orb } from "@/components/orb";
 
 const HERO_IMAGES_SOURCE = HERO_IMAGE_URLS;
 
@@ -112,26 +112,17 @@ export function HeroGallery() {
       className="relative w-full flex flex-col items-center"
       style={{ minHeight: "100svh" }}
     >
-      {/* Logo badge — wordmark + icon in a soft pill, sits above the
-          tagline. Padding values are vw so the pill scales with the
-          viewport; the SVG inside uses currentColor and rem-based
-          height so the type stays legible on small screens. */}
+      {/* Brand orb — colour-cycling sphere, sits above the tagline as
+          the brand mark (replaces the previous pill+wordmark). Wrapper
+          carries [data-hero-badge] so the preloader morph still has a
+          rect to target. */}
       <div
         data-hero-badge
-        className="inline-flex items-center bg-[var(--frame)] rounded-full text-[var(--color-ink)]"
-        style={{
-          marginTop: "30vh",
-          // Pin a floor (figma px values @ ~1600vw) so the pill
-          // doesn't collapse to invisible padding on narrow viewports.
-          // Above ~1600px the vw values take over and the pill scales
-          // proportionally.
-          paddingTop: "max(0.31vw, 5px)",
-          paddingBottom: "max(0.31vw, 5px)",
-          paddingLeft: "max(0.88vw, 14px)",
-          paddingRight: "max(0.62vw, 10px)",
-        }}
+        style={{ marginTop: "30vh" }}
+        aria-label="Studio Graffiti"
+        role="img"
       >
-        <SiteLogo className="h-[1rem] w-auto" />
+        <Orb size="clamp(30px, 3.6vw, 66px)" />
       </div>
 
       <h1

@@ -57,15 +57,43 @@ export function ContactCard({ scrollContainerRef }: Props) {
         just a quick chat.
       </p>
 
-      <a
-        href="https://t.me/YuraShavrov"
-        target="_blank"
-        rel="noreferrer"
-        style={{ fontVariationSettings: '"wdth" 125, "wght" 800' }}
-        className="block w-full text-center bg-ink text-paper rounded-full px-6 py-4 font-archivo text-[length:var(--text-card-h3)] leading-[1.1] tracking-[-0.02em] hover:opacity-90 transition-opacity"
-      >
-        Start a project →
-      </a>
+      {/* Glass CTA — pill with two slow-moving blurred discs underneath
+          (green / blue) that the button's backdrop-filter blurs and
+          tints. The animated layer is visible only where the glass
+          itself is semi-transparent, so the button stays legible while
+          the colours softly drift behind it. */}
+      <div className="relative w-full">
+        <div className="contact-orb-bg">
+          <div className="contact-orb-bg__disc contact-orb-bg__disc--green" />
+          <div className="contact-orb-bg__disc contact-orb-bg__disc--blue" />
+        </div>
+        <a
+          href="https://t.me/YuraShavrov"
+          target="_blank"
+          rel="noreferrer"
+          data-contact-cta
+          style={{
+            fontVariationSettings: '"wdth" 125, "wght" 800',
+            // Glass with SVG-warp refraction. The button shape is
+            // now rounded-[1.25rem] (rounded rectangle, not a fully
+            // stretched pill), so the bounding-box displacement map
+            // doesn't deform unevenly — fewer arc / corner artefacts.
+            // Exact reference CSS from the Bespalov glass CodePen.
+            // Filter is inlined in layout.tsx; same-document
+            // `url(#frosted)` works in Chromium, `url(file.svg#id)`
+            // does not.
+            backdropFilter: "url(#frosted) blur(10px)",
+            WebkitBackdropFilter: "blur(12px) saturate(180%)",
+            background: "rgba(255, 255, 255, 0.08)",
+            border: "2px solid transparent",
+            boxShadow:
+              "0 0 0 2px rgba(255, 255, 255, 0.6), 0 16px 32px rgba(0, 0, 0, 0.12)",
+          }}
+          className="relative block w-full text-center text-white rounded-[1.25rem] px-6 py-4 font-archivo text-[length:var(--text-card-h3)] leading-[1.1] tracking-[-0.02em] transition-opacity hover:opacity-90"
+        >
+          Start a project →
+        </a>
+      </div>
 
       <p className="text-[13px] opacity-50 mt-10 mb-3">
         Or write directly
