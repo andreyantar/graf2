@@ -1,0 +1,41 @@
+{
+  "cli_version": "0.6.2",
+  "checkpoint_id": "678fa03c1aa9",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 21,
+  "files_touched": [
+    "package-lock.json",
+    "package.json",
+    "public/glass-filter.svg",
+    "public/orb.gif",
+    "public/spark_loader.json",
+    "src/app/globals.css",
+    "src/app/home-client.tsx",
+    "src/app/layout.tsx",
+    "src/app/loader-preview/loader-preview-client.tsx",
+    "src/app/loader-preview/page.tsx",
+    "src/app/orb-preview/page.tsx",
+    "src/components/contact-card.tsx",
+    "src/components/cookies-banner.tsx",
+    "src/components/floating-cta.tsx",
+    "src/components/hero-gallery.tsx",
+    "src/components/orb.tsx",
+    "src/components/preloader.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/67/8fa03c1aa9/0/metadata.json",
+      "transcript": "/67/8fa03c1aa9/0/full.jsonl",
+      "content_hash": "/67/8fa03c1aa9/0/content_hash.txt",
+      "prompt": "/67/8fa03c1aa9/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 4389,
+    "cache_creation_tokens": 12223797,
+    "cache_read_tokens": 678891394,
+    "output_tokens": 1179952,
+    "api_call_count": 1511
+  }
+}
