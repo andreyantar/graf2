@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
 import { HERO_IMAGE_URLS } from "@/lib/hero-images";
-import { Orb } from "@/components/orb";
+import { GooeyEmojiPicker } from "@/components/gooey-emoji-picker";
 
 const HERO_IMAGES_SOURCE = HERO_IMAGE_URLS;
 
@@ -112,17 +112,21 @@ export function HeroGallery() {
       className="relative w-full flex flex-col items-center"
       style={{ minHeight: "100svh" }}
     >
-      {/* Brand orb — colour-cycling sphere, sits above the tagline as
-          the brand mark (replaces the previous pill+wordmark). Wrapper
-          carries [data-hero-badge] so the preloader morph still has a
-          rect to target. */}
+      {/* Gooey emoji picker — Chris Gannon CodePen GZNgLw ported to
+          React + GSAP 3. Drag the row, pick a face; the dots glue
+          together through an SVG goo filter as they scale up/down,
+          and the picked icon pops up with a speech bubble. */}
       <div
         data-hero-badge
-        style={{ marginTop: "30vh" }}
+        style={{
+          marginTop: "30vh",
+          height: "4rem",
+          aspectRatio: "240 / 120",
+        }}
         aria-label="Studio Graffiti"
         role="img"
       >
-        <Orb size="clamp(30px, 3.6vw, 66px)" />
+        <GooeyEmojiPicker />
       </div>
 
       <h1

@@ -2,22 +2,9 @@ import type { Metadata } from "next";
 import { Archivo } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import fs from "node:fs";
-import path from "node:path";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/site";
 import { CookiesBanner } from "@/components/cookies-banner";
 import "./globals.css";
-
-// Inline the glass-warp SVG filter into the document at build time.
-// `backdrop-filter: url(/some-file.svg#id)` is broken in Chromium for
-// the Bespalov-style displacement filter (it falls back to no-warp).
-// Same-document `url(#frosted)` works reliably, but requires the
-// filter <defs> to live in the HTML — hence reading the file and
-// dangerouslySetInnerHTML'ing it once at the body root.
-const glassFilterSvg = fs.readFileSync(
-  path.join(process.cwd(), "public/glass-filter.svg"),
-  "utf-8",
-);
 
 // Variable Archivo (wght + wdth axes) is now the only typeface on
 // the site — body inherits the default instance, headings/goo/menu
@@ -91,15 +78,6 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body>
-        {/* Inline SVG filter for the glassmorphism backdrop-filter
-            warp (referenced as `url(#frosted)`). Hidden via 0×0 box
-            so it doesn't take layout space — filter defs work fine
-            without being visually rendered. */}
-        <div
-          aria-hidden
-          style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}
-          dangerouslySetInnerHTML={{ __html: glassFilterSvg }}
-        />
         {/* Pre-hydration: mark <html> if the preloader has already
             played this session. Pairs with the CSS rule in globals.css
             that hides [data-preloader-overlay] synchronously, so

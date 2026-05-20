@@ -91,8 +91,9 @@ html[data-preloader-seen] [data-preloader-overlay] {
   overflow: hidden;
   isolation: isolate;
   pointer-events: none;
-  /* Muted deep-blue base — no neon. */
-  background: linear-gradient(90deg, #0a3a6a 0%, #0970AF 55%, #0a3a6a 100%);
+  /* Plain dark base — solid colour from one of our blue stops so
+     the white text reads when the discs drift apart. */
+  background: #0a3a6a;
 }
 .contact-orb-bg__disc {
   position: absolute;
@@ -108,17 +109,19 @@ html[data-preloader-seen] [data-preloader-overlay] {
   height: 240px;
   left: 75%;
   opacity: 0.7;
-  animation: contact-orb-b 18s ease-in-out infinite;
-  animation-delay: -4s;
+  animation: contact-orb-b 36s ease-in-out infinite;
+  animation-delay: -8s;
 }
-/* Green accent — bigger / more visible than before. */
+/* Green accent — bigger / more visible than before. Heavier blur
+   than the blue disc so it reads as a softer wash. */
 .contact-orb-bg__disc--green {
   background: #2EAB7B;
   width: 180px;
   height: 180px;
   left: 22%;
   opacity: 0.85;
-  animation: contact-orb-a 14s ease-in-out infinite;
+  filter: blur(48px);
+  animation: contact-orb-a 28s ease-in-out infinite;
 }
 @keyframes contact-orb-a {
   0%, 100% { transform: translate(-50%, -50%) scale(1); }
