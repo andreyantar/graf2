@@ -93,6 +93,15 @@ export function FloatingCTA() {
       // selection stable as the user scrolls; the previously-active
       // slot only loses its turn once it scrolls past sticky and the
       // next copy crosses into range.
+      // NOTE on width: the floating button lives inside the stage,
+      // which GSAP scales down when the side menu opens. The slot is
+      // also inside the stage. `rect.width` is the post-transform
+      // width — if we wrote it onto the button, the transform would
+      // apply *again* and the button would shrink by scale². So we
+      // read `offsetWidth` (logical, pre-transform) for the width
+      // we write. `rect.top` is used only to *compare* slots in
+      // viewport space, not to write — that comparison is consistent
+      // because all slots share the same transform.
       let activeTop: number | null = null;
       let activeWidth = 0;
       slots.forEach((slot) => {
@@ -102,7 +111,7 @@ export function FloatingCTA() {
         if (rect.top >= stickyTop) {
           if (activeTop === null || rect.top < activeTop) {
             activeTop = rect.top;
-            activeWidth = rect.width;
+            activeWidth = slot.offsetWidth;
           }
         }
       });
@@ -116,7 +125,7 @@ export function FloatingCTA() {
           if (rect.top > viewportH + 800) return;
           if (activeTop === null || rect.top > activeTop) {
             activeTop = rect.top;
-            activeWidth = rect.width;
+            activeWidth = slot.offsetWidth;
           }
         });
       }
