@@ -23,7 +23,7 @@ const STEPS: Step[] = [
   {
     title: "03. Design & build",
     desc: "Founders run the project end-to-end. You see progress weekly, not at the deadline.",
-    img: ART[95],
+    img: "/How/how_3.png",
   },
   {
     title: "04. Launch & after",
