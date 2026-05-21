@@ -427,7 +427,6 @@ export default function Home({ latestPosts }: HomeProps) {
   return (
     <>
       {!preloaderDone && <Preloader onDone={() => setPreloaderDone(true)} />}
-      {preloaderDone && <FloatingCTA />}
       <MenuPanel
         open={menuOpen}
         onNavigate={(key) => scrollToSection(NAV_INDICES[key])}
@@ -449,7 +448,7 @@ export default function Home({ latestPosts }: HomeProps) {
       <div
         ref={stageRef}
         style={{ transformOrigin: "center center", willChange: "transform" }}
-        className="relative z-10 h-svh w-screen overflow-hidden bg-white"
+        className="relative z-10 h-svh w-full overflow-hidden bg-white"
         onClick={() => menuOpen && setMenuOpen(false)}
       >
         <GooBackdrop specs={gooSpecs} progress={gooProgress} />
@@ -457,6 +456,15 @@ export default function Home({ latestPosts }: HomeProps) {
         <div className="fixed top-4 left-6 md:left-10 z-50 mix-blend-difference text-white pointer-events-none flex items-center min-h-[44px]">
           <SiteLogo className="h-[18px] w-auto" />
         </div>
+
+        {/* Floating CTA mounted INSIDE the stage so CSS makes the
+            transformed stage its containing block for position:fixed
+            (CSS spec: any ancestor with `transform` flips fixed's
+            containing block to that ancestor). When the stage scales
+            + translates on menu-open, the button moves with it — no
+            more "detached from card" feel, and we don't have to hide
+            the primary CTA while the menu is open. */}
+        {preloaderDone && <FloatingCTA />}
 
         <div
           ref={scrollRef}

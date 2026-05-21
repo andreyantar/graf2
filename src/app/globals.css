@@ -32,10 +32,13 @@
      position:fixed with a GSAP transform that parks it off-screen
      right when closed, and Chromium sometimes leaks that as a
      document-level x-scrollbar even though the body itself has
-     overflow:hidden. Clip at the html level too, just in case. */
+     overflow:hidden. Clip at the html level too, just in case.
+     `overflow-x: clip` (not `hidden`) avoids establishing a scroll
+     container, which on Windows would otherwise force a custom
+     overlay-style scrollbar instead of the native one. */
   html,
   body {
-    overflow-x: hidden;
+    overflow-x: clip;
   }
   /* The home page locks body overflow via JS (so the custom scroll
      container drives navigation). Other routes (e.g. /blog, /work)

@@ -137,7 +137,7 @@ export function Preloader({ onDone }: { onDone: () => void }) {
       ref={overlayRef}
       data-preloader-overlay
       className="fixed inset-0 z-[100] bg-[var(--frame)] text-[var(--color-ink)]"
-      style={{ width: "100vw", height: "100svh" }}
+      style={{ height: "100svh" }}
       aria-hidden={phase !== "loading"}
     >
       <div className="absolute inset-0 flex items-center justify-center">

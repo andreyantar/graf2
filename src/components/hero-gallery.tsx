@@ -132,7 +132,7 @@ export function HeroGallery() {
       <h1
         className="text-center px-6 font-archivo text-card-title tracking-[-0.02em] leading-[1.1] mt-[1.25rem] min-[413px]:mt-[1.4vw] md:mt-[0.8vw]"
         style={{
-          width: "min(720px, 100vw)",
+          width: "min(720px, 100%)",
         }}
       >
         A small independent studio. We design brands, interfaces, and the
@@ -140,7 +140,7 @@ export function HeroGallery() {
       </h1>
 
       <div
-        className="relative w-screen"
+        className="relative w-full"
         style={{
           marginTop: "-3vh",
           height: cardH + 120,
