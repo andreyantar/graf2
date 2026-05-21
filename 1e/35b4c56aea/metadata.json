@@ -1,0 +1,29 @@
+{
+  "cli_version": "0.6.2",
+  "checkpoint_id": "1e35b4c56aea",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "public/artworks/8111acce-c8ce-2ef3-5f32-61cd63905c7d.jpg",
+    "public/artworks/a49c5ada-f461-d7d1-0f1b-468ac577a872.jpg",
+    "public/cases/case_mabudo.png",
+    "public/cases/case_sora.png",
+    "public/cases/case_tripple_a.png"
+  ],
+  "sessions": [
+    {
+      "metadata": "/1e/35b4c56aea/0/metadata.json",
+      "transcript": "/1e/35b4c56aea/0/full.jsonl",
+      "content_hash": "/1e/35b4c56aea/0/content_hash.txt",
+      "prompt": "/1e/35b4c56aea/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 4813,
+    "cache_creation_tokens": 16848098,
+    "cache_read_tokens": 783041515,
+    "output_tokens": 1317631,
+    "api_call_count": 1712
+  }
+}
