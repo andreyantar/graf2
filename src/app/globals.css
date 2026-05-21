@@ -64,6 +64,20 @@
     background: #30336A;
     color: var(--bg);
   }
+
+  /* Hide the native vertical scrollbar on the looped scroll container.
+     On macOS it's an overlay (invisible until scroll), but Windows
+     reserves a permanent gutter and renders the system scrollbar
+     inside the stage — visually wrong for the design. Scroll still
+     works (wheel, touch, keys) — only the chrome is hidden. */
+  [data-scroll-container] {
+    scrollbar-width: none; /* Firefox */
+  }
+  [data-scroll-container]::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
 }
 
 /* Preloader visibility kill-switch. The inline script in layout.tsx
