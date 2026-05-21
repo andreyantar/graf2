@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.6.2",
+  "checkpoint_id": "592a54306d68",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "public/wedo/branding.png"
+  ],
+  "sessions": [
+    {
+      "metadata": "/59/2a54306d68/0/metadata.json",
+      "transcript": "/59/2a54306d68/0/full.jsonl",
+      "content_hash": "/59/2a54306d68/0/content_hash.txt",
+      "prompt": "/59/2a54306d68/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 4827,
+    "cache_creation_tokens": 16855424,
+    "cache_read_tokens": 783963301,
+    "output_tokens": 1320811,
+    "api_call_count": 1721
+  }
+}
