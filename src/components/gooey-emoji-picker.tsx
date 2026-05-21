@@ -55,8 +55,8 @@ export function GooeyEmojiPicker() {
     const snapArray: number[] = [];
     const minDragX = -(numItems - 1) * spacer;
 
-    const uiColor = "#123B6B";
-    const textColor = "#123B6B";
+    const uiColor = "#EBEDF1";
+    const textColor = "#EBEDF1";
     const iconColor = "#FFF";
     const bubbleFillColor = "#FFF";
 
@@ -308,7 +308,7 @@ export function GooeyEmojiPicker() {
       <defs>
         <circle
           className="dot"
-          fill="#123B6B"
+          fill="#EBEDF1"
           stroke="none"
           strokeWidth="0"
           strokeMiterlimit="10"
@@ -348,7 +348,7 @@ export function GooeyEmojiPicker() {
         <g
           className="popLines"
           fill="none"
-          stroke="#123B6B"
+          stroke="#EBEDF1"
           strokeWidth="4"
           strokeLinecap="round"
           strokeLinejoin="round"

@@ -122,8 +122,6 @@ export function HeroGallery() {
           marginTop: "30vh",
           height: "4rem",
           aspectRatio: "240 / 120",
-          backgroundColor: "var(--frame)",
-          borderRadius: "9999px",
         }}
         aria-label="Studio Graffiti"
         role="img"
