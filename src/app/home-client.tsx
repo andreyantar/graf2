@@ -59,6 +59,43 @@ const selectedCases = [
   },
 ];
 
+// Fallback blog cards shown when Sanity returns no posts yet. Covers
+// live in /public/Blog/ — same shape the user dropped on disk.
+const blogMockCovers = [
+  "/Blog/blog_01.png",
+  "/Blog/blog_02.png",
+  "/Blog/blog_03.png",
+] as const;
+const blogMockPosts: PostSummary[] = [
+  {
+    _id: "mock-1",
+    title: "Notes from the studio",
+    slug: "notes-from-the-studio",
+    excerpt:
+      "What we're reading, watching, and building this month.",
+    publishedAt: new Date().toISOString(),
+    cover: null,
+  },
+  {
+    _id: "mock-2",
+    title: "Designing for trust",
+    slug: "designing-for-trust",
+    excerpt:
+      "How small visual choices compound into confidence over time.",
+    publishedAt: new Date().toISOString(),
+    cover: null,
+  },
+  {
+    _id: "mock-3",
+    title: "Type at the edges",
+    slug: "type-at-the-edges",
+    excerpt:
+      "A short essay on the spaces between letters — and why they matter.",
+    publishedAt: new Date().toISOString(),
+    cover: null,
+  },
+];
+
 const whitePalette: Palette = { bg: "#ffffff" };
 
 const SELECTED_WORK_INDEX = 1;
@@ -559,30 +596,30 @@ export default function Home({ latestPosts }: HomeProps) {
                 ) : isProcess ? (
                   <ProcessStack scrollContainerRef={scrollRef} />
                 ) : isBlog ? (
-                  latestPosts.length > 0 ? (
-                    <div className="relative w-full lg:w-[90vw] min-[1440px]:w-[70vw] max-w-[1920px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 py-16">
-                      {latestPosts.slice(0, 3).map((post, idx) => (
-                        <BlogCard
-                          key={`${i}-${post._id}`}
-                          post={post}
-                          column={
-                            idx === 0
-                              ? "left"
-                              : idx === 1
-                              ? "center"
-                              : "right"
-                          }
-                          scrollContainerRef={scrollRef}
-                          />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="mx-auto max-w-[420px] text-center px-6">
-                      <p className="text-body opacity-50">
-                        No posts yet.
-                      </p>
-                    </div>
-                  )
+                  <div className="relative w-full lg:w-[90vw] min-[1440px]:w-[70vw] max-w-[1920px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 py-16">
+                    {(latestPosts.length > 0
+                      ? latestPosts.slice(0, 3)
+                      : blogMockPosts
+                    ).map((post, idx) => (
+                      <BlogCard
+                        key={`${i}-${post._id}`}
+                        post={post}
+                        coverOverride={
+                          latestPosts.length > 0
+                            ? undefined
+                            : blogMockCovers[idx]
+                        }
+                        column={
+                          idx === 0
+                            ? "left"
+                            : idx === 1
+                            ? "center"
+                            : "right"
+                        }
+                        scrollContainerRef={scrollRef}
+                      />
+                    ))}
+                  </div>
                 ) : isContact ? (
                   <ContactCard scrollContainerRef={scrollRef} />
                 ) : (

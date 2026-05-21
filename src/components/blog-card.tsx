@@ -26,12 +26,16 @@ type Props = {
    *  the window — used on /blog where the page scrolls natively. On
    *  the home page we pass the looped scroll-container ref. */
   scrollContainerRef?: RefObject<HTMLDivElement | null>;
+  /** Override Sanity's cover URL — used for mock/fallback cards on the
+   *  home page when CMS has no posts yet. */
+  coverOverride?: string;
 };
 
 export function BlogCard({
   post,
   column = "left",
   scrollContainerRef,
+  coverOverride,
 }: Props) {
   const cardRef = useRef<HTMLElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -88,9 +92,11 @@ export function BlogCard({
     };
   }, [column, mobileFlat, scrollYProgress]);
 
-  const coverUrl = post.cover
-    ? urlFor(post.cover).width(880).fit("max").auto("format").url()
-    : null;
+  const coverUrl =
+    coverOverride ??
+    (post.cover
+      ? urlFor(post.cover).width(880).fit("max").auto("format").url()
+      : null);
 
   const date = new Date(post.publishedAt).toLocaleDateString("en-US", {
     year: "numeric",
