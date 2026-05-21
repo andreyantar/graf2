@@ -1,0 +1,74 @@
+{
+  "cli_version": "0.6.2",
+  "checkpoint_id": "e7fa015b624d",
+  "session_id": "cdc80388-0fb8-46ab-a751-9e3d3d2d0e24",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-21T11:08:24.679834Z",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "src/app/home-client.tsx",
+    "src/components/floating-cta.tsx"
+  ],
+  "agent": "Claude Code",
+  "model": "",
+  "turn_id": "08e3472be24b",
+  "token_usage": {
+    "input_tokens": 91,
+    "cache_creation_tokens": 146966,
+    "cache_read_tokens": 3025010,
+    "output_tokens": 20687,
+    "api_call_count": 46
+  },
+  "session_metrics": {
+    "turn_count": 2
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-21T11:08:24.666248Z",
+    "agent_lines": 0,
+    "agent_removed": 5,
+    "human_added": 0,
+    "human_modified": 3,
+    "human_removed": 90,
+    "total_committed": 32,
+    "total_lines_changed": 101,
+    "agent_percentage": 4.9504950495049505,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 1144,
+      "user_lines_removed": 93,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/agents/entire-search.md": 25,
+        ".claude/launch.json": 11,
+        ".claude/settings.json": 84,
+        ".claude/settings.local.json": 113,
+        "SESSION_HANDOFF.md": 142,
+        "Spark Animation 1.json": 1,
+        "figma/components.md": 222,
+        "figma/frames-spec.md": 279,
+        "figma/tokens.json": 160,
+        "spark_loader.json": 1,
+        "src/components/floating-cta.tsx": 103,
+        "vercel.json": 3
+      },
+      "user_removed_per_file": {
+        "src/components/floating-cta.tsx": 93
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 113,
+      "user_lines_removed": 0,
+      "agent_lines_added": 1031,
+      "agent_lines_removed": 93,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 113
+      }
+    }
+  ]
+}
