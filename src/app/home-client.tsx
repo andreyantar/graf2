@@ -34,28 +34,28 @@ const selectedCases = [
     title: "Volta",
     desc: "Brand identity and packaging system for an independent battery startup. Four years of work across hardware, voice, and retail surfaces.",
     href: "/work/volta",
-    img: ART_URLS[7],
+    img: "/cases/case_mabudo.png",
   },
   {
     n: "02",
     title: "Lighthouse",
     desc: "Digital archive for a regional maritime museum. One editorial system from a single object up to a 19th-century expedition.",
     href: "/work/lighthouse",
-    img: ART_URLS[33],
+    img: "/cases/case_sora.png",
   },
   {
     n: "03",
     title: "Modal",
     desc: "Product design for a privacy-first chat application. Identity, interface, and onboarding shipped with a small distributed team.",
     href: "/work/modal",
-    img: ART_URLS[51],
+    img: "/cases/case_tripple_a.png",
   },
   {
     n: "04",
     title: "Halftone",
     desc: "Editorial system and digital archive for a small independent print magazine. Long-form layout, archive search, and a quiet subscription flow.",
     href: "/work/halftone",
-    img: ART_URLS[62],
+    img: "/cases/case_zen.png",
   },
 ];
 
