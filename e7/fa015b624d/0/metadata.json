@@ -1,0 +1,148 @@
+{
+  "cli_version": "0.6.2",
+  "checkpoint_id": "e7fa015b624d",
+  "session_id": "3169977e-b790-478a-a34b-2af4f6245b9e",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-21T11:08:23.544657Z",
+  "branch": "main",
+  "checkpoints_count": 9,
+  "files_touched": [
+    "src/app/globals.css",
+    "src/app/home-client.tsx",
+    "src/components/floating-cta.tsx",
+    "src/components/hero-gallery.tsx",
+    "src/components/preloader.tsx"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-7",
+  "turn_id": "8e4acffeaf3a",
+  "token_usage": {
+    "input_tokens": 4690,
+    "cache_creation_tokens": 16806720,
+    "cache_read_tokens": 778269144,
+    "output_tokens": 1294186,
+    "api_call_count": 1654
+  },
+  "session_metrics": {
+    "turn_count": 44
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-21T11:08:22.973493Z",
+    "agent_lines": 99,
+    "agent_removed": 91,
+    "human_added": 20,
+    "human_modified": 12,
+    "human_removed": 0,
+    "total_committed": 131,
+    "total_lines_changed": 222,
+    "agent_percentage": 85.58558558558559,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 233,
+      "user_lines_removed": 0,
+      "agent_lines_added": 666,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/agents/entire-search.md": 25,
+        ".claude/launch.json": 11,
+        ".claude/settings.json": 84,
+        ".claude/settings.local.json": 113
+      }
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 233,
+      "user_lines_removed": 0,
+      "agent_lines_added": 769,
+      "agent_lines_removed": 93,
+      "user_added_per_file": {
+        ".claude/agents/entire-search.md": 25,
+        ".claude/launch.json": 11,
+        ".claude/settings.json": 84,
+        ".claude/settings.local.json": 113
+      }
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 233,
+      "user_lines_removed": 0,
+      "agent_lines_added": 769,
+      "agent_lines_removed": 93,
+      "user_added_per_file": {
+        ".claude/agents/entire-search.md": 25,
+        ".claude/launch.json": 11,
+        ".claude/settings.json": 84,
+        ".claude/settings.local.json": 113
+      }
+    },
+    {
+      "checkpoint_number": 5,
+      "user_lines_added": 145,
+      "user_lines_removed": 12,
+      "agent_lines_added": 1031,
+      "agent_lines_removed": 93,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 113,
+        "src/app/home-client.tsx": 1,
+        "src/components/floating-cta.tsx": 31
+      },
+      "user_removed_per_file": {
+        "src/app/home-client.tsx": 1,
+        "src/components/floating-cta.tsx": 11
+      }
+    },
+    {
+      "checkpoint_number": 6,
+      "user_lines_added": 113,
+      "user_lines_removed": 0,
+      "agent_lines_added": 1055,
+      "agent_lines_removed": 97,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 113
+      }
+    },
+    {
+      "checkpoint_number": 7,
+      "user_lines_added": 113,
+      "user_lines_removed": 0,
+      "agent_lines_added": 1056,
+      "agent_lines_removed": 96,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 113
+      }
+    },
+    {
+      "checkpoint_number": 8,
+      "user_lines_added": 113,
+      "user_lines_removed": 0,
+      "agent_lines_added": 1062,
+      "agent_lines_removed": 97,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 113
+      }
+    },
+    {
+      "checkpoint_number": 9,
+      "user_lines_added": 113,
+      "user_lines_removed": 0,
+      "agent_lines_added": 1062,
+      "agent_lines_removed": 97,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 113
+      }
+    },
+    {
+      "checkpoint_number": 10,
+      "user_lines_added": 113,
+      "user_lines_removed": 0,
+      "agent_lines_added": 1071,
+      "agent_lines_removed": 103,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 113
+      }
+    }
+  ]
+}
