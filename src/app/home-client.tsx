@@ -72,19 +72,19 @@ const services = [
     title: "Brand",
     desc: "Identity, naming, brand systems.",
     href: "/services/brand",
-    img: ART_URLS[88],
+    img: "/wedo/branding.png",
   },
   {
     title: "Web",
     desc: "Framer websites, landing pages, UI design.",
     href: "/services/web",
-    img: ART_URLS[112],
+    img: "/wedo/web.png",
   },
   {
     title: "Digital & AI",
     desc: "AI visuals, content direction, campaigns.",
     href: "/services/ai",
-    img: ART_URLS[145],
+    img: "/wedo/digital+ai.png",
   },
 ];
 
