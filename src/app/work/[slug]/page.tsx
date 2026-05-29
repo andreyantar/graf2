@@ -77,6 +77,9 @@ export default async function CasePage({
   // Next case (wraps around) for end-of-page navigation.
   const idx = all.findIndex((x) => x.slug === slug);
   const next = all.length > 1 ? all[(idx + 1) % all.length] : null;
+  const nextCover = next?.cover
+    ? urlFor(next.cover).width(1600).height(900).fit("crop").auto("format").url()
+    : undefined;
 
   // Other cases (everything but this one) for the looped carousel.
   const others: CaseData[] = all
@@ -207,21 +210,13 @@ export default async function CasePage({
           </section>
         )}
 
-        <div className="mt-16 flex items-center justify-between gap-6 border-t border-current/15 pt-8">
+        <div className="mt-16 flex items-center border-t border-current/15 pt-8">
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-body border-b border-current pb-0.5 hover:opacity-60 transition-opacity"
           >
             ← Back to studio
           </Link>
-          {next && (
-            <Link
-              href={`/work/${next.slug}`}
-              className="inline-flex items-center gap-2 text-body border-b border-current pb-0.5 hover:opacity-60 transition-opacity"
-            >
-              Next: {next.title} →
-            </Link>
-          )}
         </div>
       </article>
       </main>
@@ -242,6 +237,38 @@ export default async function CasePage({
       <footer className="bg-paper text-ink pb-28 md:pb-32 pt-4">
         <ContactCard />
       </footer>
+
+      {/* Next project — full-bleed teaser after the footer. A real
+          <Link> (prefetched by Next) keeps each case its own indexable
+          URL: no duplicate content, instant navigation. */}
+      {next && (
+        <Link
+          href={`/work/${next.slug}`}
+          className="group relative block overflow-hidden bg-ink text-paper"
+        >
+          {nextCover && (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={nextCover}
+              alt=""
+              aria-hidden
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 h-full w-full object-cover opacity-40 transition-[transform,opacity] duration-700 ease-out group-hover:opacity-55 group-hover:scale-105"
+            />
+          )}
+          <div className="relative mx-auto max-w-[860px] px-6 md:px-10 py-24 md:py-32 text-center">
+            <p className="text-mono uppercase opacity-70 mb-5">Next project</p>
+            <h2 className="font-archivo text-display leading-[0.95] tracking-[-0.02em] mb-6">
+              {next.title}
+            </h2>
+            <span className="inline-flex items-center gap-2 text-body border-b border-current pb-0.5 group-hover:opacity-70 transition-opacity">
+              View case →
+            </span>
+          </div>
+        </Link>
+      )}
+
       <FloatingCTA />
     </>
   );
