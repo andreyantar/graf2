@@ -4,6 +4,7 @@ import { useScroll } from "motion/react";
 import { useEffect, useRef, type RefObject } from "react";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
 import { envelope } from "@/lib/scroll-envelope";
+import { useStageScrollRef } from "@/components/stage-scroll-context";
 
 const MAX_RADIUS = 32;
 const MIN_RADIUS = 16; // settled state — softer than fully square
@@ -22,9 +23,17 @@ type Props = {
 export function ContactCard({ scrollContainerRef }: Props) {
   const cardRef = useRef<HTMLElement>(null);
 
+  // On the homepage the snap-scroll container is passed explicitly; on
+  // subpages the card is rendered inside SiteHeader's stage, whose
+  // internal scroll container we pick up from context.
+  const stageScrollRef = useStageScrollRef();
+  const container = (scrollContainerRef ?? stageScrollRef) as
+    | RefObject<HTMLElement>
+    | undefined;
+
   const { scrollYProgress } = useScroll({
     target: cardRef,
-    container: scrollContainerRef as RefObject<HTMLElement> | undefined,
+    container,
     offset: ["start end", "end start"],
   });
 

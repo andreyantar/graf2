@@ -12,7 +12,6 @@ import { urlFor } from "@/sanity/image";
 import { JsonLd, breadcrumbList, creativeWorkSchema } from "@/lib/jsonld";
 import { SiteHeader } from "@/components/site-header";
 import { ContactCard } from "@/components/contact-card";
-import { FloatingCTA } from "@/components/floating-cta";
 import { CaseCarousel } from "@/components/case-carousel";
 import type { CaseData } from "@/components/case-card";
 
@@ -108,8 +107,7 @@ export default async function CasePage({
   if (c.publishedAt) (ld[0] as Record<string, unknown>).dateCreated = c.publishedAt;
 
   return (
-    <>
-      <SiteHeader />
+    <SiteHeader>
       <main className="min-h-svh bg-paper text-ink px-6 md:px-10 py-24 md:py-32">
       <JsonLd data={ld} />
 
@@ -268,9 +266,7 @@ export default async function CasePage({
           </div>
         </Link>
       )}
-
-      <FloatingCTA />
-    </>
+    </SiteHeader>
   );
 }
 
