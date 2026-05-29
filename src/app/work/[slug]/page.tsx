@@ -10,6 +10,11 @@ import {
 import { portableComponents } from "@/sanity/portable-components";
 import { urlFor } from "@/sanity/image";
 import { JsonLd, breadcrumbList, creativeWorkSchema } from "@/lib/jsonld";
+import { SiteHeader } from "@/components/site-header";
+import { ContactCard } from "@/components/contact-card";
+import { FloatingCTA } from "@/components/floating-cta";
+import { CaseCarousel } from "@/components/case-carousel";
+import type { CaseData } from "@/components/case-card";
 
 export const revalidate = 60;
 
@@ -73,6 +78,19 @@ export default async function CasePage({
   const idx = all.findIndex((x) => x.slug === slug);
   const next = all.length > 1 ? all[(idx + 1) % all.length] : null;
 
+  // Other cases (everything but this one) for the looped carousel.
+  const others: CaseData[] = all
+    .filter((x) => x.slug !== slug)
+    .map((x, i) => ({
+      n: String(i + 1).padStart(2, "0"),
+      title: x.title,
+      desc: x.summary,
+      href: `/work/${x.slug}`,
+      img: x.cover
+        ? urlFor(x.cover).width(900).height(560).fit("crop").auto("format").url()
+        : "",
+    }));
+
   const ld = [
     creativeWorkSchema({ name: c.title, description: c.summary, url }),
     breadcrumbList([
@@ -87,7 +105,9 @@ export default async function CasePage({
   if (c.publishedAt) (ld[0] as Record<string, unknown>).dateCreated = c.publishedAt;
 
   return (
-    <main className="min-h-svh bg-paper text-ink px-6 md:px-10 py-24 md:py-32">
+    <>
+      <SiteHeader />
+      <main className="min-h-svh bg-paper text-ink px-6 md:px-10 py-24 md:py-32">
       <JsonLd data={ld} />
 
       <article className="mx-auto w-full max-w-[860px]">
@@ -144,7 +164,7 @@ export default async function CasePage({
         {c.outcomes && c.outcomes.length > 0 && (
           <section className="my-16 border-t border-current/15 pt-10">
             <h2 className="text-mono uppercase opacity-50 mb-6">Outcome</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-2 min-[1200px]:grid-cols-4 gap-8">
               {c.outcomes.map((o, i) => (
                 <div key={i}>
                   <p className="font-archivo text-card-h3 leading-[1] tracking-[-0.02em] mb-2">
@@ -204,7 +224,26 @@ export default async function CasePage({
           )}
         </div>
       </article>
-    </main>
+      </main>
+
+      {/* More work — looped, single-row carousel of the other cases. */}
+      {others.length > 0 && (
+        <section className="bg-paper text-ink pb-24 md:pb-28 pt-4 overflow-hidden">
+          <h2 className="text-mono uppercase opacity-50 px-6 md:px-10 mb-8">
+            More work
+          </h2>
+          <div className="pl-6 md:pl-10">
+            <CaseCarousel cases={others} />
+          </div>
+        </section>
+      )}
+
+      {/* Footer — same contact card as the homepage. */}
+      <footer className="bg-paper text-ink pb-28 md:pb-32 pt-4">
+        <ContactCard />
+      </footer>
+      <FloatingCTA />
+    </>
   );
 }
 

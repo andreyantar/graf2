@@ -13,7 +13,10 @@ const EMAIL = "hello@studio-graffiti.pl";
 const TELEGRAM_HANDLE = "studiograffiti";
 
 type Props = {
-  scrollContainerRef: RefObject<HTMLDivElement | null>;
+  // Optional: the homepage passes its custom snap-scroll container.
+  // On standard-scroll subpages (e.g. /work/[slug]) it's omitted and
+  // the radius animation tracks the window scroll instead.
+  scrollContainerRef?: RefObject<HTMLDivElement | null>;
 };
 
 export function ContactCard({ scrollContainerRef }: Props) {
@@ -21,7 +24,7 @@ export function ContactCard({ scrollContainerRef }: Props) {
 
   const { scrollYProgress } = useScroll({
     target: cardRef,
-    container: scrollContainerRef as RefObject<HTMLElement>,
+    container: scrollContainerRef as RefObject<HTMLElement> | undefined,
     offset: ["start end", "end start"],
   });
 
