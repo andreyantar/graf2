@@ -29,19 +29,22 @@ import { useEffect, useRef } from "react";
  *   3. eliminates jitter from CSS transitions overlapping each other
  *      during fast scrolls — values snap each frame.
  *
- * Hysteresis on the morph threshold (50 px buffer between enter /
- * exit) keeps the width / radius from flipping back and forth when
- * the slot oscillates around the boundary.
+ * The width / radius morph is driven continuously by the slot's
+ * distance from the sticky line (not a binary threshold + CSS
+ * transition), so it tracks the scroll exactly, eases smoothly, and
+ * can't flip-flop / "breathe" when the user lingers near a boundary.
  */
 
 const BOTTOM_OFFSET_PX = 32; // 2rem default gap from viewport bottom
 const BUTTON_HEIGHT_PX = 56; // matches the py-4 + text height
-const MORPH_ENTER_PX = 200; // slot must be within 200px of sticky to enter morph
-const MORPH_EXIT_PX = 250; // and outside 250px to exit (hysteresis)
+const MORPH_RANGE_PX = 220; // distance over which the pill morphs into the slot shape
 
 const STICKY_WIDTH = "min(70vw, 320px)";
 const STICKY_RADIUS = "1.75rem";
 const SLOT_RADIUS = "1.25rem";
+// Numeric forms of the radii for the per-frame interpolation.
+const STICKY_RADIUS_REM = 1.75;
+const SLOT_RADIUS_REM = 1.25;
 
 type Mode = "sticky" | "morphing" | "settled";
 
@@ -53,6 +56,10 @@ export function FloatingCTA() {
 
     const anchor = anchorRef.current;
     if (!anchor) return;
+
+    // Root font size for the rem→px radius interpolation below.
+    const rootPx =
+      parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
 
     let raf = 0;
     let mounted = true;
@@ -166,17 +173,28 @@ export function FloatingCTA() {
         const diff = activeTop - stickyTop;
         const slotWidthPx = `${Math.round(activeWidth)}px`;
 
-        // Hysteresis on width/radius mode: enter morph when diff
-        // crosses 200, exit when diff crosses 250 going the other way.
-        const wantMorph =
-          mode === "sticky" ? diff <= MORPH_ENTER_PX : diff <= MORPH_EXIT_PX;
-
         if (diff > 0) {
-          // Slot still below sticky line — pin to sticky, optionally morph.
-          const targetWidth = wantMorph ? slotWidthPx : STICKY_WIDTH;
-          const targetRadius = wantMorph ? SLOT_RADIUS : STICKY_RADIUS;
-          setStyle(stickyTop, targetWidth, targetRadius);
-          mode = wantMorph ? "morphing" : "sticky";
+          // Slot still below sticky line — pin to sticky and morph
+          // continuously toward the slot shape as it approaches.
+          // t: 0 (far, full pill) → 1 (at the sticky line, slot shape),
+          // smoothstepped. Computed per frame (no CSS transition) so the
+          // morph is a pure function of scroll position and can't
+          // oscillate near a threshold the way a width transition did.
+          const tRaw = Math.min(1, 1 - diff / MORPH_RANGE_PX);
+          if (tRaw <= 0) {
+            setStyle(stickyTop, STICKY_WIDTH, STICKY_RADIUS);
+            mode = "sticky";
+          } else {
+            const t = tRaw * tRaw * (3 - 2 * tRaw); // smoothstep
+            const stickyW = Math.min(0.7 * window.innerWidth, 320);
+            const w = Math.round(stickyW + (activeWidth - stickyW) * t);
+            const r =
+              (STICKY_RADIUS_REM +
+                (SLOT_RADIUS_REM - STICKY_RADIUS_REM) * t) *
+              rootPx;
+            setStyle(stickyTop, `${w}px`, `${r}px`);
+            mode = "morphing";
+          }
         } else {
           // Slot at or above sticky: hand off to the real in-flow dock
           // button. It rides the page natively (compositor-driven), so
@@ -229,13 +247,6 @@ export function FloatingCTA() {
         top: "-100vh",
         width: STICKY_WIDTH,
         borderRadius: STICKY_RADIUS,
-        // Smooth the pill→dock morph. Scoped to width + radius only —
-        // `top` is deliberately excluded so per-frame position writes
-        // stay instant (a transition on top would lag the scroll and
-        // reintroduce jitter, which is exactly why this component drives
-        // position imperatively).
-        transition:
-          "width 0.45s cubic-bezier(0.22, 1, 0.36, 1), border-radius 0.45s cubic-bezier(0.22, 1, 0.36, 1)",
       }}
       className="z-40 flex items-center justify-center whitespace-nowrap"
     >
