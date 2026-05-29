@@ -90,14 +90,24 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              name: SITE_NAME,
-              url: SITE_URL,
-              description: SITE_DESCRIPTION,
-              logo: `${SITE_URL}/studio_graffiti_logo.svg`,
-            }),
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                name: SITE_NAME,
+                url: SITE_URL,
+                description: SITE_DESCRIPTION,
+                logo: `${SITE_URL}/studio_graffiti_logo.svg`,
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                name: SITE_NAME,
+                url: SITE_URL,
+                publisher: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
+                inLanguage: "en",
+              },
+            ]),
           }}
         />
         {children}

@@ -33,8 +33,10 @@ export function articleSchema(input: {
   title: string;
   description?: string | null;
   datePublished: string;
+  dateModified?: string | null;
   imageUrl?: string;
   url: string;
+  inLanguage?: string;
 }): SchemaObject {
   return {
     "@context": "https://schema.org",
@@ -43,6 +45,8 @@ export function articleSchema(input: {
     description: input.description ?? undefined,
     image: input.imageUrl,
     datePublished: input.datePublished,
+    dateModified: input.dateModified ?? input.datePublished,
+    inLanguage: input.inLanguage ?? undefined,
     author: ORGANIZATION,
     publisher: ORGANIZATION,
     mainEntityOfPage: {

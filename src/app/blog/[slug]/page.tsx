@@ -22,9 +22,27 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = await getPostBySlug(slug);
   if (!post) return {};
+  const url = `/blog/${slug}`;
+  const coverUrl = post.cover
+    ? urlFor(post.cover).width(1200).height(630).fit("crop").auto("format").url()
+    : undefined;
   return {
     title: `${post.title} — Studio Graffiti`,
     description: post.excerpt ?? undefined,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "article",
+      url,
+      title: post.title,
+      description: post.excerpt ?? undefined,
+      publishedTime: post.publishedAt,
+      images: coverUrl
+        ? [{ url: coverUrl, width: 1200, height: 630, alt: post.title }]
+        : undefined,
+    },
+    twitter: coverUrl
+      ? { card: "summary_large_image", images: [coverUrl] }
+      : undefined,
   };
 }
 
@@ -46,8 +64,10 @@ export default async function PostPage({
       title: post.title,
       description: post.excerpt,
       datePublished: post.publishedAt,
+      dateModified: post.updatedAt,
       imageUrl: coverUrl,
       url,
+      inLanguage: "pl",
     }),
     breadcrumbList([
       { name: "Home", url: "/" },
@@ -59,7 +79,7 @@ export default async function PostPage({
   return (
     <main className="min-h-svh bg-paper text-ink px-6 py-24 md:py-32">
       <JsonLd data={ld} />
-      <article className="mx-auto w-full max-w-[680px]">
+      <article lang="pl" className="mx-auto w-full max-w-[680px]">
         <p className="text-body opacity-50 mb-4">
           {new Date(post.publishedAt).toLocaleDateString("en-US", {
             year: "numeric",

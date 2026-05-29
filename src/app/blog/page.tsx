@@ -5,6 +5,13 @@ import { BlogPageClient } from "./blog-page-client";
 export const metadata: Metadata = {
   title: "Journal — Studio Graffiti",
   description: "Notes, takeaways, and field reports from the studio.",
+  alternates: { canonical: "/blog" },
+  openGraph: {
+    type: "website",
+    url: "/blog",
+    title: "Journal — Studio Graffiti",
+    description: "Notes, takeaways, and field reports from the studio.",
+  },
 };
 
 export const revalidate = 60;

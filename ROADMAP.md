@@ -28,7 +28,7 @@ Living document. Update as items move between sections.
 - Goo background texts kept original ("What we do", "How we work") —
   body labels read "Services"/"Process"/"Blog"/"Contact"
 
-### Sanity CMS scaffold
+### Sanity CMS — live
 - `next-sanity` + `sanity` v5 wired in
 - `sanity.config.ts` at repo root, schemas under `src/sanity/schemas/`
 - `post` schema: title / slug / excerpt / cover / publishedAt / body
@@ -39,6 +39,15 @@ Living document. Update as items move between sections.
 - `/blog` index + `/blog/[slug]` detail pages (SSG with revalidate 60)
 - `.env.example` documents `NEXT_PUBLIC_SANITY_PROJECT_ID` +
   `NEXT_PUBLIC_SANITY_DATASET`
+- **Project provisioned + connected** — `projectId bw87izq9`,
+  dataset `production` (set in `.env.local`). `/studio` live.
+- **3 posts published** (Polish copy): "Design cyfrowy zmienia
+  sposób", "Nawet najmniejsze detale wpływają na odbiór interfejsu"
+  (`post-2`), "Hello World". `/blog` + home Blog teaser render the
+  real data — no mock cards.
+- Mock-card fallback for the empty state was tried then reverted
+  (commit `2ebd504` → reverted in `6074f7d`): real posts exist, so
+  the hardcoded placeholders were unnecessary.
 
 ### Subpages (placeholder)
 - `/work/[slug]` — volta, lighthouse, modal, halftone (SSG via
@@ -76,7 +85,10 @@ Living document. Update as items move between sections.
 - Case/Service placeholder pages use `text-display` (40→64px fluid)
 
 ### SEO & analytics
-- `src/app/sitemap.ts` → `/sitemap.xml`
+- `src/app/sitemap.ts` → `/sitemap.xml` — includes home, `/blog`,
+  cases, services, AND blog post slugs pulled dynamically from Sanity
+  via `getAllPosts()` (`lastmod` = each post's `publishedAt`). Verified
+  live: all 3 published posts appear.
 - `src/app/robots.ts` → `/robots.txt`
 - `generateMetadata` per case / service / blog slug page
 - `@vercel/analytics` + `@vercel/speed-insights` wired in root layout
@@ -88,6 +100,22 @@ Living document. Update as items move between sections.
   `robots.googleBot` with `max-image-preview: large`
 - JSON-LD `Organization` injected in `<body>` (read by Google AI
   Overviews, Perplexity, ChatGPT search)
+- JSON-LD builders in `src/lib/jsonld.tsx` (Article / BreadcrumbList /
+  CreativeWork / Service) wired into all detail routes (commit
+  `1733323`): `/blog/[slug]` → Article + Breadcrumb, `/work/[slug]` →
+  CreativeWork + Breadcrumb, `/services/[slug]` → Service + Breadcrumb
+- **Per-route canonical fix** — root layout's `canonical: "/"` was
+  inherited by every subpage (blog/work/services all reported the
+  homepage as canonical → would deindex them). `generateMetadata` now
+  sets `alternates.canonical` + `openGraph.url` per route on
+  `/blog`, `/blog/[slug]`, `/work/[slug]`, `/services/[slug]`.
+- **Per-article OpenGraph** — blog posts now emit `og:type=article`,
+  `og:image` from the Sanity cover (1200×630 crop), `publishedTime`,
+  and `twitter:summary_large_image` instead of the generic `/og.png`.
+- **Blog posts marked `lang="pl"`** on `<article>` (Polish copy under
+  an `en` site) + `inLanguage: "pl"` in Article JSON-LD.
+- **`WebSite` JSON-LD** added alongside `Organization` in root layout;
+  Article schema gained `dateModified` (from Sanity `_updatedAt`).
 - `public/llms.txt` — short LLM-crawler site map
 - `public/og.png` — static social card (1200×630)
 - Home hero promoted to `<h1>` (was missing — every other route had
@@ -110,14 +138,14 @@ Living document. Update as items move between sections.
 
 ## 🟡 In planning
 
-### Sanity — finish setup (user action)
-- Create a Sanity project at https://www.sanity.io/manage
-- Set `NEXT_PUBLIC_SANITY_PROJECT_ID` + `NEXT_PUBLIC_SANITY_DATASET`
-  in Vercel project env vars (Production + Preview)
-- Open `/studio` on the deployed site, log in, publish first post
-- Verify `/blog` lists posts and individual slugs render
+### Sanity — production hygiene
+- Verify `NEXT_PUBLIC_SANITY_*` are set in Vercel env (Production +
+  Preview), not just local `.env.local` — otherwise prod `/blog`
+  falls back to the empty state.
+- Clean up placeholder posts before launch: `post-2` and
+  `hello-world` look like test drafts — keep or delete in `/studio`.
 - Optional: install the Sanity-Vercel Marketplace integration to
-  auto-populate env vars
+  auto-sync env vars across environments.
 
 ## ❌ Rejected
 
@@ -152,17 +180,25 @@ Living document. Update as items move between sections.
 
 ## 🔴 Pending — SEO/LLM (next iteration)
 
-- `Article` JSON-LD on `/blog/[slug]` (author, datePublished,
-  image) — critical for blog discoverability + AI summaries
-- `BreadcrumbList` JSON-LD on `/work/[slug]`, `/services/[slug]`,
-  `/blog/[slug]` — surfaces breadcrumbs in SERP
-- Sitemap: pull blog slugs from Sanity dynamically (currently only
-  hardcoded cases/services land in `sitemap.xml`)
+- **(user action) Set `NEXT_PUBLIC_SITE_URL` in Vercel prod env.**
+  Without it, prod falls back to the `*.vercel.app` URL — so
+  canonical / og:url / sitemap / robots all point to vercel.app while
+  `public/llms.txt` hardcodes `studio-graffiti.pl`. Split domain
+  signals. Set once the `.pl` domain is live.
+- **(decision) `/work/[slug]` + `/services/[slug]` are placeholders**
+  ("Full case study in progress") but emit `CreativeWork` / `Service`
+  JSON-LD describing them as real. Thin content + structured data for
+  non-existent work is an E-E-A-T risk and can mislead LLM crawlers.
+  Either write real content or drop the JSON-LD until it exists.
 - Audit `description` quality in each `generateMetadata` (verify
   none default to a generic boilerplate)
 - Minor fluid hangs: explicit `leading-[1.1]` instead of
   `leading-tight` on shared h2/h3 components; arbitrary `text-[15px]`
   / `rounded-[20px]` in `snap-section.tsx` → fluid tokens
+
+> JSON-LD (Article / BreadcrumbList / CreativeWork / Service) and the
+> dynamic blog sitemap were moved to ✅ Done — they shipped in commit
+> `1733323` and are live. Builders live in `src/lib/jsonld.tsx`.
 
 ## 🔴 Pending — Misc
 

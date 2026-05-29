@@ -36,9 +36,12 @@ export async function generateMetadata({
   const { slug } = await params;
   const data = cases[slug];
   if (!data) return {};
+  const url = `/work/${slug}`;
   return {
     title: `${data.title} — Studio Graffiti`,
     description: data.tagline,
+    alternates: { canonical: url },
+    openGraph: { type: "article", url, title: data.title, description: data.tagline },
   };
 }
 
