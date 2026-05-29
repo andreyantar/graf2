@@ -5,7 +5,7 @@ import { useMotionValue } from "motion/react";
 import type { WordSpec } from "@/components/goo-backdrop";
 import gsap from "gsap";
 import { BlogCard } from "@/components/blog-card";
-import { CaseCard } from "@/components/case-card";
+import { CaseCard, type CaseData } from "@/components/case-card";
 import { ContactCard } from "@/components/contact-card";
 // HeroTitle is the previous hero (Lottie + headline). Kept in the
 // repo for quick rollback while the gallery hero is in client review.
@@ -27,37 +27,6 @@ import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
 import type { PostSummary } from "@/sanity/queries";
 
 const ART_URLS: string[] = (manifest as Array<{ url: string }>).map((m) => m.url);
-
-const selectedCases = [
-  {
-    n: "01",
-    title: "Volta",
-    desc: "Brand identity and packaging system for an independent battery startup. Four years of work across hardware, voice, and retail surfaces.",
-    href: "/work/volta",
-    img: "/cases/case_mabudo.png",
-  },
-  {
-    n: "02",
-    title: "Lighthouse",
-    desc: "Digital archive for a regional maritime museum. One editorial system from a single object up to a 19th-century expedition.",
-    href: "/work/lighthouse",
-    img: "/cases/case_sora.png",
-  },
-  {
-    n: "03",
-    title: "Modal",
-    desc: "Product design for a privacy-first chat application. Identity, interface, and onboarding shipped with a small distributed team.",
-    href: "/work/modal",
-    img: "/cases/case_tripple_a.png",
-  },
-  {
-    n: "04",
-    title: "Halftone",
-    desc: "Editorial system and digital archive for a small independent print magazine. Long-form layout, archive search, and a quiet subscription flow.",
-    href: "/work/halftone",
-    img: "/cases/case_zen.png",
-  },
-];
 
 const whitePalette: Palette = { bg: "#ffffff" };
 
@@ -144,9 +113,10 @@ const NAV_INDICES = {
 
 type HomeProps = {
   latestPosts: PostSummary[];
+  cases: CaseData[];
 };
 
-export default function Home({ latestPosts }: HomeProps) {
+export default function Home({ latestPosts, cases }: HomeProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [preloaderDone, setPreloaderDone] = useState(false);
   useEffect(() => {
@@ -530,7 +500,7 @@ export default function Home({ latestPosts }: HomeProps) {
                   )
                 ) : isSelectedWork ? (
                   <div className="relative w-full md:w-[70vw] max-w-[1280px] mx-auto grid grid-cols-1 sm:grid-cols-2 justify-items-center gap-4 md:gap-20">
-                    {selectedCases.map((c, idx) => (
+                    {cases.map((c, idx) => (
                       <CaseCard
                         key={`${i}-${c.n}`}
                         data={c}

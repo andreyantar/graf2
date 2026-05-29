@@ -1,31 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PortableText, type PortableTextBlock } from "next-sanity";
+import {
+  getAllCaseSlugs,
+  getAllCaseStudies,
+  getCaseStudyBySlug,
+} from "@/sanity/queries";
+import { portableComponents } from "@/sanity/portable-components";
+import { urlFor } from "@/sanity/image";
 import { JsonLd, breadcrumbList, creativeWorkSchema } from "@/lib/jsonld";
 
-const cases: Record<string, { title: string; tagline: string }> = {
-  volta: {
-    title: "Volta",
-    tagline:
-      "Brand identity and packaging system for an independent battery startup.",
-  },
-  lighthouse: {
-    title: "Lighthouse",
-    tagline: "Digital archive for a regional maritime museum.",
-  },
-  modal: {
-    title: "Modal",
-    tagline: "Product design for a privacy-first chat application.",
-  },
-  halftone: {
-    title: "Halftone",
-    tagline:
-      "Editorial system and digital archive for a small independent print magazine.",
-  },
-};
+export const revalidate = 60;
 
-export function generateStaticParams() {
-  return Object.keys(cases).map((slug) => ({ slug }));
+export async function generateStaticParams() {
+  const slugs = await getAllCaseSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -34,14 +24,28 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const data = cases[slug];
-  if (!data) return {};
+  const c = await getCaseStudyBySlug(slug);
+  if (!c) return {};
   const url = `/work/${slug}`;
+  const coverUrl = c.cover
+    ? urlFor(c.cover).width(1200).height(630).fit("crop").auto("format").url()
+    : undefined;
   return {
-    title: `${data.title} — Studio Graffiti`,
-    description: data.tagline,
+    title: `${c.title} — Studio Graffiti`,
+    description: c.summary,
     alternates: { canonical: url },
-    openGraph: { type: "article", url, title: data.title, description: data.tagline },
+    openGraph: {
+      type: "article",
+      url,
+      title: c.title,
+      description: c.summary,
+      images: coverUrl
+        ? [{ url: coverUrl, width: 1200, height: 630, alt: c.title }]
+        : undefined,
+    },
+    twitter: coverUrl
+      ? { card: "summary_large_image", images: [coverUrl] }
+      : undefined,
   };
 }
 
@@ -51,46 +55,176 @@ export default async function CasePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const data = cases[slug];
-  if (!data) notFound();
+  const [c, all] = await Promise.all([
+    getCaseStudyBySlug(slug),
+    getAllCaseStudies(),
+  ]);
+  if (!c) notFound();
 
   const url = `/work/${slug}`;
+  const coverUrl = c.cover
+    ? urlFor(c.cover).width(1600).fit("max").auto("format").url()
+    : undefined;
+  const coverOg = c.cover
+    ? urlFor(c.cover).width(1200).height(630).fit("crop").auto("format").url()
+    : undefined;
+
+  // Next case (wraps around) for end-of-page navigation.
+  const idx = all.findIndex((x) => x.slug === slug);
+  const next = all.length > 1 ? all[(idx + 1) % all.length] : null;
+
   const ld = [
-    creativeWorkSchema({
-      name: data.title,
-      description: data.tagline,
-      url,
-    }),
+    creativeWorkSchema({ name: c.title, description: c.summary, url }),
     breadcrumbList([
       { name: "Home", url: "/" },
       { name: "Work", url: "/#work" },
-      { name: data.title, url },
+      { name: c.title, url },
     ]),
   ];
+  // Enrich CreativeWork with cover + date (creativeWorkSchema keeps a
+  // narrow signature; we add fields the page actually has).
+  if (coverOg) (ld[0] as Record<string, unknown>).image = coverOg;
+  if (c.publishedAt) (ld[0] as Record<string, unknown>).dateCreated = c.publishedAt;
 
   return (
-    <main className="min-h-svh bg-paper text-ink flex flex-col items-center justify-center px-6 py-24">
+    <main className="min-h-svh bg-paper text-ink px-6 md:px-10 py-24 md:py-32">
       <JsonLd data={ld} />
-      <div className="w-full max-w-[640px]">
-        <p className="text-body opacity-60 mb-4">
-          Case study
-        </p>
+
+      <article className="mx-auto w-full max-w-[860px]">
+        <p className="text-body opacity-60 mb-4">Case study</p>
         <h1 className="font-archivo text-display leading-[0.95] tracking-[-0.02em] mb-6">
-          {data.title}
+          {c.title}
         </h1>
-        <p className="text-body-lg leading-snug opacity-80 mb-10">
-          {data.tagline}
+        <p className="text-body-lg leading-snug opacity-80 mb-10 max-w-[640px]">
+          {c.summary}
         </p>
-        <p className="text-body opacity-50 mb-10">
-          Full case study in progress.
-        </p>
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-body border-b border-current pb-0.5 hover:opacity-60 transition-opacity"
-        >
-          ← Back to studio
-        </Link>
-      </div>
+
+        {/* Meta row: client / year / roles */}
+        {(c.client || c.year || (c.roles && c.roles.length > 0)) && (
+          <dl className="grid grid-cols-2 sm:grid-cols-3 gap-6 border-t border-current/15 pt-6 mb-12">
+            {c.client && (
+              <div>
+                <dt className="text-mono uppercase opacity-50 mb-1">Client</dt>
+                <dd className="text-body">{c.client}</dd>
+              </div>
+            )}
+            {c.year && (
+              <div>
+                <dt className="text-mono uppercase opacity-50 mb-1">Year</dt>
+                <dd className="text-body">{c.year}</dd>
+              </div>
+            )}
+            {c.roles && c.roles.length > 0 && (
+              <div>
+                <dt className="text-mono uppercase opacity-50 mb-1">Role</dt>
+                <dd className="text-body">{c.roles.join(", ")}</dd>
+              </div>
+            )}
+          </dl>
+        )}
+
+        {coverUrl && (
+          <figure className="mb-16">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={coverUrl}
+              alt={c.title}
+              loading="eager"
+              decoding="async"
+              className="block w-full h-auto rounded-[12px]"
+            />
+          </figure>
+        )}
+
+        <Section title="Challenge" body={c.challenge} />
+        <Section title="Approach" body={c.approach} />
+        <Section title="Solution" body={c.solution} />
+
+        {/* Outcomes / metrics */}
+        {c.outcomes && c.outcomes.length > 0 && (
+          <section className="my-16 border-t border-current/15 pt-10">
+            <h2 className="text-mono uppercase opacity-50 mb-6">Outcome</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+              {c.outcomes.map((o, i) => (
+                <div key={i}>
+                  <p className="font-archivo text-card-h3 leading-[1] tracking-[-0.02em] mb-2">
+                    {o.value}
+                  </p>
+                  <p className="text-body opacity-70">{o.label}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Gallery */}
+        {c.gallery && c.gallery.length > 0 && (
+          <section className="my-16 grid grid-cols-1 gap-6">
+            {c.gallery.map((g, i) =>
+              g ? (
+                <figure key={i}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={urlFor(g).width(1600).fit("max").auto("format").url()}
+                    alt={`${c.title} — image ${i + 1}`}
+                    loading="lazy"
+                    decoding="async"
+                    className="block w-full h-auto rounded-[12px]"
+                  />
+                </figure>
+              ) : null,
+            )}
+          </section>
+        )}
+
+        {/* Takeaway */}
+        {c.takeaway && (
+          <section className="my-16 border-t border-current/15 pt-10">
+            <h2 className="text-mono uppercase opacity-50 mb-4">Takeaway</h2>
+            <p className="text-body-lg leading-snug opacity-90 max-w-[640px]">
+              {c.takeaway}
+            </p>
+          </section>
+        )}
+
+        <div className="mt-16 flex items-center justify-between gap-6 border-t border-current/15 pt-8">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-body border-b border-current pb-0.5 hover:opacity-60 transition-opacity"
+          >
+            ← Back to studio
+          </Link>
+          {next && (
+            <Link
+              href={`/work/${next.slug}`}
+              className="inline-flex items-center gap-2 text-body border-b border-current pb-0.5 hover:opacity-60 transition-opacity"
+            >
+              Next: {next.title} →
+            </Link>
+          )}
+        </div>
+      </article>
     </main>
+  );
+}
+
+function Section({
+  title,
+  body,
+}: {
+  title: string;
+  body: unknown[] | null;
+}) {
+  if (!body || body.length === 0) return null;
+  return (
+    <section className="my-12">
+      <h2 className="text-mono uppercase opacity-50 mb-4">{title}</h2>
+      <div className="prose-studio text-body-lg leading-relaxed max-w-[640px]">
+        <PortableText
+          value={body as PortableTextBlock[]}
+          components={portableComponents}
+        />
+      </div>
+    </section>
   );
 }

@@ -1,15 +1,17 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL as BASE_URL } from "@/lib/site";
-import { getAllPosts } from "@/sanity/queries";
+import { getAllPosts, getAllCaseSlugs } from "@/sanity/queries";
 
-const cases = ["volta", "lighthouse", "modal", "halftone"];
 const services = ["brand", "web", "ai"];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
-  // Pull blog slugs + publishedAt from Sanity. Returns [] if env is not
+  // Pull blog + case slugs from Sanity. Both return [] if env is not
   // configured, so the build still passes on previews without secrets.
-  const posts = await getAllPosts();
+  const [posts, caseSlugs] = await Promise.all([
+    getAllPosts(),
+    getAllCaseSlugs(),
+  ]);
   return [
     { url: `${BASE_URL}/`, lastModified: now, priority: 1 },
     { url: `${BASE_URL}/blog`, lastModified: now, priority: 0.8 },
@@ -18,7 +20,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(post.publishedAt),
       priority: 0.6,
     })),
-    ...cases.map((slug) => ({
+    ...caseSlugs.map((slug) => ({
       url: `${BASE_URL}/work/${slug}`,
       lastModified: now,
       priority: 0.7,
