@@ -60,6 +60,32 @@ export function FloatingCTA() {
     let lastTop = -1;
     let lastWidth = "";
     let lastRadius = "";
+    // Visibility handoff between the floating pill and the in-flow dock
+    // button. Tracked so we only touch the DOM when state flips.
+    let pillVisible = true;
+    let visibleSlot: HTMLElement | null = null;
+
+    const setElVisible = (el: HTMLElement, visible: boolean) => {
+      el.style.opacity = visible ? "1" : "0";
+      el.style.pointerEvents = visible ? "auto" : "none";
+      el.tabIndex = visible ? 0 : -1;
+      el.setAttribute("aria-hidden", visible ? "false" : "true");
+    };
+
+    const setPillVisible = (visible: boolean) => {
+      if (visible === pillVisible) return;
+      setElVisible(anchor, visible);
+      pillVisible = visible;
+    };
+
+    // Reveal `slot` (the active dock button) and hide whichever slot was
+    // shown before. Pass null to hide all and restore the floating pill.
+    const dockTo = (slot: HTMLElement | null) => {
+      if (slot === visibleSlot) return;
+      if (visibleSlot) setElVisible(visibleSlot, false);
+      if (slot) setElVisible(slot, true);
+      visibleSlot = slot;
+    };
 
     const setStyle = (
       top: number,
@@ -104,6 +130,7 @@ export function FloatingCTA() {
       // because all slots share the same transform.
       let activeTop: number | null = null;
       let activeWidth = 0;
+      let activeSlot: HTMLElement | null = null;
       slots.forEach((slot) => {
         const rect = slot.getBoundingClientRect();
         if (rect.top < -BUTTON_HEIGHT_PX - 800) return;
@@ -112,6 +139,7 @@ export function FloatingCTA() {
           if (activeTop === null || rect.top < activeTop) {
             activeTop = rect.top;
             activeWidth = slot.offsetWidth;
+            activeSlot = slot;
           }
         }
       });
@@ -126,6 +154,7 @@ export function FloatingCTA() {
           if (activeTop === null || rect.top > activeTop) {
             activeTop = rect.top;
             activeWidth = slot.offsetWidth;
+            activeSlot = slot;
           }
         });
       }
@@ -149,12 +178,26 @@ export function FloatingCTA() {
           setStyle(stickyTop, targetWidth, targetRadius);
           mode = wantMorph ? "morphing" : "sticky";
         } else {
-          // Slot at or above sticky — follow the slot 1-to-1, matching
-          // its exact pixel width so the button sits flush inside the
-          // card with no horizontal gap.
+          // Slot at or above sticky: hand off to the real in-flow dock
+          // button. It rides the page natively (compositor-driven), so
+          // it can't jitter — unlike a `fixed` element whose top we'd
+          // rewrite every frame from a scroll-lagged rect read. We keep
+          // the (now hidden) pill tracking the slot so it's co-located
+          // for a seamless swap back when the user scrolls up.
           setStyle(activeTop, slotWidthPx, SLOT_RADIUS);
           mode = "settled";
         }
+      }
+
+      // Reconcile which element is visible. Settled → the in-flow dock
+      // button takes over and the floating pill hides; otherwise the
+      // pill is the CTA and no dock button shows.
+      if (mode === "settled") {
+        setPillVisible(false);
+        dockTo(activeSlot);
+      } else {
+        dockTo(null);
+        setPillVisible(true);
       }
 
       raf = requestAnimationFrame(tick);
@@ -186,6 +229,13 @@ export function FloatingCTA() {
         top: "-100vh",
         width: STICKY_WIDTH,
         borderRadius: STICKY_RADIUS,
+        // Smooth the pill→dock morph. Scoped to width + radius only —
+        // `top` is deliberately excluded so per-frame position writes
+        // stay instant (a transition on top would lag the scroll and
+        // reintroduce jitter, which is exactly why this component drives
+        // position imperatively).
+        transition:
+          "width 0.45s cubic-bezier(0.22, 1, 0.36, 1), border-radius 0.45s cubic-bezier(0.22, 1, 0.36, 1)",
       }}
       className="z-40 flex items-center justify-center whitespace-nowrap"
     >

@@ -55,23 +55,53 @@ export function ContactCard({ scrollContainerRef }: Props) {
       <h2 className="font-archivo text-card-title tracking-[-0.02em] leading-[1.1] mb-4">
         Have a brand worth building?
       </h2>
-      <p className="text-body leading-relaxed opacity-90 mb-8">
+      <p className="text-body leading-relaxed opacity-90 mb-4">
         We respond within 24 hours. No agency forms, no qualification calls —
         just a quick chat.
       </p>
 
-      {/* Placeholder slot for the single sticky CTA (FloatingCTA
-          docks here when this section enters viewport). Reserves
-          the same vertical space + width as the real button so the
-          card layout doesn't shift when the floating button settles
-          in. The button itself lives in `<FloatingCTA/>` mounted at
-          the page root and tracks `[data-cta-slot]` rects. */}
-      <div
+      {/* Dock slot for the sticky CTA. This is a *real* in-flow button:
+          while the card is below the viewport the floating `fixed`
+          pill (<FloatingCTA/>) is the visible CTA; the instant the
+          card docks at the sticky line, FloatingCTA hides the pill and
+          reveals this one. Because this button lives in the normal
+          scroll flow it's moved by the compositor along with the page
+          — no per-frame JS positioning, so it can't jitter on fast
+          scroll the way a JS-tracked `fixed` element does. Starts
+          hidden + non-focusable; FloatingCTA toggles it on dock. */}
+      <a
         data-cta-slot
-        aria-hidden
-        className="w-full"
-        style={{ height: "56px", borderRadius: "1.25rem" }}
-      />
+        href="https://t.me/YuraShavrov"
+        target="_blank"
+        rel="noreferrer"
+        aria-hidden="true"
+        tabIndex={-1}
+        className="relative flex w-full items-center justify-center overflow-hidden whitespace-nowrap"
+        style={{
+          height: "56px",
+          borderRadius: "1.25rem",
+          opacity: 0,
+          pointerEvents: "none",
+        }}
+      >
+        <span
+          aria-hidden
+          className="contact-orb-bg"
+          style={{ borderRadius: "inherit" }}
+        >
+          <span className="contact-orb-bg__disc contact-orb-bg__disc--green" />
+          <span className="contact-orb-bg__disc contact-orb-bg__disc--blue" />
+        </span>
+        <span
+          style={{
+            fontVariationSettings: '"wdth" 125, "wght" 800',
+            color: "#ffffff",
+          }}
+          className="relative font-archivo text-body leading-[1.1] tracking-[-0.02em]"
+        >
+          Start a project →
+        </span>
+      </a>
 
       <p className="text-[13px] opacity-50 mt-10 mb-3">
         Or write directly
