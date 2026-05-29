@@ -13,6 +13,7 @@ import { JsonLd, breadcrumbList, creativeWorkSchema } from "@/lib/jsonld";
 import { SiteHeader } from "@/components/site-header";
 import { ContactCard } from "@/components/contact-card";
 import { CaseCarousel } from "@/components/case-carousel";
+import { NextProjectCover } from "@/components/next-project-cover";
 import type { CaseData } from "@/components/case-card";
 
 export const revalidate = 60;
@@ -244,17 +245,7 @@ export default async function CasePage({
           href={`/work/${next.slug}`}
           className="group relative block overflow-hidden bg-ink text-paper"
         >
-          {nextCover && (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img
-              src={nextCover}
-              alt=""
-              aria-hidden
-              loading="lazy"
-              decoding="async"
-              className="absolute inset-0 h-full w-full object-cover opacity-40 transition-[transform,opacity] duration-700 ease-out group-hover:opacity-55 group-hover:scale-105"
-            />
-          )}
+          {nextCover && <NextProjectCover src={nextCover} />}
           <div className="relative mx-auto max-w-[860px] px-6 md:px-10 py-24 md:py-32 text-center">
             <p className="text-mono uppercase opacity-70 mb-5">Next project</p>
             <h2 className="font-archivo text-display leading-[0.95] tracking-[-0.02em] mb-6">
