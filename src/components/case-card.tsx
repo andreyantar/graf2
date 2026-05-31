@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useScroll } from "motion/react";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
 import { envelope } from "@/lib/scroll-envelope";
+import { subscribeScrollProgress } from "@/lib/scroll-progress";
 
 export type CaseData = {
   n: string;
@@ -54,13 +54,6 @@ export function CaseCard({
   const imgRef = useRef<HTMLImageElement>(null);
   const [mobileFlat, setMobileFlat] = useState(false);
 
-  // 0 = card top at viewport bottom (entering), 1 = card bottom at viewport top (exiting)
-  const { scrollYProgress } = useScroll({
-    target: cardRef,
-    container: scrollContainerRef as RefObject<HTMLElement>,
-    offset: ["start end", "end start"],
-  });
-
   // On ≤767 px the row collapses to a single column, so the outward
   // x-translate and tilt have nothing to push outward against. Cards
   // animate only the radius envelope + image zoom and travel straight
@@ -101,18 +94,17 @@ export function CaseCard({
       // browser optimize the paint hint.
       card.style.transform = `translate3d(${x}px, 0, 0) rotate(${rot}deg)`;
       card.style.setProperty("--card-radius", `${radius}px`);
-      // Scroll-driven image zoom: linear 1.3 (card at viewport bottom)
+      // Scroll-driven image zoom: linear 1.2 (card at viewport bottom)
       // → 1.0 (card at viewport top). Symmetric in scroll direction
       // because it tracks card position, not scroll velocity.
-      if (img) img.style.transform = `scale(${1.3 - 0.3 * p})`;
+      if (img) img.style.transform = `scale(${1.2 - 0.2 * p})`;
     };
 
-    apply(scrollYProgress.get());
-    const unsub = scrollYProgress.on("change", apply);
-    return () => {
-      unsub();
-    };
-  }, [column, mobileFlat, scrollYProgress]);
+    // 0 = card top at viewport bottom (entering), 1 = card bottom at
+    // viewport top (exiting). rAF-sampled so Safari's threaded overflow
+    // scrolling stays in sync (no stepped reveal); see scroll-progress.ts.
+    return subscribeScrollProgress(card, scrollContainerRef.current, apply);
+  }, [column, mobileFlat, scrollContainerRef]);
 
   return (
     <article

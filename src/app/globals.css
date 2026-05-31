@@ -119,7 +119,7 @@ html[data-preloader-seen] [data-preloader-overlay] {
   pointer-events: none;
   /* Plain dark base — solid colour from one of our blue stops so
      the white text reads when the discs drift apart. */
-  background: #0a3a6a;
+  background: #2B3844;
 }
 .contact-orb-bg__disc {
   position: absolute;
@@ -130,18 +130,19 @@ html[data-preloader-seen] [data-preloader-overlay] {
 }
 /* Mid-blue accent for tonal depth. */
 .contact-orb-bg__disc--blue {
-  background: #1a6dc9;
+  background: #223D70;
   width: 240px;
   height: 240px;
   left: 75%;
   opacity: 0.7;
+  filter: blur(48px);
   animation: contact-orb-b 36s ease-in-out infinite;
   animation-delay: -8s;
 }
 /* Green accent — bigger / more visible than before. Heavier blur
    than the blue disc so it reads as a softer wash. */
 .contact-orb-bg__disc--green {
-  background: #2EAB7B;
+  background: #264B63;
   width: 180px;
   height: 180px;
   left: 22%;

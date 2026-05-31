@@ -1,9 +1,9 @@
 "use client";
 
-import { useScroll } from "motion/react";
 import { useEffect, useRef, type RefObject } from "react";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
 import { envelope } from "@/lib/scroll-envelope";
+import { subscribeScrollProgress } from "@/lib/scroll-progress";
 import { useStageScrollRef } from "@/components/stage-scroll-context";
 
 const MAX_RADIUS = 32;
@@ -31,12 +31,6 @@ export function ContactCard({ scrollContainerRef }: Props) {
     | RefObject<HTMLElement>
     | undefined;
 
-  const { scrollYProgress } = useScroll({
-    target: cardRef,
-    container,
-    offset: ["start end", "end start"],
-  });
-
   useEffect(() => {
     const card = cardRef.current;
     if (!card) return;
@@ -49,12 +43,10 @@ export function ContactCard({ scrollContainerRef }: Props) {
       );
     };
 
-    apply(scrollYProgress.get());
-    const unsub = scrollYProgress.on("change", apply);
-    return () => {
-      unsub();
-    };
-  }, [scrollYProgress]);
+    // rAF-sampled progress (see scroll-progress.ts) so the radius envelope
+    // stays synced with Safari's threaded overflow scrolling.
+    return subscribeScrollProgress(card, container?.current ?? null, apply);
+  }, [container]);
 
   return (
     <article
@@ -112,10 +104,10 @@ export function ContactCard({ scrollContainerRef }: Props) {
         </span>
       </a>
 
-      <p className="text-[13px] opacity-50 mt-10 mb-3">
+      <p className="text-[13px] opacity-50 mt-8 mb-2">
         Or write directly
       </p>
-      <ul className="text-body leading-relaxed flex flex-col gap-y-2 min-[481px]:flex-row min-[481px]:justify-between min-[481px]:gap-x-6 min-[481px]:gap-y-0 lg:grid lg:grid-cols-2">
+      <ul className="text-body leading-relaxed flex flex-col gap-y-2 min-[481px]:flex-row min-[481px]:justify-between min-[481px]:gap-x-6 min-[481px]:gap-y-0">
         <li>
           <a
             href={`mailto:${EMAIL}`}
@@ -136,9 +128,9 @@ export function ContactCard({ scrollContainerRef }: Props) {
         </li>
       </ul>
 
-      <hr className="my-8 border-current opacity-15" />
+      <hr className="my-6 border-current opacity-15" />
 
-      <div className="flex justify-between gap-2 xl:grid xl:grid-cols-3 text-body opacity-70">
+      <div className="flex justify-between gap-2 text-body opacity-70">
         <a href="#" className="hover:opacity-100">
           Instagram ↗
         </a>

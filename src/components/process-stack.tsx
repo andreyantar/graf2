@@ -224,10 +224,10 @@ function ProcessCard({
       if (isAnchor || p >= slotEntry) {
         s = 1;
       } else if (p < slotStart) {
-        s = 1.3;
+        s = 1.2;
       } else {
         const ep = (p - slotStart) / (slotEntry - slotStart);
-        s = 1.3 - 0.3 * ep;
+        s = 1.2 - 0.2 * ep;
       }
       const tr = `scale(${s})`;
       if (imgMobileRef.current) imgMobileRef.current.style.transform = tr;

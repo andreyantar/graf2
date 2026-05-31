@@ -1,8 +1,5 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef } from "react";
-import gsap from "gsap";
-
 export type NavKey =
   | "home"
   | "work"
@@ -30,27 +27,21 @@ type Props = {
 };
 
 export function MenuPanel({ open, onNavigate }: Props) {
-  const ref = useRef<HTMLElement>(null);
-
-  useLayoutEffect(() => {
-    if (!ref.current) return;
-    gsap.set(ref.current, { xPercent: 100 });
-  }, []);
-
-  useEffect(() => {
-    if (!ref.current) return;
-    gsap.to(ref.current, {
-      xPercent: open ? 0 : 100,
-      duration: 0.85,
-      ease: "expo.inOut",
-      overwrite: "auto",
-    });
-  }, [open]);
-
+  // The slide is a CSS transform transition, not a GSAP tween. GSAP writes
+  // `transform` from JS on the main thread every frame; on the homepage the
+  // main thread is busy with background animation (WebGL hero, goo filter,
+  // the CTA's rAF loop), so on desktop Safari those writes arrive late and
+  // the panel stutters. A CSS transform transition is interpolated by the
+  // compositor (GPU) instead, so it stays smooth regardless of main-thread
+  // load. cubic-bezier(0.87, 0, 0.13, 1) ≈ GSAP's expo.inOut.
   return (
     <aside
-      ref={ref}
       aria-hidden={!open}
+      style={{
+        transform: open ? "translateX(0)" : "translateX(100%)",
+        transition: "transform 0.85s cubic-bezier(0.87, 0, 0.13, 1)",
+        willChange: "transform",
+      }}
       className="pointer-events-auto fixed inset-y-0 right-0 z-30 w-[50vw] min-[541px]:w-[33vw] md:w-[280px] overflow-hidden bg-[var(--frame)] text-[#111]"
     >
       {/* 3-row grid [1fr | auto | 1fr] vertically centres the nav

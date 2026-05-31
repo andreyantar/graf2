@@ -6,6 +6,8 @@ import {
   useTransform,
   type MotionValue,
 } from "motion/react";
+import { useSyncExternalStore } from "react";
+import { isDesktopSafari } from "@/lib/is-desktop-safari";
 
 /** One word + its scroll-anchored visibility window. Positions and
  *  half-widths are expressed as fractions of a single loop block
@@ -34,6 +36,22 @@ type Props = {
 const TYPE_COLOR = "#F1F3F8";
 
 export function GooBackdrop({ specs, progress }: Props) {
+  // Desktop Safari can't GPU-accelerate SVG filters: the viewport-sized
+  // `filter: url(#goo-sharpen)` region + per-word blur() re-rasterize on the
+  // main thread every frame the words fade/blur during scroll, which starved
+  // the compositor and made the cards' edge tilt + the CTA stutter (homepage
+  // only — the goo lives here). On Safari we drop the filter and per-word
+  // blur, leaving a plain opacity crossfade (compositor-driven, smooth). The
+  // melt effect stays on Chrome/iOS, which handle the filter on the GPU.
+  // SSR + first client render return false (server snapshot) so hydration
+  // matches; React then re-reads the client snapshot and flips to the real
+  // value after mount — no hydration mismatch, no setState-in-effect.
+  const plain = useSyncExternalStore(
+    () => () => {},
+    () => isDesktopSafari(),
+    () => false,
+  );
+
   return (
     <>
       {/* SVG filter — sharpens alpha only, leaves RGB untouched.
@@ -64,11 +82,11 @@ export function GooBackdrop({ specs, progress }: Props) {
       >
         <div
           className="relative w-full h-full"
-          style={{ filter: "url(#goo-sharpen)" }}
+          style={{ filter: plain ? "none" : "url(#goo-sharpen)" }}
         >
           {specs.map((s, i) =>
             s.word ? (
-              <BlobWord key={i} spec={s} progress={progress} />
+              <BlobWord key={i} spec={s} progress={progress} plain={plain} />
             ) : null,
           )}
         </div>
@@ -80,9 +98,11 @@ export function GooBackdrop({ specs, progress }: Props) {
 function BlobWord({
   spec,
   progress,
+  plain,
 }: {
   spec: WordSpec;
   progress: MotionValue<number>;
+  plain: boolean;
 }) {
   const { word, peakCenter, plateauHalf, fadeHalf } = spec;
 
@@ -120,7 +140,7 @@ function BlobWord({
   return (
     <motion.span
       style={{
-        filter,
+        filter: plain ? "none" : filter,
         opacity,
         color: TYPE_COLOR,
         left: "4vw",

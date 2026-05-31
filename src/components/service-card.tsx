@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useScroll } from "motion/react";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
 import { envelope } from "@/lib/scroll-envelope";
+import { subscribeScrollProgress } from "@/lib/scroll-progress";
 
 export type ServiceData = {
   title: string;
@@ -38,12 +38,6 @@ export function ServiceCard({
   const cardRef = useRef<HTMLElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const [mobileFlat, setMobileFlat] = useState(false);
-
-  const { scrollYProgress } = useScroll({
-    target: cardRef,
-    container: scrollContainerRef as RefObject<HTMLElement>,
-    offset: ["start end", "end start"],
-  });
 
   // On ≤767 px the 3-col row collapses to single column → side
   // translate + tilt make no sense. Keep radius + image zoom only.
@@ -83,16 +77,14 @@ export function ServiceCard({
       if (img) {
         // ServiceCard's img is absolute inset-0 — preserve the inset
         // positioning while applying the scale via transform.
-        img.style.transform = `scale(${1.3 - 0.3 * p})`;
+        img.style.transform = `scale(${1.2 - 0.2 * p})`;
       }
     };
 
-    apply(scrollYProgress.get());
-    const unsub = scrollYProgress.on("change", apply);
-    return () => {
-      unsub();
-    };
-  }, [column, mobileFlat, scrollYProgress]);
+    // rAF-sampled progress (see scroll-progress.ts) so the arc + zoom stay
+    // synced with Safari's threaded overflow scrolling.
+    return subscribeScrollProgress(card, scrollContainerRef.current, apply);
+  }, [column, mobileFlat, scrollContainerRef]);
 
   return (
     <article

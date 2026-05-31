@@ -9,6 +9,7 @@ import { SiteLogo } from "@/components/site-logo";
 import { FloatingCTA } from "@/components/floating-cta";
 import { StageScrollContext } from "@/components/stage-scroll-context";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
+import { isDesktopSafari } from "@/lib/is-desktop-safari";
 
 // Where each menu item points from a subpage. The homepage reads the
 // hash on first paint and scrolls to the matching section (see the
@@ -52,6 +53,22 @@ export function SiteHeader({ children }: { children: ReactNode }) {
     if (!stageRef.current) return;
     if (typeof window === "undefined") return;
 
+    // Desktop Safari re-rasterizes the heavy stage layer on every frame
+    // while it scales, which reads as a stepped/choppy menu open. Skip the
+    // stage transform there — the MenuPanel slides in over a still page on
+    // its own (pure transform, always smooth). iOS Safari composites the
+    // zoom fine, so it (and Chrome/Edge/Firefox) keep the full zoom-out.
+    //
+    // The stage carries `will-change: transform` for the GPU-composited zoom.
+    // On desktop Safari it never transforms, so that promotion is a
+    // permanently-live "dead" layer Safari recomposites whenever the sliding
+    // MenuPanel animates — which made the panel slide stutter. Drop it to
+    // auto so the panel's CSS transition composites cleanly over a static page.
+    if (isDesktopSafari()) {
+      stageRef.current.style.willChange = "auto";
+      return;
+    }
+
     const STAGE_SCALE_X = 0.85;
     const RIGHT_GAP_PX = 12; // visible gap between stage's right edge and menu
     const verticalMarginPx = 32; // 2rem
@@ -74,14 +91,26 @@ export function SiteHeader({ children }: { children: ReactNode }) {
       const scaleY =
         (window.innerHeight - 2 * verticalMarginPx) / window.innerHeight;
       const tweenDuration = prefersReducedMotion() ? 0 : 0.85;
+      // Animate ONLY transform (scale + translate) — both are GPU-
+      // composited, so Safari slides the existing layer bitmap instead of
+      // repainting. border-radius is a paint property; tweening it forced
+      // Safari to re-rasterize the whole stage every frame, which read as
+      // the stepped/choppy menu open. Snap the corners instead: round
+      // instantly on open, un-round only after the close finishes, so the
+      // stage is square only at full size where the corners aren't seen.
+      if (menuOpen) {
+        gsap.set(stageRef.current, { borderRadius: "22px" });
+      }
       gsap.to(stageRef.current, {
         scaleX: menuOpen ? STAGE_SCALE_X : 1,
         scaleY: menuOpen ? scaleY : 1,
         x: menuOpen ? targetXPx(vw) : 0,
-        borderRadius: menuOpen ? "22px" : "0px",
         duration: tweenDuration,
         ease: "expo.inOut",
         overwrite: "auto",
+        onComplete: menuOpen
+          ? undefined
+          : () => gsap.set(stageRef.current, { borderRadius: "0px" }),
       });
     };
 

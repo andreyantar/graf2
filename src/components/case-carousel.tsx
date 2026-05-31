@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useScroll } from "motion/react";
 import { useEffect, useRef, type RefObject } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, FreeMode } from "swiper/modules";
 import type { CaseData } from "@/components/case-card";
 import { useStageScrollRef } from "@/components/stage-scroll-context";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
+import { subscribeScrollProgress } from "@/lib/scroll-progress";
 import "swiper/css";
 
 type Props = {
@@ -20,7 +20,7 @@ type Props = {
  * hovering pauses, dragging is allowed.
  *
  * The card images carry the SAME scroll-driven zoom as the homepage
- * CaseCard — scale 1.3 (section entering from the viewport bottom) →
+ * CaseCard — scale 1.2 (section entering from the viewport bottom) →
  * 1.0 (exiting at the top) — so the whole site shares one image
  * behaviour: images react to scroll, never to hover. Since every card
  * sits in the same vertical band of a horizontal marquee, one shared
@@ -37,26 +37,18 @@ export function CaseCarousel({ cases }: Props) {
     | RefObject<HTMLElement>
     | undefined;
 
-  const { scrollYProgress } = useScroll({
-    target: rootRef,
-    container,
-    offset: ["start end", "end start"],
-  });
-
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
     if (prefersReducedMotion()) return;
 
     const apply = (p: number) => {
-      root.style.setProperty("--card-img-scale", String(1.3 - 0.3 * p));
+      root.style.setProperty("--card-img-scale", String(1.2 - 0.2 * p));
     };
-    apply(scrollYProgress.get());
-    const unsub = scrollYProgress.on("change", apply);
-    return () => {
-      unsub();
-    };
-  }, [scrollYProgress]);
+    // rAF-sampled progress (see scroll-progress.ts) so the shared card
+    // zoom stays synced with Safari's threaded overflow scrolling.
+    return subscribeScrollProgress(root, container?.current ?? null, apply);
+  }, [container]);
 
   if (cases.length === 0) return null;
 

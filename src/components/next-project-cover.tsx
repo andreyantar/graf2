@@ -1,14 +1,14 @@
 "use client";
 
-import { useScroll } from "motion/react";
 import { useEffect, useRef, type RefObject } from "react";
 import { useStageScrollRef } from "@/components/stage-scroll-context";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
+import { subscribeScrollProgress } from "@/lib/scroll-progress";
 
 /**
  * Full-bleed cover for the "Next project" teaser, carrying the same
  * scroll-driven zoom as the homepage CaseCard and the case carousel:
- * scale 1.3 (block entering from the viewport bottom) → 1.0 (exiting at
+ * scale 1.2 (block entering from the viewport bottom) → 1.0 (exiting at
  * the top). Images react to scroll across the whole site, never to hover.
  *
  * The (non-transformed) wrapper span is the scroll measurement target;
@@ -26,26 +26,19 @@ export function NextProjectCover({ src }: { src: string }) {
     | RefObject<HTMLElement>
     | undefined;
 
-  const { scrollYProgress } = useScroll({
-    target: wrapRef,
-    container,
-    offset: ["start end", "end start"],
-  });
-
   useEffect(() => {
+    const wrap = wrapRef.current;
     const img = imgRef.current;
-    if (!img) return;
+    if (!wrap || !img) return;
     if (prefersReducedMotion()) return;
 
     const apply = (p: number) => {
-      img.style.transform = `scale(${1.3 - 0.3 * p})`;
+      img.style.transform = `scale(${1.2 - 0.2 * p})`;
     };
-    apply(scrollYProgress.get());
-    const unsub = scrollYProgress.on("change", apply);
-    return () => {
-      unsub();
-    };
-  }, [scrollYProgress]);
+    // rAF-sampled progress (see scroll-progress.ts). The wrapper span is
+    // the (untransformed) measurement target; the image is what scales.
+    return subscribeScrollProgress(wrap, container?.current ?? null, apply);
+  }, [container]);
 
   return (
     <span

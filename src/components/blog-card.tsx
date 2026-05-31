@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useScroll } from "motion/react";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { prefersReducedMotion } from "@/lib/prefers-reduced-motion";
 import { envelope } from "@/lib/scroll-envelope";
+import { subscribeScrollProgress } from "@/lib/scroll-progress";
 import { urlFor } from "@/sanity/image";
 import type { PostSummary } from "@/sanity/queries";
 
@@ -36,12 +36,6 @@ export function BlogCard({
   const cardRef = useRef<HTMLElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const [mobileFlat, setMobileFlat] = useState(false);
-
-  const { scrollYProgress } = useScroll({
-    target: cardRef,
-    container: scrollContainerRef as RefObject<HTMLElement> | undefined,
-    offset: ["start end", "end start"],
-  });
 
   // On ≤767 the 3-col row collapses to a single column → no outward
   // direction to slide/tilt to. Keep radius + image zoom only.
@@ -76,17 +70,16 @@ export function BlogCard({
         MIN_RADIUS + envelope(p, RADIUS_DEAD_HALF) * (MAX_RADIUS - MIN_RADIUS);
       card.style.transform = `translate3d(${x}px, 0, 0) rotate(${rot}deg)`;
       card.style.setProperty("--card-radius", `${radius}px`);
-      // Scroll-driven image zoom — linear 1.3 → 1.0 across the card's
+      // Scroll-driven image zoom — linear 1.2 → 1.0 across the card's
       // bottom-to-top traversal of the viewport.
-      if (img) img.style.transform = `scale(${1.3 - 0.3 * p})`;
+      if (img) img.style.transform = `scale(${1.2 - 0.2 * p})`;
     };
 
-    apply(scrollYProgress.get());
-    const unsub = scrollYProgress.on("change", apply);
-    return () => {
-      unsub();
-    };
-  }, [column, mobileFlat, scrollYProgress]);
+    // rAF-sampled progress (see scroll-progress.ts). On /blog the container
+    // is omitted → null → falls back to window scroll. Keeps the reveal
+    // synced with Safari's threaded scrolling.
+    return subscribeScrollProgress(card, scrollContainerRef?.current ?? null, apply);
+  }, [column, mobileFlat, scrollContainerRef]);
 
   const coverUrl = post.cover
     ? urlFor(post.cover).width(880).fit("max").auto("format").url()
