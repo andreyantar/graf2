@@ -470,7 +470,7 @@ export default function Home({ latestPosts, cases }: HomeProps) {
         <div
           ref={scrollRef}
           data-scroll-container
-          className="relative z-10 h-svh overflow-y-auto overscroll-none"
+          className="relative z-10 h-svh overflow-y-auto overflow-x-hidden overscroll-none"
           // Disable Chrome's scroll-anchoring. Motion-driven children
           // (ProcessStack cards translating/scaling, hero gallery ring
           // rotating) shift their visual position every frame; without

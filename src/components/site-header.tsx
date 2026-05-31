@@ -166,7 +166,7 @@ export function SiteHeader({ children }: { children: ReactNode }) {
 
         <div
           ref={scrollRef}
-          className="relative z-10 h-svh overflow-y-auto overscroll-none"
+          className="relative z-10 h-svh overflow-y-auto overflow-x-hidden overscroll-none"
           style={{ overflowAnchor: "none" }}
           inert={menuOpen}
         >
